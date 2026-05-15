@@ -44,9 +44,9 @@ export const logout = asyncHandler(async (_req: Request, res: Response) => {
 });
 
 export const createStaff = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password, joinedOn } = req.body;
+  const { name, email, password, joinedOn, phone } = req.body;
 
-  if (!name || !email || !password || !joinedOn) {
+  if (!name || !email || !password || !joinedOn || !phone) {
     res.status(400).json({ message: "All fields required" });
     return;
   }
@@ -56,6 +56,7 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
     email,
     password,
     joinedOn,
+    phone,
   });
 
   res.status(201).json(result);
@@ -86,7 +87,12 @@ export const seedAdmin = asyncHandler(async (_req: Request, res: Response) => {
 export const updateStaff = asyncHandler(async (req: Request, res: Response) => {
   console.log("update staff service is not triggering");
   const staffId = req.params.staffId as string;
-  const { name, email, password } = req.body;
-  const result = await updateStaffService(staffId, { name, email, password });
+  const { name, email, password, phone } = req.body;
+  const result = await updateStaffService(staffId, {
+    name,
+    email,
+    password,
+    phone,
+  });
   res.status(200).json({ message: "Staff updated", user: result });
 });

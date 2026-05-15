@@ -1,5 +1,6 @@
 import AttendanceCard from "@/components/staff/AttendanceCard";
 import StaffNavbar from "@/components/staff/StaffNavbar";
+import AttendanceHeatmap from "@/components/staff/AttendanceHeatmap";
 
 export default function Page() {
   return (
@@ -18,6 +19,7 @@ export default function Page() {
         </div>
 
         <AttendanceCard />
+        <AttendanceHeatmap />
       </main>
     </div>
   );

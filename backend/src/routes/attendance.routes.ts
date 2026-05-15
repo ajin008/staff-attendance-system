@@ -4,6 +4,7 @@ import { adminOnly } from "../middleware/protect";
 import {
   checkIn,
   checkOut,
+  getAttendanceHeatmap,
   getAttendanceHistory,
   getTodayAllAttendance,
   getTodayAttendance,
@@ -22,6 +23,7 @@ router.get("/today", protect, getTodayAttendance);
 
 router.get("/today/summary", protect, adminOnly, getTodaySummary);
 router.get("/today/all", protect, adminOnly, getTodayAllAttendance);
+router.get("/heatmap", protect, getAttendanceHeatmap);
 
 router.get("/history", protect, getAttendanceHistory);
 

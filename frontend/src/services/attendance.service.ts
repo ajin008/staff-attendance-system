@@ -45,3 +45,15 @@ export const getTodayAllAttendance = async (
   );
   return res.data;
 };
+
+export const getAttendanceHeatmap = async (
+  month: number,
+  year: number
+): Promise<Record<string, string>> => {
+  console.log("get attendanceHeatmap fetching:");
+  const res = await api.get(
+    `${ENDPOINT.GET_HEATMAP}?month=${month}&year=${year}`
+  );
+  console.log("get attendanceHeatmap fetching", res.data);
+  return res.data;
+};

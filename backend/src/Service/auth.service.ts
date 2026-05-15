@@ -24,6 +24,7 @@ interface CreateStaffInput {
   email: string;
   password: string;
   joinedOn: string;
+  phone: string;
 }
 
 export const loginService = async (
@@ -71,8 +72,8 @@ export const createStaffService = async (
     password: input.password,
     role: "staff",
     joinedOn: input.joinedOn,
+    phone: input.phone,
   });
-
   return { message: "Staff created successfully", staffId };
 };
 
@@ -119,9 +120,13 @@ export const seedAdminService = async (): Promise<{ message: string }> => {
 
 export const updateStaffService = async (
   staffId: string,
-  input: Partial<{ name: string; email: string; password: string }>
+  input: Partial<{
+    name: string;
+    email: string;
+    password: string;
+    phone: string;
+  }>
 ) => {
-  // if password provided — hash it manually since we're not using save()
   if (input.password) {
     const bcrypt = await import("bcryptjs");
     input.password = await bcrypt.hash(input.password, 12);

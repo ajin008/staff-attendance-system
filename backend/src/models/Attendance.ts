@@ -7,6 +7,7 @@ export interface IAttendance extends Document {
   checkOut: Date | null;
   workMinutes: number;
   status: "present" | "absent" | "leave" | "incomplete";
+  mood: "tired" | "okay" | "good" | "happy" | "excited" | null;
 }
 
 const attendanceSchema = new mongoose.Schema<IAttendance>(
@@ -20,6 +21,11 @@ const attendanceSchema = new mongoose.Schema<IAttendance>(
       type: String,
       enum: ["present", "incomplete", "absent"],
       default: "absent",
+    },
+    mood: {
+      type: String,
+      enum: ["tired", "okay", "good", "happy", "excited"],
+      default: null,
     },
   },
   {

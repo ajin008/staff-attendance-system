@@ -5,6 +5,7 @@ import { asyncHandler } from "../middleware/asyncHandler";
 import {
   checkInService,
   checkOutService,
+  getAttendanceHeatmapService,
   getAttendanceHistoryService,
   getTodayAllAttendanceService,
   getTodayAttendanceService,
@@ -26,8 +27,13 @@ export const checkIn = asyncHandler(async (req: Request, res: Response) => {
 
 export const checkOut = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.userId;
-
-  const attendance = await checkOutService(userId);
+  const { mood } = req.body;
+  if (!mood) {
+    res.status(400).json({ message: "Please select your mood" });
+    return;
+  }
+  console.log("checkout:mood", mood);
+  const attendance = await checkOutService(userId, mood);
 
   res.status(200).json({
     message: "Checked out successfully",
@@ -76,5 +82,25 @@ export const getTodayAllAttendance = asyncHandler(
     const records = await getTodayAllAttendanceService(date);
     console.log("today records:", records);
     res.status(200).json(records);
+  }
+);
+
+export const getAttendanceHeatmap = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user!.userId;
+    const { month, year } = req.query;
+    console.log("heatmap controller triggering", userId, req.query);
+
+    if (!month || !year) {
+      res.status(400).json({ message: "month and year required" });
+      return;
+    }
+
+    const data = await getAttendanceHeatmapService(
+      userId,
+      parseInt(month as string),
+      parseInt(year as string)
+    );
+    res.status(200).json(data);
   }
 );

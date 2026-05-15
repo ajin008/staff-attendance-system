@@ -12,4 +12,5 @@ export const ENDPOINT = {
   GET_TODAY_SUMMARY: "/attendance/today/summary",
   GET_TODAY_ALL_ATTENDANCE: "/attendance/today/all",
   UPDATE_STAFF: (staffId: string) => `/auth/staff/${staffId}`,
+  GET_HEATMAP: "/attendance/heatmap",
 };

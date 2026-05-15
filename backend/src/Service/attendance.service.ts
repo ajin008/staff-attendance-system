@@ -1,5 +1,6 @@
 import AppError from "../utils/AppError";
 import { Types } from "mongoose";
+import { IAttendance } from "../models/Attendance.js";
 
 import {
   createAttendance,
@@ -7,6 +8,7 @@ import {
   findAttendanceByUserAndDate,
   findTodayAllAttendance,
   getAttendanceHistoryRepo,
+  getHeatmapData,
   updateAttendance,
 } from "../Repository/attendance.repository";
 
@@ -36,7 +38,7 @@ export const checkInService = async (userId: string) => {
   });
 };
 
-export const checkOutService = async (userId: string) => {
+export const checkOutService = async (userId: string, mood: string) => {
   const today = todayStart();
 
   const attendance = await findAttendanceByUserAndDate(userId, today);
@@ -58,11 +60,13 @@ export const checkOutService = async (userId: string) => {
   const workMinutes = Math.floor(
     (checkOutTime.getTime() - attendance.checkIn.getTime()) / 1000 / 60
   );
+  console.log("checkout mood:", mood);
 
   return updateAttendance(attendance._id.toString(), {
     checkOut: checkOutTime,
     workMinutes,
     status: "present",
+    mood: mood as IAttendance["mood"],
   });
 };
 
@@ -88,4 +92,14 @@ export const getTodaySummaryService = async (date: string) => {
 export const getTodayAllAttendanceService = async (date: string) => {
   console.log("date received in service", date);
   return findAttendanceByDate(date);
+};
+
+export const getAttendanceHeatmapService = async (
+  userId: string,
+  month: number,
+  year: number
+) => {
+  const start = new Date(year, month - 1, 1, 0, 0, 0, 0);
+  const end = new Date(year, month, 0, 23, 59, 59, 999);
+  return getHeatmapData(userId, start, end);
 };

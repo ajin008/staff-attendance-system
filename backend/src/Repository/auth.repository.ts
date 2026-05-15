@@ -22,6 +22,7 @@ export const createUser = async (data: {
   password: string;
   role: "admin" | "staff";
   joinedOn: string;
+  phone?: string;
 }): Promise<IUser> => {
   return User.create(data);
 };
@@ -69,7 +70,12 @@ export const findAdminExists = async (): Promise<boolean> => {
 
 export const updateStaffById = async (
   staffId: string,
-  data: Partial<{ name: string; email: string; password: string }>
+  data: Partial<{
+    name: string;
+    email: string;
+    password: string;
+    phone: string;
+  }>
 ): Promise<IUser | null> => {
   return User.findOneAndUpdate(
     { staffId },
