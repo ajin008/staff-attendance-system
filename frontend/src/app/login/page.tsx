@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 import { loginUser } from "@/src/services/auth.service";
+import { getErrorMessage } from "@/src/utils/axios";
 
 interface LoginForm {
   identifier: string;
@@ -36,8 +37,8 @@ export default function LoginPage() {
       login(res.user);
       toast.success(`Welcome back, ${res.user.name}!`);
       router.replace(res.user.role === "admin" ? "/admin" : "/staff");
-    } catch {
-      toast.error("Invalid credentials.");
+    } catch (err) {
+      toast.error(getErrorMessage(err));
     }
   };
 

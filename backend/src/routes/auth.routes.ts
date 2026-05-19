@@ -9,10 +9,11 @@ import {
   updateStaff,
 } from "../controllers/auth.controller";
 import { adminOnly, protect } from "../middleware/protect";
+import { loginRateLimit } from "../utils/rateLimiting";
 
 const router = Router();
 
-router.post("/login", login);
+router.post("/login", loginRateLimit, login);
 router.post("/logout", logout);
 router.post("/seed-admin", seedAdmin);
 
