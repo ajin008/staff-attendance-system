@@ -26,7 +26,7 @@ export const createStaff = async (
   return res.data;
 };
 
-export const getAllStaff = async (page = 1, limit = 20, search = "") => {
+export const getAllStaff = async (page = 1, limit = 10, search = "") => {
   const res = await api.get(
     `${ENDPOINT.GET_ALL_STAFF}?page=${page}&limit=${limit}&search=${search}`
   );

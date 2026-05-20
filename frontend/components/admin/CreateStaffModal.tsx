@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { createStaff } from "@/src/services/auth.service";
 import { Loader2, X } from "lucide-react";
+import { getErrorMessage } from "@/src/utils/axios";
 
 interface CreateStaffForm {
   name: string;
@@ -46,8 +47,8 @@ export default function CreateStaffModal({ open, onClose }: Props) {
         duration: 6000,
       });
       onClose();
-    } catch {
-      toast.error("Failed to create staff. Please try again.");
+    } catch (err) {
+      toast.error(getErrorMessage(err));
     }
   };
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useCallback } from "react";
 import { useDebounce } from "use-debounce";
 import { getAllStaff } from "../services/auth.service";
@@ -25,7 +26,7 @@ export const useStaff = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await getAllStaff(page, 20, debouncedSearch);
+      const res = await getAllStaff(page, 9, debouncedSearch);
       setData(res);
     } catch {
       setError("Failed to load staff");

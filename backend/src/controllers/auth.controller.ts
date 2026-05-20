@@ -64,7 +64,7 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
 
 export const getAllStaff = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 20;
+  const limit = parseInt(req.query.limit as string) || 10;
   const search = (req.query.search as string) || "";
 
   const result = await getAllStaffService(page, limit, search);

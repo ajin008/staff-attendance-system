@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { User } from "@/src/types";
 import EditStaffModal from "./EditStaffModal";
+import React from "react";
 
 export default function StaffTable() {
   const [editingStaff, setEditingStaff] = useState<User | null>(null);
@@ -243,29 +244,25 @@ export default function StaffTable() {
                         Math.abs(p - page) <= 1
                     )
                     .map((p, idx, arr) => (
-                      <>
+                      <React.Fragment key={p}>
                         {idx > 0 && arr[idx - 1] !== p - 1 && (
-                          <span
-                            key={`dots-${p}`}
-                            className="text-xs text-slate-300 px-1"
-                          >
+                          <span className="text-xs text-slate-300 px-1">
                             ...
                           </span>
                         )}
                         <button
-                          key={p}
                           onClick={() => setPage(p)}
                           className={`w-7 h-7 rounded-lg text-xs font-medium
-                                      transition-colors
-                                      ${
-                                        page === p
-                                          ? "bg-slate-900 text-white"
-                                          : "text-slate-500 hover:bg-slate-100"
-                                      }`}
+                    transition-colors
+                    ${
+                      page === p
+                        ? "bg-slate-900 text-white"
+                        : "text-slate-500 hover:bg-slate-100"
+                    }`}
                         >
                           {p}
                         </button>
-                      </>
+                      </React.Fragment>
                     ))}
 
                   <button

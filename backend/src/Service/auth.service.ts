@@ -79,7 +79,7 @@ export const createStaffService = async (
 
 export const getAllStaffService = async (
   page: number = 1,
-  limit: number = 20,
+  limit: number = 10,
   search: string = ""
 ) => {
   const { staff, total } = await findAllStaff(page, limit, search);
@@ -94,6 +94,7 @@ export const getAllStaffService = async (
     hasPrevPage: page > 1,
   };
 };
+
 export const deleteStaffService = async (staffId: string): Promise<void> => {
   const user = await findUserByStaffId(staffId);
   if (!user) throw new AppError("Staff not found", 404);
