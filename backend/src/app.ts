@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes";
 import attendanceRouter from "./routes/attendance.routes";
+import adminRouter from "./routes/admin.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import { generalRateLimit } from "./utils/rateLimiting";
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 
 app.use(generalRateLimit);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/attendance", attendanceRouter);
 
 app.use(errorHandler);

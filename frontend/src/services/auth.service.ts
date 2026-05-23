@@ -10,6 +10,7 @@ import { ENDPOINT } from "../utils/endPoint";
 export const loginUser = async (
   payload: LoginPayload
 ): Promise<AuthResponse> => {
+  console.log("login payload", payload);
   const res = await api.post<AuthResponse>(ENDPOINT.LOGIN, payload);
   console.log("res from login:", res);
   return res.data;

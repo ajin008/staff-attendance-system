@@ -1,11 +1,16 @@
 export interface User {
-  _id: string;
-  staffId: string;
+  id: number;
+  organizationId: number;
+
+  staffId?: string;
+
   name: string;
   email: string;
-  role: "admin" | "staff";
-  joinedOn: string;
   phone?: string;
+
+  role: "admin" | "staff";
+
+  joinedOn: string;
 }
 
 export interface PopulatedUser {
@@ -54,8 +59,71 @@ export interface TodaySummary {
   absent: number;
 }
 
+export interface RegisterPayload {
+  companyName: string;
+  industry: string;
+  role: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
 export interface ApiError {
   message: string;
 }
 
 export type Mood = "tired" | "okay" | "good" | "happy" | "excited";
+
+export interface RegisterCompanyPayload {
+  companyName: string;
+  industry: string;
+  adminName: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+  user: User;
+}
+
+export interface CreateDepartmentPayload {
+  name: string;
+
+  shiftStart: string;
+
+  shiftEnd: string;
+
+  overtimeEnabled: boolean;
+
+  overtimeGraceMins: number;
+
+  overtimeHourlyRate?: number;
+
+  defaultSalary: number;
+}
+
+export interface Department {
+  id: number;
+
+  organizationId: number;
+
+  name: string;
+
+  shiftStart: string;
+
+  shiftEnd: string;
+
+  overtimeEnabled: boolean;
+
+  overtimeGraceMins: number;
+
+  overtimeHourlyRate?: number | null;
+
+  defaultSalary: number;
+
+  createdAt: string;
+
+  updatedAt: string;
+}

@@ -1,23 +1,22 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { generateStaffId } from "../utils/staffId";
-import { IUser } from "../models/User";
+
 import {
-  createUser,
   deleteUserByStaffId,
   findAdminExists,
   findAllStaff,
-  findUserByEmail,
-  findUserByStaffId,
   updateStaffById,
 } from "../Repository/auth.repository";
 import AppError from "../utils/AppError";
 import generateToken from "../utils/generateToken";
-
-interface LoginResult {
-  user: Omit<IUser, "password">;
-  token: string;
-}
+import { LoginResult, registerPayload } from "../utils/types";
+import { findUserByEmail } from "../Repository/user.repository";
+import prisma from "../utils/prisma";
+import { createOrganization } from "../Repository/organization.repository";
+import { createUser } from "../Repository/user.repository";
+import { findUserByStaffId } from "../Repository/user.repository";
+import { User } from "@prisma/client";
 
 interface CreateStaffInput {
   name: string;
@@ -31,51 +30,64 @@ export const loginService = async (
   identifier: string,
   password: string
 ): Promise<LoginResult> => {
+  console.log("login service triggering");
   const isEmail = identifier.includes("@");
   const user = isEmail
     ? await findUserByEmail(identifier)
     : await findUserByStaffId(identifier);
 
+  console.log("user find out in login service:", user);
+
   if (!user) throw new AppError("invalid credentials", 401);
   const isMatch = await bcrypt.compare(password, user.password);
-  // console.log("Password match:", isMatch);
+  console.log("Password match:", isMatch);
 
   if (!isMatch) throw new AppError("invalid credentials", 401);
 
-  const token = generateToken(user._id.toString(), user.role);
+  const token = generateToken(user.id, user.organizationId, user.role);
 
   return {
     token,
+
     user: {
-      _id: user._id,
+      id: user.id,
+
+      organizationId: user.organizationId,
+
       staffId: user.staffId,
+
       name: user.name,
+
       email: user.email,
+
+      phone: user.phone,
+
       role: user.role,
+
       joinedOn: user.joinedOn,
-    } as Omit<IUser, "password">,
+    },
   };
 };
 
-export const createStaffService = async (
-  input: CreateStaffInput
-): Promise<{ message: string; staffId: string }> => {
-  const exists = await findUserByEmail(input.email);
-  if (exists) throw new AppError("Email already exists", 400);
+// export const createStaffService = async (
+//   input: CreateStaffInput
+// ): Promise<{ message: string; staffId: string }> => {
+//   const exists = await findUserByEmail(input.email);
+//   if (exists) throw new AppError("Email already exists", 400);
 
-  const staffId = await generateStaffId();
+//   const staffId = await generateStaffId();
 
-  await createUser({
-    staffId,
-    name: input.name,
-    email: input.email,
-    password: input.password,
-    role: "staff",
-    joinedOn: input.joinedOn,
-    phone: input.phone,
-  });
-  return { message: "Staff created successfully", staffId };
-};
+//   await createUser({
+//     staffId,
+//     name: input.name,
+//     email: input.email,
+//     password: input.password,
+//     role: "staff",
+//     joinedOn: input.joinedOn,
+//     phone: input.phone,
+//   });
+//   return { message: "Staff created successfully", staffId };
+// };
 
 export const getAllStaffService = async (
   page: number = 1,
@@ -101,23 +113,23 @@ export const deleteStaffService = async (staffId: string): Promise<void> => {
   await deleteUserByStaffId(staffId);
 };
 
-export const seedAdminService = async (): Promise<{ message: string }> => {
-  const exists = await findAdminExists();
-  if (exists) throw new AppError("Admin already exists", 400);
+// export const seedAdminService = async (): Promise<{ message: string }> => {
+//   const exists = await findAdminExists();
+//   if (exists) throw new AppError("Admin already exists", 400);
 
-  await createUser({
-    staffId: "ADMIN001",
-    name: "Admin",
-    email: "admin@company.com",
-    password: "admin123",
-    role: "admin",
-    joinedOn: new Date().toISOString().split("T")[0],
-  });
+//   await createUser({
+//     staffId: "ADMIN001",
+//     name: "Admin",
+//     email: "admin@company.com",
+//     password: "admin123",
+//     role: "admin",
+//     joinedOn: new Date().toISOString().split("T")[0],
+//   });
 
-  return {
-    message: "Admin created — email: admin@company.com password: admin123",
-  };
-};
+//   return {
+//     message: "Admin created — email: admin@company.com password: admin123",
+//   };
+// };
 
 export const updateStaffService = async (
   staffId: string,
@@ -135,4 +147,75 @@ export const updateStaffService = async (
   const user = await updateStaffById(staffId, input);
   if (!user) throw new AppError("Staff not found", 404);
   return user;
+};
+
+// postgres
+export const registerService = async (payload: registerPayload) => {
+  const { companyName, industry, adminName, email, phone, password } = payload;
+
+  const existingUser = await findUserByEmail(email);
+
+  if (existingUser) {
+    throw new AppError("Email already exists", 409);
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  const result = await prisma.$transaction(async (tx) => {
+    // create organization
+    const organization = await createOrganization(tx, {
+      companyName,
+      industry,
+    });
+
+    // create admin user
+    const user = await createUser(tx, {
+      organizationId: organization.id,
+
+      name: adminName,
+
+      email,
+
+      phone,
+
+      password: hashedPassword,
+
+      role: "admin",
+
+      joinedOn: new Date(),
+    });
+
+    return {
+      organization,
+      user,
+    };
+  });
+
+  const token = generateToken(
+    result.user.id,
+    result.user.organizationId,
+    result.user.role
+  );
+
+  return {
+    token,
+
+    user: {
+      id: result.user.id,
+
+      organizationId: result.user.organizationId,
+
+      staffId: result.user.staffId,
+
+      name: result.user.name,
+
+      email: result.user.email,
+
+      phone: result.user.phone,
+
+      role: result.user.role,
+
+      joinedOn: result.user.joinedOn,
+    },
+  };
 };

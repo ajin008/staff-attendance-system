@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  admin
+  staff
+}
+
+model Organization {
+  id          Int      @id @default(autoincrement())
+  companyName String
+  industry    String
+
+  users       User[]
+  departments Department[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  staffId        String?  @unique
+
+  name           String
+  email          String   @unique
+  phone          String?
+
+  password       String
+
+  role           Role     @default(staff)
+
+  joinedOn       DateTime
+
+  departmentId Int?
+
+  department   Department? @relation(fields: [departmentId], references: [id])  
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+
+model Department {
+  id                  Int @id @default(autoincrement())
+
+  organizationId      Int
+
+  name                String
+
+  shiftStart          String
+  shiftEnd            String
+
+  overtimeEnabled     Boolean @default(false)
+
+  overtimeGraceMins   Int @default(15)
+
+  overtimeHourlyRate  Float?
+
+  defaultSalary       Float
+
+  organization        Organization @relation(fields: [organizationId], references: [id])
+
+  users               User[]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}

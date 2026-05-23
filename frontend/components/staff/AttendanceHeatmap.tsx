@@ -54,6 +54,7 @@ export default function AttendanceHeatmap() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getAttendanceHeatmap(month, year)
       .then(setData)

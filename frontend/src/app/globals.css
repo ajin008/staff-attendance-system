@@ -1,1 +1,31 @@
+/* globals.css */
 @import "tailwindcss";
+
+/* Define the custom font faces */
+@font-face {
+  font-family: "Satoshi";
+  src: url("/satoshi/Satoshi-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/satoshi/Satoshi-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Apply globally to the body */
+body {
+  font-family: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* Optional: Apply to all elements by default */
+* {
+  font-family: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}

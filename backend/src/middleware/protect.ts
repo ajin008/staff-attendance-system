@@ -1,23 +1,31 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
 import ENV from "../config/rootVariables";
+import { findUserById } from "../Repository/user.repository";
 
 declare global {
   namespace Express {
     interface Request {
       user?: {
-        userId: string;
+        userId: number;
+
+        organizationId: number;
+
         role: "admin" | "staff";
+
         name: string;
-        staffId: string;
+
+        staffId: string | null;
       };
     }
   }
 }
 
 interface jwtPayload {
-  userId: string;
+  userId: number;
+
+  organizationId: number;
+
   role: "admin" | "staff";
 }
 
@@ -40,7 +48,7 @@ export const protect = async (
     // console.log("JWT_SECRET length:", ENV.JWT_SECRET?.length);
 
     const decoded = jwt.verify(token, ENV.JWT_SECRET!) as jwtPayload;
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await findUserById(decoded.userId);
 
     // console.log("Decoded token:", decoded);
     // console.log("User from DB:", user);
@@ -51,9 +59,14 @@ export const protect = async (
     }
 
     req.user = {
-      userId: user._id.toString(),
+      userId: user.id,
+
+      organizationId: user.organizationId,
+
       role: user.role,
+
       name: user.name,
+
       staffId: user.staffId,
     };
     // console.log("Authenticated user:", req.user);

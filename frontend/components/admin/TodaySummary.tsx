@@ -76,7 +76,7 @@ export default function TodaySummaryCards({ selectedDate }: Props) {
       {/* Section label */}
       <div className="mb-4">
         <p className="text-xs text-slate-400 tracking-widest uppercase">
-          03 — Today's Summary ·{" "}
+          03 — Today&apos;s Summary ·{" "}
           {new Date().toLocaleDateString("en-IN", {
             day: "numeric",
             month: "short",

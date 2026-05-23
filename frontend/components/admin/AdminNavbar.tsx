@@ -1,128 +1,174 @@
+// components/admin/AdminNavbar.tsx
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { logoutUser } from "@/src/services/auth.service";
-import { useRouter, usePathname } from "next/navigation";
-import CreateStaffModal from "./CreateStaffModal";
+import { getErrorMessage } from "@/src/utils/axios";
+import { useDepartmentModal } from "@/src/hooks/useDepartmentModal";
+import { useAuth } from "@/src/context/AuthContext";
+import DepartmentModal from "./DepartmentModal";
 
 export default function AdminNavbar() {
-  const { user, logout } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
-  const [modalOpen, setModalOpen] = useState(false);
+  const { logout } = useAuth(); // Get logout from context
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const {
+    isOpen,
+    isSubmitting,
+    openModal,
+    closeModal,
+    handleCreateDepartment,
+  } = useDepartmentModal();
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
+      // Call API logout
       await logoutUser();
+
+      // Clear auth context and localStorage
       logout();
-      router.replace("/login");
-    } catch {
-      logout();
-      router.replace("/login");
+
+      // Show success message
+      toast.success("Logged out successfully");
+
+      // Use window.location for hard navigation to avoid redirect loops
+      window.location.href = "/login";
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      setIsLoggingOut(false);
     }
   };
 
-  const tabs = [
-    { label: "Overview", href: "/admin" },
-    { label: "Employees", href: "/admin/employees" },
-  ];
-
   return (
     <>
-      <nav className="border-b border-slate-100 bg-white sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-8">
-          {/* Top row */}
-          <div className="h-14 flex items-center justify-between">
-            {/* Left */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-900">
-                Admin Dashboard
-              </span>
-              <span className="text-slate-200">·</span>
-              <span className="text-xs text-slate-400">
-                {new Date().toLocaleDateString("en-IN", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
+      <div className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-sm border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 max-w-400 mx-auto">
+          {/* Left side - Company name */}
+          <div className="group flex items-center gap-2">
+            <div className="relative">
+              <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-emerald-400/60 group-hover:bg-emerald-500 transition-colors duration-300"></div>
             </div>
+            <span className="text-lg font-medium tracking-tight text-slate-800 group-hover:text-slate-900 transition-colors duration-200">
+              Pulse
+            </span>
+            <span className="text-xs font-mono text-slate-400 pl-1 hidden sm:inline">
+              / admin
+            </span>
+          </div>
 
-            {/* Right */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setModalOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5
-                           bg-slate-900 hover:bg-slate-700 text-white
-                           text-xs font-semibold rounded-lg
-                           transition-colors duration-150"
-              >
+          {/* Right side - Action buttons */}
+          <div className="flex items-center gap-3">
+            {/* Add Department Button */}
+            <button
+              onClick={openModal}
+              className="relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-[0.98] active:scale-[0.96] group"
+            >
+              <span className="absolute inset-0 rounded-full transition-all duration-300 bg-slate-50 group-hover:bg-slate-100 scale-105" />
+              <span className="relative flex items-center gap-2 text-slate-700">
                 <svg
-                  className="h-3.5 w-3.5"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
-                  strokeWidth={2.5}
+                  strokeWidth={1.5}
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M12 4v16m8-8H4"
+                    d="M12 4.5v15m7.5-7.5h-15"
                   />
                 </svg>
-                New Staff
-              </button>
+                <span>department</span>
+              </span>
+            </button>
 
-              <div className="flex items-center gap-2 pl-3 border-l border-slate-100">
-                <div
-                  className="w-7 h-7 bg-blue-50 rounded-full flex items-center
-                                justify-center"
-                >
-                  <span className="text-blue-600 text-xs font-bold">
-                    {user?.name?.[0]?.toUpperCase()}
-                  </span>
-                </div>
-                <span className="text-xs font-medium text-slate-700">
-                  {user?.name}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="text-xs text-slate-400 hover:text-red-500
-                             transition-colors ml-1"
-                >
-                  Sign out
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabs row */}
-          <div className="flex items-center gap-6">
-            {tabs.map((tab) => {
-              const isActive = pathname === tab.href;
-              return (
-                <button
-                  key={tab.href}
-                  onClick={() => router.push(tab.href)}
-                  className={`pb-3 text-sm font-medium border-b-2 transition-colors
-                              duration-150
-                              ${
-                                isActive
-                                  ? "border-slate-900 text-slate-900"
-                                  : "border-transparent text-slate-400 hover:text-slate-600"
-                              }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              className={`
+                relative px-5 py-2 rounded-full text-sm font-medium
+                transition-all duration-300 ease-out
+                ${
+                  isLoggingOut
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-[0.98] active:scale-[0.96]"
+                }
+              `}
+            >
+              <span
+                className={`
+                  absolute inset-0 rounded-full transition-all duration-500
+                  ${
+                    isHovering && !isLoggingOut
+                      ? "bg-red-50 scale-110"
+                      : "bg-transparent"
+                  }
+                `}
+              />
+              <span
+                className={`
+                  absolute inset-0 rounded-full border transition-all duration-300
+                  ${
+                    isHovering && !isLoggingOut
+                      ? "border-red-200 opacity-0"
+                      : "border-slate-200 opacity-100"
+                  }
+                `}
+              />
+              <span className="relative flex items-center gap-2 text-slate-600">
+                {isLoggingOut ? (
+                  <>
+                    <svg
+                      className="h-3.5 w-3.5 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span>signing out</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-base leading-none">→</span>
+                    <span>exit</span>
+                  </>
+                )}
+              </span>
+            </button>
           </div>
         </div>
-      </nav>
 
-      <CreateStaffModal open={modalOpen} onClose={() => setModalOpen(false)} />
+        {/* Subtle organic line at bottom */}
+        <div className="h-px w-full bg-linear-to-r from-transparent via-slate-100 to-transparent"></div>
+      </div>
+
+      {/* Department Modal */}
+      <DepartmentModal
+        isOpen={isOpen}
+        onClose={closeModal}
+        onSubmit={handleCreateDepartment}
+        isSubmitting={isSubmitting}
+      />
     </>
   );
 }
