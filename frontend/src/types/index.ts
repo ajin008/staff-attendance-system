@@ -1,37 +1,21 @@
 export interface User {
+  createdAt: string;
   id: number;
   organizationId: number;
+  departmentId?: number;
+
+  department?: StaffDepartment;
 
   staffId?: string;
 
   name: string;
   email: string;
   phone?: string;
+  branch?: string;
 
   role: "admin" | "staff";
 
   joinedOn: string;
-}
-
-export interface PopulatedUser {
-  _id: string;
-  name: string;
-  staffId: string;
-  email: string;
-}
-
-export interface AttendanceRecord {
-  _id: string;
-  userId: string | PopulatedUser;
-  date: string;
-  checkIn: string | null;
-  checkOut: string | null;
-  workMinutes: number;
-  status: "present" | "incomplete" | "absent";
-  name?: string;
-  staffId?: string;
-  email?: string;
-  mood: Mood | null;
 }
 
 export interface LoginPayload {
@@ -50,13 +34,6 @@ export interface CreateStaffPayload {
   password: string;
   joinedOn: string;
   phone: string;
-}
-
-export interface TodaySummary {
-  total: number;
-  present: number;
-  incomplete: number;
-  absent: number;
 }
 
 export interface RegisterPayload {
@@ -90,40 +67,84 @@ export interface RegisterResponse {
 
 export interface CreateDepartmentPayload {
   name: string;
-
   shiftStart: string;
-
   shiftEnd: string;
-
   overtimeEnabled: boolean;
-
   overtimeGraceMins: number;
-
   overtimeHourlyRate?: number;
-
   defaultSalary: number;
 }
 
 export interface Department {
   id: number;
-
   organizationId: number;
-
   name: string;
-
   shiftStart: string;
-
   shiftEnd: string;
-
   overtimeEnabled: boolean;
-
   overtimeGraceMins: number;
-
-  overtimeHourlyRate?: number | null;
-
+  overtimeHourlyRate?: number;
   defaultSalary: number;
-
   createdAt: string;
-
   updatedAt: string;
+}
+
+export interface GetAllDepartmentsResponse {
+  departments: Department[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface StaffDepartment {
+  id: number;
+  name: string;
+}
+
+export interface CreateStaffInput {
+  organizationId: number;
+  departmentId: number;
+  name: string;
+  email: string;
+  phone?: string;
+  branch?: string;
+  password: string;
+  joinedOn: Date;
+  // OPTIONAL OVERRIDES
+  shiftStart?: string;
+  shiftEnd?: string;
+  salary?: number;
+  overtimeEnabled?: boolean;
+  overtimeHourlyRate?: number;
+  overtimeGraceMins?: number;
+}
+
+export interface Staff {
+  id: number;
+  staffId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  branch?: string;
+  department?: {
+    id: number;
+    name: string;
+  };
+  departmentId?: number;
+  role?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface GetAllStaffResponse {
+  staffs: Staff[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

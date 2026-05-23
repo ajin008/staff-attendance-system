@@ -11,6 +11,7 @@ import {
   updateStaffService,
 } from "../Service/auth.service";
 import { registerPayload } from "../utils/types";
+import { createStaffService } from "../Service/staff.service";
 
 const setCookies = (res: Response, token: string) => {
   res.cookie("token", token, {
@@ -45,24 +46,59 @@ export const logout = asyncHandler(async (_req: Request, res: Response) => {
   res.status(200).json({ message: "Logged out successfully" });
 });
 
-// export const createStaff = asyncHandler(async (req: Request, res: Response) => {
-//   const { name, email, password, joinedOn, phone } = req.body;
+export const createStaff = asyncHandler(async (req: Request, res: Response) => {
+  console.log("create staff controller triggering");
 
-//   if (!name || !email || !password || !joinedOn || !phone) {
-//     res.status(400).json({ message: "All fields required" });
-//     return;
-//   }
+  const organizationId = req.user!.organizationId;
 
-//   const result = await createStaffService({
-//     name,
-//     email,
-//     password,
-//     joinedOn,
-//     phone,
-//   });
+  const {
+    departmentId,
 
-//   res.status(201).json(result);
-// });
+    name,
+    email,
+    password,
+
+    joinedOn,
+
+    phone,
+    branch,
+
+    shiftStart,
+    shiftEnd,
+
+    salary,
+
+    overtimeEnabled,
+    overtimeHourlyRate,
+    overtimeGraceMins,
+  } = req.body;
+
+  const result = await createStaffService({
+    organizationId,
+
+    departmentId,
+
+    name,
+    email,
+    password,
+
+    joinedOn: new Date(joinedOn),
+
+    phone,
+    branch,
+
+    shiftStart,
+    shiftEnd,
+
+    salary,
+
+    overtimeEnabled,
+    overtimeHourlyRate,
+    overtimeGraceMins,
+  });
+
+  res.status(201).json(result);
+});
 
 export const getAllStaff = asyncHandler(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
@@ -80,11 +116,6 @@ export const deleteStaff = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(200).json({ message: "Staff deleted successfully" });
 });
-
-// export const seedAdmin = asyncHandler(async (_req: Request, res: Response) => {
-//   const result = await seedAdminService();
-//   res.status(201).json(result);
-// });
 
 export const updateStaff = asyncHandler(async (req: Request, res: Response) => {
   console.log("update staff service is not triggering");

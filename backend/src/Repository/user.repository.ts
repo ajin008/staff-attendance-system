@@ -3,18 +3,10 @@ import prisma from "../utils/prisma";
 
 export const createUser = async (
   tx: Prisma.TransactionClient,
-  data: {
-    organizationId: number;
-    name: string;
-    email: string;
-    phone: string;
-    password: string;
-    role: "admin" | "staff";
-    joinedOn: Date;
-  }
+  data: Prisma.UserCreateInput
 ) => {
   return tx.user.create({
-    data,
+    data: data,
   });
 };
 
@@ -38,6 +30,96 @@ export const findUserById = async (id: number) => {
   return prisma.user.findUnique({
     where: {
       id,
+    },
+  });
+};
+
+export const findAllStaffByOrganization = async (
+  organizationId: number,
+  skip: number,
+  limit: number,
+  search: string
+) => {
+  return prisma.user.findMany({
+    where: {
+      organizationId,
+
+      role: "staff",
+
+      ...(search && {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+
+          {
+            email: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+
+          {
+            staffId: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      }),
+    },
+
+    include: {
+      department: true,
+    },
+
+    skip,
+
+    take: limit,
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
+export const countStaffByOrganization = async (
+  organizationId: number,
+  search: string
+) => {
+  return prisma.user.count({
+    where: {
+      organizationId,
+
+      role: "staff",
+
+      ...(search && {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+
+          {
+            email: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+
+          {
+            staffId: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      }),
     },
   });
 };

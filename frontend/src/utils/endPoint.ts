@@ -1,17 +1,28 @@
 export const ENDPOINT = {
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
-  CREATE_STAFF: "/auth/create-staff",
-  GET_ALL_STAFF: "/auth/staff",
-  DELETE_STAFF: (staffId: string) => `/auth/staff/${staffId}`,
   CHECK_IN: "/attendance/check-in",
   CHECK_OUT: "/attendance/check-out",
   GET_TODAY_ATTENDANCE: "/attendance/today",
   GET_MY_ATTENDANCE: "/attendance/history",
   GET_TODAY_SUMMARY: "/attendance/today/summary",
   GET_TODAY_ALL_ATTENDANCE: "/attendance/today/all",
-  UPDATE_STAFF: (staffId: string) => `/auth/staff/${staffId}`,
   GET_HEATMAP: "/attendance/heatmap",
   REGISTER: "/auth/register",
   CREATE_DEPARTMENT: "/admin/createDepartment",
+  GET_ALL_DEPARTMENTS: "admin/fetchDepartment",
+  CREATE_STAFF: "/admin/create-staff",
+  DASHBOARD_STATS: "/admin/dashboard/stats",
+  //staff service
+  GET_ALL_STAFF: "/admin/getAllStaff",
+  GET_STAFF_BY_ID: (staffId: string) => `/admin/getStaff/${staffId}`,
+  DELETE_STAFF: (staffId: string) => `/admin/deleteStaff/${staffId}`,
+  UPDATE_STAFF: (staffId: string) => `/admin/updateStaff/${staffId}`,
+  // department
+  GET_DEPARTMENT_BY_ID: (departmentId: number) =>
+    `/admin/getDepartment/${departmentId}`,
+  DELETE_DEPARTMENT: (departmentId: number) =>
+    `/admin/deleteDepartment/${departmentId}`,
+  UPDATE_DEPARTMENT: (departmentId: number) =>
+    `/admin/updateDepartment/${departmentId}`,
 };

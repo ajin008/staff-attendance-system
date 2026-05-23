@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/src/context/AuthContext";
 import { loginUser } from "@/src/services/auth.service";
@@ -28,13 +27,11 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>();
 
-  // Handle redirect when user is set
   useEffect(() => {
     if (!isLoading && user && !isRedirecting) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsRedirecting(true);
       const targetPath = user.role === "admin" ? "/admin" : "/staff";
-      // Use window.location for hard navigation to ensure it works
       window.location.href = targetPath;
     }
   }, [user, isLoading, isRedirecting]);
@@ -43,19 +40,10 @@ export default function LoginPage() {
     if (isRedirecting) return;
 
     try {
-      console.log("HANDLE LOGIN CALLED");
       const res = await loginUser(data);
-
-      // First update the auth context
       login(res.user);
-
       toast.success(`Welcome back, ${res.user.name}!`);
-      console.log("login user role:", res.user.role);
-
-      // Set redirecting flag
       setIsRedirecting(true);
-
-      // Small delay to ensure localStorage is set
       setTimeout(() => {
         const targetPath = res.user.role === "admin" ? "/admin" : "/staff";
         window.location.href = targetPath;
@@ -66,7 +54,6 @@ export default function LoginPage() {
     }
   };
 
-  // Show loading state
   if (isLoading || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -78,7 +65,6 @@ export default function LoginPage() {
     );
   }
 
-  // If user is already logged in, don't show login form (prevent flash)
   if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -90,41 +76,139 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white flex">
-      {/* Left Side - Image with Pattern */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-linear-to-br from-slate-50 to-white items-center justify-center p-12">
-        <div
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundRepeat: "repeat",
-          }}
-        />
+      {/* Left Side - Organic Handmade Design */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-linear-to-br from-slate-50 via-white to-slate-50/50 items-center justify-center p-12 overflow-hidden">
+        {/* Organic blob shapes */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-50 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-slate-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
 
-        <div className="relative z-10 w-full max-w-lg">
-          <div className="absolute -top-20 -left-20 w-64 h-64 bg-slate-100 rounded-full blur-3xl opacity-50"></div>
-          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-slate-100 rounded-full blur-3xl opacity-50"></div>
-          <div className="relative">
-            <Image
-              src="/Team-cuate.png"
-              alt="Team collaboration illustration"
-              width={500}
-              height={500}
-              className="w-full h-auto object-contain"
-              priority
+        {/* Hand-drawn style circles */}
+        <svg
+          className="absolute top-12 right-12 w-24 h-24 opacity-20"
+          viewBox="0 0 100 100"
+        >
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeDasharray="4 6"
+            className="text-slate-400"
+          />
+        </svg>
+        <svg
+          className="absolute bottom-16 left-16 w-32 h-32 opacity-15"
+          viewBox="0 0 100 100"
+        >
+          <circle
+            cx="50"
+            cy="50"
+            r="45"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.5"
+            className="text-slate-500"
+          />
+        </svg>
+
+        {/* Content */}
+        <div className="relative z-10 max-w-md text-center">
+          {/* Hand-drawn squiggle */}
+          <svg
+            className="w-32 h-8 mx-auto mb-6 opacity-60"
+            viewBox="0 0 120 20"
+          >
+            <path
+              d="M5,10 Q20,5 35,10 T65,10 T95,10 T115,10"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              className="text-emerald-400"
             />
+          </svg>
+
+          {/* Company name with organic typography */}
+          <div className="space-y-2">
+            <h1 className="text-6xl font-light tracking-tighter text-slate-800">
+              Pulse
+            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[11px] font-mono text-slate-300 uppercase tracking-wider">
+                since 2026
+              </span>
+              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+              <span className="text-[11px] font-mono text-slate-300 uppercase tracking-wider">
+                v1.0
+              </span>
+            </div>
           </div>
-          <div className="mt-8 text-center">
-            <p className="text-sm text-slate-500 font-medium tracking-wide">
-              Attendance Management System
+
+          {/* Hand-drawn divider */}
+          <div className="my-6 flex items-center justify-center gap-2">
+            <div className="w-8 h-px bg-slate-200"></div>
+            <span className="text-[10px] font-mono text-slate-300">✦</span>
+            <div className="w-8 h-px bg-slate-200"></div>
+          </div>
+
+          {/* Quote / Tagline */}
+          <div className="space-y-3">
+            <p className="text-sm text-slate-500 leading-relaxed font-normal">
+              attendance & workforce management
             </p>
-            <p className="text-xs text-slate-400 mt-2">
-              Track, manage, and optimize your team&apos;s attendance
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-mono text-emerald-500">●</span>
+              <span className="text-[10px] font-mono text-slate-400">
+                operational
+              </span>
+            </div>
+          </div>
+
+          {/* Hand-drawn features list */}
+          <div className="mt-8 space-y-2 text-left">
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="text-emerald-400">→</span>
+              <span>real-time attendance tracking</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="text-emerald-400">→</span>
+              <span>automated payroll processing</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="text-emerald-400">→</span>
+              <span>department & staff management</span>
+            </div>
+          </div>
+
+          {/* Hand-drawn signature line */}
+          <div className="mt-8 pt-4 border-t border-slate-100">
+            <p className="text-[10px] font-mono text-slate-300 tracking-wider">
+              trusted by teams · everywhere
             </p>
           </div>
         </div>
+
+        {/* Decorative dots pattern */}
+        <div className="absolute bottom-8 left-8 flex gap-1 opacity-30">
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className="w-1 h-1 rounded-full bg-slate-400"
+              style={{ opacity: 1 - i * 0.15 }}
+            />
+          ))}
+        </div>
+        <div className="absolute top-8 right-8 flex gap-1 opacity-30">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="w-0.5 h-0.5 rounded-full bg-slate-400" />
+          ))}
+        </div>
       </div>
 
-      {/* Right Side - Login Form */}
+      {/* Right Side - Login Form (unchanged) */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 text-center">

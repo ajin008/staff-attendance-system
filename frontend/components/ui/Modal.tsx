@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // components/ui/Modal.tsx
 "use client";
 
@@ -19,12 +20,14 @@ export default function Modal({
   children,
   size = "md",
 }: ModalProps) {
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsAnimating(true);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -34,7 +37,9 @@ export default function Modal({
     };
   }, [isOpen]);
 
-  if (!isOpen && !isAnimating) return null;
+  // Don't render on server to avoid hydration mismatch
+  if (!mounted) return null;
+  if (!isOpen) return null;
 
   const sizeClasses = {
     sm: "max-w-md",
@@ -47,14 +52,7 @@ export default function Modal({
     <>
       {/* Backdrop */}
       <div
-        className={`
-          fixed inset-0 z-50 transition-all duration-300
-          ${
-            isOpen
-              ? "bg-black/40 backdrop-blur-sm"
-              : "bg-black/0 backdrop-blur-none"
-          }
-        `}
+        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-all duration-300"
         onClick={onClose}
       />
 
@@ -64,7 +62,6 @@ export default function Modal({
           fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2
           transition-all duration-300 ease-out
           ${sizeClasses[size]}
-          ${isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"}
         `}
       >
         <div className="mx-4 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
@@ -82,7 +79,9 @@ export default function Modal({
           </div>
 
           {/* Content */}
-          <div className="px-6 py-5">{children}</div>
+          <div className="px-6 py-5 max-h-[calc(100vh-200px)] overflow-y-auto">
+            {children}
+          </div>
         </div>
       </div>
     </>

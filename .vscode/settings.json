@@ -1,3 +1,16 @@
 {
-  "cSpell.words": ["CREATEDEPARTMENT", "Myattendence"]
+  "cSpell.words": ["CREATEDEPARTMENT", "Myattendence"],
+  "sqltools.connections": [
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "staff_management",
+      "username": "postgres",
+      "database": "staff_management",
+      "password": ""
+    }
+  ]
 }

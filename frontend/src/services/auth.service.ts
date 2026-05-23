@@ -20,13 +20,6 @@ export const logoutUser = async (): Promise<void> => {
   await api.post(ENDPOINT.LOGOUT);
 };
 
-export const createStaff = async (
-  payload: CreateStaffPayload
-): Promise<{ message: string; staffId: string }> => {
-  const res = await api.post(ENDPOINT.CREATE_STAFF, payload);
-  return res.data;
-};
-
 export const getAllStaff = async (page = 1, limit = 10, search = "") => {
   const res = await api.get(
     `${ENDPOINT.GET_ALL_STAFF}?page=${page}&limit=${limit}&search=${search}`

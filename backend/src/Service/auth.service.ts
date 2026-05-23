@@ -16,7 +16,7 @@ import prisma from "../utils/prisma";
 import { createOrganization } from "../Repository/organization.repository";
 import { createUser } from "../Repository/user.repository";
 import { findUserByStaffId } from "../Repository/user.repository";
-import { User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 interface CreateStaffInput {
   name: string;
@@ -150,6 +150,7 @@ export const updateStaffService = async (
 };
 
 // postgres
+
 export const registerService = async (payload: registerPayload) => {
   const { companyName, industry, adminName, email, phone, password } = payload;
 
@@ -161,35 +162,36 @@ export const registerService = async (payload: registerPayload) => {
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  const result = await prisma.$transaction(async (tx) => {
-    // create organization
-    const organization = await createOrganization(tx, {
-      companyName,
-      industry,
-    });
+  const result = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      const organization = await createOrganization(tx, {
+        companyName,
+        industry,
+      });
 
-    // create admin user
-    const user = await createUser(tx, {
-      organizationId: organization.id,
+      const userData: Prisma.UserCreateInput = {
+        organization: {
+          connect: {
+            id: organization.id,
+          },
+        },
 
-      name: adminName,
+        name: adminName,
+        email,
+        phone,
+        password: hashedPassword,
+        role: "admin",
+        joinedOn: new Date(),
+      };
 
-      email,
+      const user = await createUser(tx, userData);
 
-      phone,
-
-      password: hashedPassword,
-
-      role: "admin",
-
-      joinedOn: new Date(),
-    });
-
-    return {
-      organization,
-      user,
-    };
-  });
+      return {
+        organization,
+        user,
+      };
+    }
+  );
 
   const token = generateToken(
     result.user.id,
@@ -199,23 +201,7 @@ export const registerService = async (payload: registerPayload) => {
 
   return {
     token,
-
-    user: {
-      id: result.user.id,
-
-      organizationId: result.user.organizationId,
-
-      staffId: result.user.staffId,
-
-      name: result.user.name,
-
-      email: result.user.email,
-
-      phone: result.user.phone,
-
-      role: result.user.role,
-
-      joinedOn: result.user.joinedOn,
-    },
+    organization: result.organization,
+    user: result.user,
   };
 };

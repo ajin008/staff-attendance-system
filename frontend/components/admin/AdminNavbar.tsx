@@ -7,36 +7,41 @@ import { toast } from "sonner";
 import { logoutUser } from "@/src/services/auth.service";
 import { getErrorMessage } from "@/src/utils/axios";
 import { useDepartmentModal } from "@/src/hooks/useDepartmentModal";
+import { useStaffModal } from "@/src/hooks/useStaffModal";
 import { useAuth } from "@/src/context/AuthContext";
 import DepartmentModal from "./DepartmentModal";
+import StaffModal from "./StaffModal";
 
 export default function AdminNavbar() {
   const router = useRouter();
-  const { logout } = useAuth(); // Get logout from context
+  const { logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
 
   const {
-    isOpen,
-    isSubmitting,
-    openModal,
-    closeModal,
+    isOpen: isDeptOpen,
+    isSubmitting: isDeptSubmitting,
+    openModal: openDeptModal,
+    closeModal: closeDeptModal,
     handleCreateDepartment,
   } = useDepartmentModal();
+
+  const {
+    isOpen: isStaffOpen,
+    isSubmitting: isStaffSubmitting,
+    isLoadingDepartments,
+    departments,
+    openModal: openStaffModal,
+    closeModal: closeStaffModal,
+    handleCreateStaff,
+  } = useStaffModal();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      // Call API logout
       await logoutUser();
-
-      // Clear auth context and localStorage
       logout();
-
-      // Show success message
       toast.success("Logged out successfully");
-
-      // Use window.location for hard navigation to avoid redirect loops
       window.location.href = "/login";
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -47,7 +52,7 @@ export default function AdminNavbar() {
   return (
     <>
       <div className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-sm border-b border-slate-100">
-        <div className="flex items-center justify-between px-6 py-4 max-w-400 mx-auto">
+        <div className="flex items-center justify-between px-6 py-4 max-w-[1600px] mx-auto">
           {/* Left side - Company name */}
           <div className="group flex items-center gap-2">
             <div className="relative">
@@ -63,9 +68,33 @@ export default function AdminNavbar() {
 
           {/* Right side - Action buttons */}
           <div className="flex items-center gap-3">
+            {/* Add Staff Button */}
+            <button
+              onClick={openStaffModal}
+              className="relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-[0.98] active:scale-[0.96] group"
+            >
+              <span className="absolute inset-0 rounded-full transition-all duration-300 bg-slate-50 group-hover:bg-slate-100 scale-105" />
+              <span className="relative flex items-center gap-2 text-slate-700">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                  />
+                </svg>
+                <span>staff</span>
+              </span>
+            </button>
+
             {/* Add Department Button */}
             <button
-              onClick={openModal}
+              onClick={openDeptModal}
               className="relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-[0.98] active:scale-[0.96] group"
             >
               <span className="absolute inset-0 rounded-full transition-all duration-300 bg-slate-50 group-hover:bg-slate-100 scale-105" />
@@ -159,15 +188,25 @@ export default function AdminNavbar() {
         </div>
 
         {/* Subtle organic line at bottom */}
-        <div className="h-px w-full bg-linear-to-r from-transparent via-slate-100 to-transparent"></div>
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
       </div>
 
       {/* Department Modal */}
       <DepartmentModal
-        isOpen={isOpen}
-        onClose={closeModal}
+        isOpen={isDeptOpen}
+        onClose={closeDeptModal}
         onSubmit={handleCreateDepartment}
-        isSubmitting={isSubmitting}
+        isSubmitting={isDeptSubmitting}
+      />
+
+      {/* Staff Modal */}
+      <StaffModal
+        isOpen={isStaffOpen}
+        onClose={closeStaffModal}
+        onSubmit={handleCreateStaff}
+        isSubmitting={isStaffSubmitting}
+        departments={departments}
+        isLoadingDepartments={isLoadingDepartments}
       />
     </>
   );

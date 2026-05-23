@@ -16,7 +16,7 @@ import Attendance from "../models/Attendance.js";
 import User from "../models/User.js";
 import { todayStart, endOfDay } from "../utils/date.js";
 
-export const checkInService = async (userId: string) => {
+export const checkInService = async (userId: number) => {
   const today = todayStart();
 
   const existingAttendance = await findAttendanceByUserAndDate(userId, today);
@@ -38,7 +38,7 @@ export const checkInService = async (userId: string) => {
   });
 };
 
-export const checkOutService = async (userId: string, mood: string) => {
+export const checkOutService = async (userId: number, mood: string) => {
   const today = todayStart();
 
   const attendance = await findAttendanceByUserAndDate(userId, today);
@@ -70,13 +70,13 @@ export const checkOutService = async (userId: string, mood: string) => {
   });
 };
 
-export const getTodayAttendanceService = async (userId: string) => {
+export const getTodayAttendanceService = async (userId: number) => {
   const today = todayStart();
 
   return findAttendanceByUserAndDate(userId, today);
 };
 
-export const getAttendanceHistoryService = async (userId: string) => {
+export const getAttendanceHistoryService = async (userId: number) => {
   return getAttendanceHistoryRepo(userId);
 };
 
@@ -95,7 +95,7 @@ export const getTodayAllAttendanceService = async (date: string) => {
 };
 
 export const getAttendanceHeatmapService = async (
-  userId: string,
+  userId: number,
   month: number,
   year: number
 ) => {

@@ -1,290 +1,155 @@
+// components/admin/EditStaffModal.tsx
 "use client";
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { updateStaff } from "@/src/services/auth.service";
-import { User } from "@/src/types";
-import { Loader2, X } from "lucide-react";
+import Modal from "../ui/Modal";
+import type { Staff, Department } from "@/src/types";
 
-interface EditStaffForm {
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-}
-
-interface Props {
-  open: boolean;
+interface EditStaffModalProps {
+  isOpen: boolean;
   onClose: () => void;
-  staff: User | null;
-  onUpdated: () => void;
+  staff: Staff | null;
+  departments: Department[];
+  isSubmitting: boolean;
+  onSubmit: (data: Partial<Staff>) => void;
 }
 
 export default function EditStaffModal({
-  open,
+  isOpen,
   onClose,
   staff,
-  onUpdated,
-}: Props) {
+  departments,
+  isSubmitting,
+  onSubmit,
+}: EditStaffModalProps) {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm<EditStaffForm>();
+    formState: { errors },
+  } = useForm<Partial<Staff>>({
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      branch: "",
+      departmentId: undefined,
+    },
+  });
 
+  // Reset form with staff data when modal opens or staff changes
   useEffect(() => {
-    if (staff) {
+    if (staff && isOpen) {
       reset({
-        name: staff.name,
-        email: staff.email,
-        password: "",
-        phone: staff.phone ?? "",
+        name: staff.name || "",
+        email: staff.email || "",
+        phone: staff.phone || "",
+        branch: staff.branch || "",
+        departmentId: staff.department?.id,
       });
     }
-  }, [staff, reset]);
+  }, [staff, isOpen, reset]);
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
+  if (!staff) return null;
 
-  const onSubmit = async (data: EditStaffForm) => {
-    if (!staff) return;
-
-    const payload: Partial<EditStaffForm> = {};
-    if (data.name !== staff.name) payload.name = data.name;
-    if (data.email !== staff.email) payload.email = data.email;
-    if (data.password) payload.password = data.password;
-    if (data.phone !== staff.phone) payload.phone = data.phone;
-
-    if (Object.keys(payload).length === 0) {
-      toast.info("No changes made");
-      onClose();
-      return;
-    }
-
-    try {
-      await updateStaff(staff.staffId, payload);
-      toast.success("Staff updated successfully");
-      onUpdated();
-      onClose();
-    } catch {
-      toast.error("Failed to update staff");
-    }
+  const onFormSubmit = (data: Partial<Staff>) => {
+    onSubmit(data);
   };
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40
-                    transition-opacity duration-300
-                    ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-      />
-
-      {/* Slide-in panel */}
-      <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md
-                       bg-white shadow-2xl z-50 flex flex-col
-                       transition-transform duration-300 ease-in-out
-                       ${open ? "translate-x-0" : "translate-x-full"}`}
-      >
-        {/* Header */}
-        <div
-          className="px-8 py-6 border-b border-slate-100 flex items-start
-                        justify-between"
-        >
-          <div>
-            <p className="text-xs text-slate-400 tracking-widest uppercase mb-1">
-              Edit Member
-            </p>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-              {staff?.name}
-            </h2>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">
-              {staff?.staffId}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-slate-300 hover:text-slate-700 transition-colors mt-1"
-          >
-            <X className="h-5 w-5" />
-          </button>
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Employee" size="md">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+        {/* Staff ID Display */}
+        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+          <p className="text-xs text-slate-400 mb-1">Staff ID</p>
+          <p className="text-sm font-mono text-slate-600">{staff.staffId}</p>
         </div>
 
-        {/* Form */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">
-          <form
-            id="edit-staff-form"
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-6"
-          >
-            {/* Name */}
-            <div className="space-y-1.5">
-              <label
-                className="text-xs font-semibold text-slate-400
-                                uppercase tracking-widest"
-              >
-                Full Name
-              </label>
-              <input
-                placeholder="Full name"
-                disabled={isSubmitting}
-                className={`w-full px-4 py-2.5 rounded-xl border text-sm
-                  text-slate-900 placeholder:text-slate-300
-                  focus:outline-none focus:ring-2 focus:ring-slate-900
-                  focus:border-transparent bg-white transition-all
-                  disabled:opacity-50
-                  ${errors.name ? "border-red-300" : "border-slate-200"}`}
-                {...register("name", { required: "Name is required" })}
-              />
-              {errors.name && (
-                <p className="text-xs text-red-400">{errors.name.message}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label
-                className="text-xs font-semibold text-slate-400
-                                uppercase tracking-widest"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="email@company.com"
-                disabled={isSubmitting}
-                className={`w-full px-4 py-2.5 rounded-xl border text-sm
-                  text-slate-900 placeholder:text-slate-300
-                  focus:outline-none focus:ring-2 focus:ring-slate-900
-                  focus:border-transparent bg-white transition-all
-                  disabled:opacity-50
-                  ${errors.email ? "border-red-300" : "border-slate-200"}`}
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Invalid email",
-                  },
-                })}
-              />
-              {errors.email && (
-                <p className="text-xs text-red-400">{errors.email.message}</p>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div className="space-y-1.5">
-              <label
-                className="text-xs font-semibold text-slate-400
-                    uppercase tracking-widest"
-              >
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                placeholder="+91 98765 43210"
-                disabled={isSubmitting}
-                className={`w-full px-4 py-2.5 rounded-xl border text-sm
-      text-slate-900 placeholder:text-slate-300
-      focus:outline-none focus:ring-2 focus:ring-slate-900
-      focus:border-transparent bg-white transition-all
-      disabled:opacity-50
-      ${errors.phone ? "border-red-300" : "border-slate-200"}`}
-                {...register("phone", {
-                  pattern: {
-                    value: /^[+]?[\d\s\-()]{10,15}$/,
-                    message: "Enter a valid phone number",
-                  },
-                })}
-              />
-              {errors.phone && (
-                <p className="text-xs text-red-400">{errors.phone.message}</p>
-              )}
-            </div>
-
-            {/* New Password */}
-            <div className="space-y-1.5">
-              <label
-                className="text-xs font-semibold text-slate-400
-                                uppercase tracking-widest"
-              >
-                New Password
-                <span className="ml-1 normal-case font-normal text-slate-300">
-                  (leave blank to keep current)
-                </span>
-              </label>
-              <input
-                type="password"
-                placeholder="Min 6 characters"
-                disabled={isSubmitting}
-                className={`w-full px-4 py-2.5 rounded-xl border text-sm
-                  text-slate-900 placeholder:text-slate-300
-                  focus:outline-none focus:ring-2 focus:ring-slate-900
-                  focus:border-transparent bg-white transition-all
-                  disabled:opacity-50
-                  ${errors.password ? "border-red-300" : "border-slate-200"}`}
-                {...register("password", {
-                  minLength: { value: 6, message: "Min 6 characters" },
-                })}
-              />
-              {errors.password && (
-                <p className="text-xs text-red-400">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {/* Info */}
-            <div className="flex gap-3 p-4 bg-slate-50 rounded-xl">
-              <div className="w-1 bg-slate-200 rounded-full shrink-0" />
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Only changed fields will be updated. Leave password blank to
-                keep the current password.
-              </p>
-            </div>
-          </form>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            Full Name <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            {...register("name", { required: "Name is required" })}
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+          />
+          {errors.name && (
+            <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="px-8 py-6 border-t border-slate-100 flex gap-3">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            Email <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="email"
+            {...register("email", { required: "Email is required" })}
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+          />
+          {errors.email && (
+            <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            Phone
+          </label>
+          <input
+            type="tel"
+            {...register("phone")}
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            Branch
+          </label>
+          <input
+            type="text"
+            {...register("branch")}
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            Department
+          </label>
+          <select
+            {...register("departmentId", { valueAsNumber: true })}
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+          >
+            <option value="">Select department</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex gap-3 pt-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200
-                       text-sm font-medium text-slate-600
-                       hover:bg-slate-50 transition-colors"
+            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-700 hover:bg-slate-50 border border-slate-200 transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
-            form="edit-staff-form"
             disabled={isSubmitting}
-            className="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700
-                       text-white text-sm font-semibold
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-colors flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Changes →"
-            )}
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </button>
         </div>
-      </div>
-    </>
+      </form>
+    </Modal>
   );
 }

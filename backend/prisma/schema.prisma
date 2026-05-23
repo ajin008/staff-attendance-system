@@ -19,6 +19,7 @@ model Organization {
   users       User[]
   departments Department[]
 
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -29,11 +30,16 @@ model User {
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
 
-  staffId        String?  @unique
+  departmentId   Int?
+  department     Department? @relation(fields: [departmentId], references: [id])
+
+  staffId        String?   @unique
 
   name           String
   email          String   @unique
   phone          String?
+
+  branch         String?
 
   password       String
 
@@ -41,14 +47,21 @@ model User {
 
   joinedOn       DateTime
 
-  departmentId Int?
+  // OPTIONAL OVERRIDES
+  shiftStart            String?
+  shiftEnd              String?
 
-  department   Department? @relation(fields: [departmentId], references: [id])  
+  salary                Float?
+
+  overtimeEnabled       Boolean?
+
+  overtimeHourlyRate    Float?
+
+  overtimeGraceMins     Int?
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
-
 
 model Department {
   id                  Int @id @default(autoincrement())
@@ -57,6 +70,7 @@ model Department {
 
   name                String
 
+  // DEFAULT RULES
   shiftStart          String
   shiftEnd            String
 
