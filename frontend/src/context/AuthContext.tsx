@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     const parsedUser = savedUser ? JSON.parse(savedUser) : null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(parsedUser);
     setIsLoading(false);
   }, []);
