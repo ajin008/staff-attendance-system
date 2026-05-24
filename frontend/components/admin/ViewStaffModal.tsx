@@ -1,14 +1,7 @@
 // components/admin/ViewStaffModal.tsx
 "use client";
 
-import {
-  Mail,
-  Phone,
-  Building2,
-  Calendar,
-  Hash,
-  Briefcase,
-} from "lucide-react";
+import { Mail, Phone, Building2, Calendar, MapPin } from "lucide-react";
 import type { Staff, Department } from "@/src/types";
 import Modal from "../ui/Modal";
 
@@ -26,6 +19,20 @@ export default function ViewStaffModal({
   departments,
 }: ViewStaffModalProps) {
   if (!staff) return null;
+
+  // Helper function to get branch name from branch object
+  const getBranchName = () => {
+    if (!staff.branch) return "—";
+    // If branch is an object with name
+    if (typeof staff.branch === "object" && "name" in staff.branch) {
+      return staff.branch.name;
+    }
+    // If branch is a string (fallback)
+    if (typeof staff.branch === "string") {
+      return staff.branch;
+    }
+    return "—";
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Employee Details" size="md">
@@ -72,27 +79,21 @@ export default function ViewStaffModal({
           </div>
 
           <div className="flex items-start gap-2">
-            <Briefcase className="h-4 w-4 text-slate-400 mt-0.5" />
+            <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
             <div>
               <p className="text-xs text-slate-400">Branch</p>
-              <p className="text-sm text-slate-700">{staff.branch || "—"}</p>
+              <p className="text-sm text-slate-700">{getBranchName()}</p>
             </div>
           </div>
-
-          {/* <div className="flex items-start gap-2">
-            <Hash className="h-4 w-4 text-slate-400 mt-0.5" />
-            <div>
-              <p className="text-xs text-slate-400">Employee ID</p>
-              <p className="text-sm font-mono text-slate-700">{staff.id}</p>
-            </div>
-          </div> */}
 
           <div className="flex items-start gap-2">
             <Calendar className="h-4 w-4 text-slate-400 mt-0.5" />
             <div>
               <p className="text-xs text-slate-400">Joined</p>
               <p className="text-sm text-slate-700">
-                {staff.createdAt
+                {staff.joinedOn
+                  ? new Date(staff.joinedOn).toLocaleDateString()
+                  : staff.createdAt
                   ? new Date(staff.createdAt).toLocaleDateString()
                   : "—"}
               </p>

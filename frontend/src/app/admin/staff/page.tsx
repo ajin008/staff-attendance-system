@@ -12,6 +12,7 @@ export default function StaffPage() {
   const {
     staff,
     departments,
+    branches, // ADD THIS
     isLoading,
     searchTerm,
     currentPage,
@@ -38,7 +39,7 @@ export default function StaffPage() {
     <div className="min-h-screen bg-white">
       <AdminNavbar />
 
-      <div className="max-w-[1600px] mx-auto px-6 py-8">
+      <div className="max-w-400 mx-auto px-6 py-8">
         <div className="mb-6">
           <p className="text-xs text-slate-400 tracking-widest uppercase mb-2">
             04 — Directory
@@ -80,6 +81,7 @@ export default function StaffPage() {
         onClose={closeEditModal}
         staff={selectedStaff}
         departments={departments}
+        branches={branches} // ADD THIS
         isSubmitting={isSubmitting}
         onSubmit={confirmUpdate}
       />

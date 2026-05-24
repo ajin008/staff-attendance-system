@@ -1,13 +1,9 @@
 export const ENDPOINT = {
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
-  CHECK_IN: "/attendance/check-in",
+  CHECK_IN: "/staff/check-in",
   CHECK_OUT: "/attendance/check-out",
-  GET_TODAY_ATTENDANCE: "/attendance/today",
-  GET_MY_ATTENDANCE: "/attendance/history",
-  GET_TODAY_SUMMARY: "/attendance/today/summary",
-  GET_TODAY_ALL_ATTENDANCE: "/attendance/today/all",
-  GET_HEATMAP: "/attendance/heatmap",
+  GET_TODAY_ATTENDANCE: "/staff/getTodayAttendance",
   REGISTER: "/auth/register",
   CREATE_DEPARTMENT: "/admin/createDepartment",
   GET_ALL_DEPARTMENTS: "admin/fetchDepartment",
@@ -25,4 +21,7 @@ export const ENDPOINT = {
     `/admin/deleteDepartment/${departmentId}`,
   UPDATE_DEPARTMENT: (departmentId: number) =>
     `/admin/updateDepartment/${departmentId}`,
+
+  // branch
+  GET_ALL_BRANCHES: "/admin/branches",
 };

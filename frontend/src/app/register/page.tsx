@@ -1,3 +1,4 @@
+// app/register/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -15,14 +16,17 @@ import {
   Mail,
   Phone,
   Lock,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { registerCompany } from "@/src/services/register.service";
 import { getErrorMessage } from "@/src/utils/axios";
-import { RegisterCompanyPayload } from "@/src/types";
+import { RegisterCompanyPayload, Branch } from "@/src/types";
+import { BranchForm } from "@/components/register/BranchForm";
 
-interface RegisterFormData extends RegisterCompanyPayload {
+interface RegisterFormData extends Omit<RegisterCompanyPayload, "branches"> {
   confirmPassword: string;
+  branches: Branch[];
 }
 
 const industries = [
@@ -44,6 +48,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [branches, setBranches] = useState<Branch[]>([]);
 
   const {
     register,
@@ -52,6 +57,7 @@ export default function RegisterPage() {
     trigger,
     getValues,
     watch,
+    setValue,
   } = useForm<RegisterFormData>({
     defaultValues: {
       companyName: "",
@@ -61,6 +67,7 @@ export default function RegisterPage() {
       phone: "",
       password: "",
       confirmPassword: "",
+      branches: [],
     },
   });
 
@@ -73,28 +80,46 @@ export default function RegisterPage() {
       if (isValid) {
         setStep(2);
       }
+    } else if (step === 2) {
+      if (branches.length === 0) {
+        toast.error("Please add at least one branch");
+        return;
+      }
+      setStep(3);
     }
   };
 
   const onBack = () => {
-    setStep(1);
+    if (step === 2) {
+      setStep(1);
+    } else if (step === 3) {
+      setStep(2);
+    }
   };
 
   const onSubmit = async (data: RegisterFormData) => {
-    if (step === 2) {
+    if (step === 3) {
       if (data.password !== data.confirmPassword) {
         toast.error("Passwords do not match");
+        return;
+      }
+
+      if (branches.length === 0) {
+        toast.error("Please add at least one branch");
         return;
       }
 
       try {
         setLoading(true);
         const { confirmPassword, ...payload } = data;
-        const response = await registerCompany(payload);
+        const response = await registerCompany({
+          ...payload,
+          branches: branches,
+        });
         toast.success(response.message || "Company registered successfully!");
 
         setTimeout(() => {
-          window.location.href = "/login";
+          window.location.href = "/admin";
         }, 2000);
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -146,7 +171,6 @@ export default function RegisterPage() {
 
         {/* Content */}
         <div className="relative z-10 max-w-md text-center">
-          {/* Hand-drawn squiggle */}
           <svg
             className="w-32 h-8 mx-auto mb-6 opacity-60"
             viewBox="0 0 120 20"
@@ -161,7 +185,6 @@ export default function RegisterPage() {
             />
           </svg>
 
-          {/* Company name with organic typography */}
           <div className="space-y-2">
             <h1 className="text-6xl font-light tracking-tighter text-slate-800">
               Pulse
@@ -177,14 +200,12 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Hand-drawn divider */}
           <div className="my-6 flex items-center justify-center gap-2">
             <div className="w-8 h-px bg-slate-200"></div>
             <span className="text-[10px] font-mono text-slate-300">✦</span>
             <div className="w-8 h-px bg-slate-200"></div>
           </div>
 
-          {/* Quote / Tagline */}
           <div className="space-y-3">
             <p className="text-sm text-slate-500 leading-relaxed font-normal">
               start your journey with
@@ -199,7 +220,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Benefits list */}
           <div className="mt-8 space-y-2 text-left">
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <span className="text-emerald-400">→</span>
@@ -215,7 +235,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Hand-drawn signature line */}
           <div className="mt-8 pt-4 border-t border-slate-100">
             <p className="text-[10px] font-mono text-slate-300 tracking-wider">
               trusted by 500+ teams
@@ -223,7 +242,6 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Decorative dots pattern */}
         <div className="absolute bottom-8 left-8 flex gap-1 opacity-30">
           {[...Array(5)].map((_, i) => (
             <div
@@ -241,7 +259,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Side - Registration Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12 overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="mb-8">
@@ -263,12 +281,17 @@ export default function RegisterPage() {
             <div className="flex items-center gap-2">
               <div
                 className={`flex-1 h-1 rounded-full transition-all duration-300 ${
-                  step === 1 ? "bg-slate-900" : "bg-slate-200"
+                  step >= 1 ? "bg-slate-900" : "bg-slate-200"
                 }`}
               ></div>
               <div
                 className={`flex-1 h-1 rounded-full transition-all duration-300 ${
-                  step === 2 ? "bg-slate-900" : "bg-slate-200"
+                  step >= 2 ? "bg-slate-900" : "bg-slate-200"
+                }`}
+              ></div>
+              <div
+                className={`flex-1 h-1 rounded-full transition-all duration-300 ${
+                  step >= 3 ? "bg-slate-900" : "bg-slate-200"
                 }`}
               ></div>
             </div>
@@ -285,6 +308,13 @@ export default function RegisterPage() {
                   step === 2 ? "text-slate-900" : "text-slate-400"
                 }`}
               >
+                Branches
+              </span>
+              <span
+                className={`text-xs font-medium ${
+                  step === 3 ? "text-slate-900" : "text-slate-400"
+                }`}
+              >
                 Admin Account
               </span>
             </div>
@@ -294,7 +324,6 @@ export default function RegisterPage() {
             {/* Step 1: Company Information */}
             {step === 1 && (
               <>
-                {/* Company Name */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
                     Company Name
@@ -330,7 +359,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Industry */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
                     Industry
@@ -368,7 +396,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Next Button */}
                 <div className="pt-4">
                   <button
                     type="button"
@@ -390,10 +417,58 @@ export default function RegisterPage() {
               </>
             )}
 
-            {/* Step 2: Admin Information */}
+            {/* Step 2: Branches */}
             {step === 2 && (
               <>
-                {/* Admin Name */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MapPin className="h-4 w-4 text-emerald-500" />
+                    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
+                      Company Branches
+                    </label>
+                  </div>
+                  <BranchForm
+                    branches={branches}
+                    onBranchesChange={setBranches}
+                  />
+                </div>
+
+                <div className="pt-4 space-y-3">
+                  <button
+                    type="button"
+                    onClick={onNext}
+                    disabled={branches.length === 0 || loading}
+                    className="w-full py-3.5 rounded-xl text-sm font-semibold
+                               bg-slate-900 hover:bg-slate-800 text-white
+                               shadow-lg shadow-slate-200
+                               disabled:opacity-50 disabled:cursor-not-allowed
+                               transition-all duration-200
+                               flex items-center justify-center gap-2"
+                  >
+                    Next
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    disabled={loading}
+                    className="w-full py-3.5 rounded-xl text-sm font-semibold
+                               border-2 border-slate-200 bg-white text-slate-700
+                               hover:border-slate-300 hover:bg-slate-50
+                               transition-all duration-200
+                               flex items-center justify-center gap-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Step 3: Admin Information */}
+            {step === 3 && (
+              <>
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
                     Admin/Owner Name
@@ -429,7 +504,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Email */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
                     Email Address
@@ -466,7 +540,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Phone */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
                     Phone Number
@@ -504,7 +577,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Password */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
                     Password
@@ -552,7 +624,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Confirm Password */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.15em]">
                     Confirm Password
@@ -601,7 +672,6 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                {/* Buttons */}
                 <div className="pt-4 space-y-3">
                   <button
                     type="submit"

@@ -31,6 +31,10 @@ export const findUserById = async (id: number) => {
     where: {
       id,
     },
+
+    include: {
+      branch: true,
+    },
   });
 };
 
@@ -72,8 +76,64 @@ export const findAllStaffByOrganization = async (
       }),
     },
 
-    include: {
-      department: true,
+    select: {
+      id: true,
+
+      staffId: true,
+
+      name: true,
+
+      email: true,
+
+      phone: true,
+
+      role: true,
+
+      joinedOn: true,
+
+      createdAt: true,
+
+      updatedAt: true,
+
+      salary: true,
+
+      shiftStart: true,
+
+      shiftEnd: true,
+
+      overtimeEnabled: true,
+
+      overtimeHourlyRate: true,
+
+      overtimeGraceMins: true,
+
+      departmentId: true,
+
+      branchId: true,
+
+      department: {
+        select: {
+          id: true,
+
+          name: true,
+
+          shiftStart: true,
+
+          shiftEnd: true,
+        },
+      },
+
+      branch: {
+        select: {
+          id: true,
+
+          name: true,
+
+          latitude: true,
+
+          longitude: true,
+        },
+      },
     },
 
     skip,

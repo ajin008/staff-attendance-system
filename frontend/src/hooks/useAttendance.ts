@@ -1,65 +1,102 @@
+// src/hooks/useAttendance.ts
 "use client";
-import { Mood } from "../types";
 
-import { useCallback, useEffect, useState } from "react";
-import {
-  checkIn,
-  checkOut,
-  getTodayAttendance,
-} from "../services/attendance.service";
-import { AttendanceRecord } from "../types";
+import { useState, useCallback } from "react";
+import { toast } from "sonner";
+import { checkIn, checkOut } from "../services/attendance.service";
+import { getErrorMessage } from "../utils/axios";
+import { useGeolocation } from "./useGeolocation";
+
+interface AttendanceState {
+  isCheckedIn: boolean;
+  isCheckedOut: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+  isLoading: boolean;
+  isLocating: boolean;
+}
 
 export const useAttendance = () => {
-  const [attendance, setAttendance] = useState<AttendanceRecord | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [state, setState] = useState<AttendanceState>({
+    isCheckedIn: false,
+    isCheckedOut: false,
+    checkInTime: undefined,
+    checkOutTime: undefined,
+    isLoading: false,
+    isLocating: false,
+  });
 
-  const fetchTodayAttendance = useCallback(async () => {
+  const { getCurrentPosition } = useGeolocation();
+
+  // Handle check-in with GPS
+  const handleCheckIn = useCallback(async () => {
+    setState((prev) => ({ ...prev, isLocating: true }));
+
     try {
-      setLoading(true);
-      const res = await getTodayAttendance();
-      setAttendance(res);
-    } catch {
-      setAttendance(null);
-    } finally {
-      setLoading(false);
+      // Get current location
+      const { latitude, longitude } = await getCurrentPosition();
+
+      setState((prev) => ({ ...prev, isLoading: true }));
+
+      // Send location to backend
+      const response = await checkIn(latitude, longitude);
+
+      setState({
+        isCheckedIn: true,
+        isCheckedOut: false,
+        checkInTime: response.attendance.checkIn,
+        checkOutTime: undefined,
+        isLoading: false,
+        isLocating: false,
+      });
+
+      toast.success("✅ Checked in successfully!");
+      return response;
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+      setState((prev) => ({ ...prev, isLoading: false, isLocating: false }));
+      throw error;
     }
-  }, []);
+  }, [getCurrentPosition]);
 
-  useEffect(() => {
-    fetchTodayAttendance();
-  }, [fetchTodayAttendance]);
+  // Handle check-out with GPS
+  const handleCheckOut = useCallback(async () => {
+    setState((prev) => ({ ...prev, isLocating: true }));
 
-  const handleCheckIn = async () => {
-    setActionLoading(true);
     try {
-      await checkIn();
-      await fetchTodayAttendance();
-    } catch (err) {
-      throw err;
-    } finally {
-      setActionLoading(false);
-    }
-  };
+      // Get current location
+      const { latitude, longitude } = await getCurrentPosition();
 
-  const handleCheckOut = async (mood: Mood) => {
-    setActionLoading(true);
-    try {
-      await checkOut(mood);
-      await fetchTodayAttendance();
-    } catch (err) {
-      throw err;
-    } finally {
-      setActionLoading(false);
+      setState((prev) => ({ ...prev, isLoading: true }));
+
+      // Send location to backend
+      const response = await checkOut(latitude, longitude);
+
+      setState((prev) => ({
+        ...prev,
+        isCheckedOut: true,
+        checkOutTime: response.attendance.checkOut,
+        isLoading: false,
+        isLocating: false,
+      }));
+
+      toast.success("✅ Checked out successfully!");
+      return response;
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+      setState((prev) => ({ ...prev, isLoading: false, isLocating: false }));
+      throw error;
     }
-  };
+  }, [getCurrentPosition]);
 
   return {
-    attendance,
-    loading,
-    actionLoading,
-    handleCheckIn,
-    handleCheckOut,
-    refresh: fetchTodayAttendance,
+    isCheckedIn: state.isCheckedIn,
+    isCheckedOut: state.isCheckedOut,
+    checkInTime: state.checkInTime,
+    checkOutTime: state.checkOutTime,
+    isLoading: state.isLoading,
+    isLocating: state.isLocating,
+    checkIn: handleCheckIn,
+    checkOut: handleCheckOut,
   };
 };

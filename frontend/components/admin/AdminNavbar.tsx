@@ -30,7 +30,9 @@ export default function AdminNavbar() {
     isOpen: isStaffOpen,
     isSubmitting: isStaffSubmitting,
     isLoadingDepartments,
+    isLoadingBranches,
     departments,
+    branches,
     openModal: openStaffModal,
     closeModal: closeStaffModal,
     handleCreateStaff,
@@ -206,7 +208,9 @@ export default function AdminNavbar() {
         onSubmit={handleCreateStaff}
         isSubmitting={isStaffSubmitting}
         departments={departments}
+        branches={branches}
         isLoadingDepartments={isLoadingDepartments}
+        isLoadingBranches={isLoadingBranches}
       />
     </>
   );

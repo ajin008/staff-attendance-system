@@ -1,10 +1,23 @@
+export interface BranchInput {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface registerPayload {
   companyName: string;
+
   industry: string;
+
   adminName: string;
+
   email: string;
+
   phone: string;
+
   password: string;
+
+  branches: BranchInput[];
 }
 
 export interface AuthUser {
@@ -35,19 +48,18 @@ export interface CreateStaffInput {
 
   departmentId: number;
 
+  branchId: number;
+
   name: string;
 
   email: string;
 
   phone?: string;
 
-  branch?: string;
-
   password: string;
 
   joinedOn: Date;
 
-  // OPTIONAL OVERRIDES
   shiftStart?: string;
 
   shiftEnd?: string;

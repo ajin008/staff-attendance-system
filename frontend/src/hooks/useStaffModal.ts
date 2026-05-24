@@ -1,4 +1,4 @@
-// hooks/useStaffModal.ts
+// src/hooks/useStaffModal.ts
 "use client";
 
 import { useState, useCallback } from "react";
@@ -6,19 +6,22 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createStaff } from "@/src/services/staff.service";
 import { getAllDepartments } from "@/src/services/department.service";
+import { getAllBranches, Branch } from "@/src/services/branch.service";
 import type { CreateStaffInput, Department } from "@/src/types";
 import { getErrorMessage } from "../utils/axios";
-import { triggerDashboardRefresh } from "@/src/utils/events"; // Import event trigger
+import { triggerDashboardRefresh } from "@/src/utils/events";
 
 interface UseStaffModalProps {
-  onStatsChange?: () => void; // Keep for backward compatibility
+  onStatsChange?: () => void;
 }
 
 export function useStaffModal({ onStatsChange }: UseStaffModalProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
+  const [isLoadingBranches, setIsLoadingBranches] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -27,7 +30,7 @@ export function useStaffModal({ onStatsChange }: UseStaffModalProps = {}) {
     setIsOpen(true);
     setError(null);
     // eslint-disable-next-line react-hooks/immutability
-    await fetchDepartments();
+    await Promise.all([fetchDepartments(), fetchBranches()]);
   }, []);
 
   const closeModal = useCallback(() => {
@@ -59,9 +62,31 @@ export function useStaffModal({ onStatsChange }: UseStaffModalProps = {}) {
     }
   }, [departments.length]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const fetchBranches = useCallback(async () => {
+    if (branches.length > 0) {
+      console.log("Branches already loaded:", branches.length);
+      return;
+    }
+
+    setIsLoadingBranches(true);
+    setError(null);
+    try {
+      const branchesData = await getAllBranches();
+      console.log("Fetched branches:", branchesData);
+      setBranches(branchesData || []);
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+      // Don't show error toast for branches - it's optional
+      setBranches([]);
+    } finally {
+      setIsLoadingBranches(false);
+    }
+  }, [branches.length]);
+
   const handleCreateStaff = useCallback(
     async (data: CreateStaffInput) => {
-      console.log("👤 Creating staff...");
+      console.log("👤 Creating staff with data:", data);
       setIsSubmitting(true);
       setError(null);
       try {
@@ -69,14 +94,9 @@ export function useStaffModal({ onStatsChange }: UseStaffModalProps = {}) {
         toast.success("Staff created successfully");
         closeModal();
 
-        // Refresh the page data
         router.refresh();
-
-        // Trigger global dashboard refresh
-        console.log("📢 Triggering dashboard refresh from staff creation");
         triggerDashboardRefresh();
 
-        // Call the stats update callback if provided (backward compatibility)
         if (onStatsChange) {
           onStatsChange();
         }
@@ -96,11 +116,14 @@ export function useStaffModal({ onStatsChange }: UseStaffModalProps = {}) {
     isOpen,
     isSubmitting,
     isLoadingDepartments,
+    isLoadingBranches,
     departments,
+    branches,
     error,
     openModal,
     closeModal,
     handleCreateStaff,
     fetchDepartments,
+    fetchBranches,
   };
 }

@@ -36,6 +36,12 @@ export interface CreateStaffPayload {
   phone: string;
 }
 
+export interface Branch {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface RegisterPayload {
   companyName: string;
   industry: string;
@@ -58,11 +64,17 @@ export interface RegisterCompanyPayload {
   email: string;
   phone: string;
   password: string;
+  branches: Branch[];
 }
 
 export interface RegisterResponse {
   message: string;
   user: User;
+  company?: {
+    id: number;
+    name: string;
+    branches: Branch[];
+  };
 }
 
 export interface CreateDepartmentPayload {
@@ -107,6 +119,7 @@ export interface StaffDepartment {
 export interface CreateStaffInput {
   organizationId: number;
   departmentId: number;
+  branchId?: number;
   name: string;
   email: string;
   phone?: string;
@@ -128,15 +141,30 @@ export interface Staff {
   name: string;
   email: string;
   phone?: string;
-  branch?: string;
+  branch?: {
+    id: number;
+    name: string;
+    latitude: number;
+    longitude: number;
+  } | null;
+  branchId?: number;
   department?: {
     id: number;
     name: string;
+    shiftStart?: string;
+    shiftEnd?: string;
   };
   departmentId?: number;
   role?: string;
   createdAt?: string;
   updatedAt?: string;
+  joinedOn?: string;
+  shiftStart?: string | null;
+  shiftEnd?: string | null;
+  salary?: number | null;
+  overtimeEnabled?: boolean | null;
+  overtimeGraceMins?: number | null;
+  overtimeHourlyRate?: number | null;
 }
 
 export interface GetAllStaffResponse {

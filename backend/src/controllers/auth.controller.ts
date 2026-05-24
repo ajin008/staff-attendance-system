@@ -53,6 +53,7 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
 
   const {
     departmentId,
+    branchId,
 
     name,
     email,
@@ -61,7 +62,6 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
     joinedOn,
 
     phone,
-    branch,
 
     shiftStart,
     shiftEnd,
@@ -77,6 +77,7 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
     organizationId,
 
     departmentId,
+    branchId,
 
     name,
     email,
@@ -85,7 +86,6 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
     joinedOn: new Date(joinedOn),
 
     phone,
-    branch,
 
     shiftStart,
     shiftEnd,

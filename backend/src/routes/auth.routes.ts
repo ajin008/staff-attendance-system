@@ -16,7 +16,7 @@ const router = Router();
 console.log("auth route triggering");
 
 router.post("/login", login);
-router.post("/register", register);
+router.post("/register", loginRateLimit, register);
 router.post("/logout", logout);
 // router.post("/seed-admin", seedAdmin);
 

@@ -3,7 +3,11 @@ import prisma from "../utils/prisma";
 
 import AppError from "../utils/AppError";
 
-import { createUser, findUserByEmail } from "../Repository/user.repository";
+import {
+  createUser,
+  findUserByEmail,
+  findUserById,
+} from "../Repository/user.repository";
 
 import { generateStaffId } from "../utils/staffId";
 
@@ -18,6 +22,12 @@ import {
   findStaffByStaffId,
   updateStaffByStaffId,
 } from "../Repository/staff.repository";
+import bcrypt from "bcryptjs";
+import {
+  createAttendance,
+  findTodayAttendanceByUserId,
+} from "../Repository/attendance.repository";
+import { calculateDistanceInMeters } from "../utils/location";
 
 export const createStaffService = async (
   input: CreateStaffInput
@@ -29,6 +39,8 @@ export const createStaffService = async (
   }
 
   const staffId = await generateStaffId();
+
+  const hashedPassword = await bcrypt.hash(input.password, 12);
 
   await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const userData: Prisma.UserCreateInput = {
@@ -44,6 +56,12 @@ export const createStaffService = async (
         },
       },
 
+      branch: {
+        connect: {
+          id: input.branchId,
+        },
+      },
+
       staffId,
 
       name: input.name,
@@ -52,15 +70,12 @@ export const createStaffService = async (
 
       phone: input.phone,
 
-      branch: input.branch,
-
-      password: input.password,
+      password: hashedPassword,
 
       role: "staff",
 
       joinedOn: input.joinedOn,
 
-      // OPTIONAL OVERRIDES
       shiftStart: input.shiftStart,
 
       shiftEnd: input.shiftEnd,
@@ -160,5 +175,75 @@ export const updateStaffService = async (
 
   return {
     message: "Staff updated successfully",
+  };
+};
+
+export const checkInStaffService = async ({
+  userId,
+  organizationId,
+  latitude,
+  longitude,
+}: {
+  userId: number;
+
+  organizationId: number;
+
+  latitude: number;
+
+  longitude: number;
+}) => {
+  // FIND USER
+  const user = await findUserById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  // USER MUST HAVE BRANCH
+  if (!user.branchId || !user.branch) {
+    throw new AppError("User branch not assigned", 400);
+  }
+
+  // CHECK ALREADY CHECKED IN TODAY
+  const existingAttendance = await findTodayAttendanceByUserId(userId);
+
+  if (existingAttendance) {
+    throw new AppError("Already checked in today", 400);
+  }
+
+  // CALCULATE DISTANCE
+  const distance = calculateDistanceInMeters(
+    latitude,
+    longitude,
+    user.branch.latitude,
+    user.branch.longitude
+  );
+
+  // VALIDATE RADIUS
+  if (distance > user.branch.allowedRadius) {
+    throw new AppError("You are outside allowed office radius", 400);
+  }
+
+  // CREATE ATTENDANCE
+  const attendance = await createAttendance({
+    userId,
+
+    organizationId,
+
+    branchId: user.branchId,
+
+    checkInLatitude: latitude,
+
+    checkInLongitude: longitude,
+
+    checkInTime: new Date(),
+
+    status: "present",
+  });
+
+  return {
+    message: "Check-in successful",
+
+    attendance,
   };
 };

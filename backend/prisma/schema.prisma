@@ -12,54 +12,76 @@ enum Role {
 }
 
 model Organization {
-  id          Int      @id @default(autoincrement())
+  id          Int @id @default(autoincrement())
+
   companyName String
+
   industry    String
 
   users       User[]
+
   departments Department[]
 
+  branches    Branch[]
+
+  attendances Attendance[]
+
+  staffAllocations StaffAllocation[]
 
   createdAt   DateTime @default(now())
+
   updatedAt   DateTime @updatedAt
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
+  id             Int @id @default(autoincrement())
 
   organizationId Int
+
   organization   Organization @relation(fields: [organizationId], references: [id])
 
   departmentId   Int?
+
   department     Department? @relation(fields: [departmentId], references: [id])
 
-  staffId        String?   @unique
+  branchId       Int?
+
+  branch         Branch? @relation(fields: [branchId], references: [id])
+
+  staffId        String? @unique
 
   name           String
-  email          String   @unique
-  phone          String?
 
-  branch         String?
+  email          String @unique
+
+  phone          String?
 
   password       String
 
-  role           Role     @default(staff)
+  role           Role @default(staff)
 
   joinedOn       DateTime
 
   // OPTIONAL OVERRIDES
-  shiftStart            String?
-  shiftEnd              String?
+  shiftStart     String?
 
-  salary                Float?
+  shiftEnd       String?
 
-  overtimeEnabled       Boolean?
+  salary         Float?
 
-  overtimeHourlyRate    Float?
+  overtimeEnabled Boolean?
 
-  overtimeGraceMins     Int?
+  overtimeHourlyRate Float?
+
+  overtimeGraceMins Int?
+
+  // RELATIONS
+  attendances      Attendance[]
+
+  staffAllocations StaffAllocation[]
 
   createdAt      DateTime @default(now())
+
   updatedAt      DateTime @updatedAt
 }
 
@@ -72,6 +94,7 @@ model Department {
 
   // DEFAULT RULES
   shiftStart          String
+
   shiftEnd            String
 
   overtimeEnabled     Boolean @default(false)
@@ -87,5 +110,98 @@ model Department {
   users               User[]
 
   createdAt           DateTime @default(now())
+
   updatedAt           DateTime @updatedAt
+}
+
+model Branch {
+  id               Int @id @default(autoincrement())
+
+  organizationId   Int
+
+  name             String
+
+  latitude         Float
+
+  longitude        Float
+
+  allowedRadius    Float @default(100)
+
+  organization     Organization @relation(fields: [organizationId], references: [id])
+
+  users            User[]
+
+  attendances      Attendance[]
+
+  staffAllocations StaffAllocation[]
+
+  createdAt        DateTime @default(now())
+
+  updatedAt        DateTime @updatedAt
+}
+
+model Attendance {
+  id                 Int @id @default(autoincrement())
+
+  userId             Int
+
+  user               User @relation(fields: [userId], references: [id])
+
+  organizationId     Int
+
+  organization       Organization @relation(fields: [organizationId], references: [id])
+
+  branchId           Int
+
+  branch             Branch @relation(fields: [branchId], references: [id])
+
+  checkInTime        DateTime?
+
+  checkOutTime       DateTime?
+
+  checkInLatitude    Float?
+
+  checkInLongitude   Float?
+
+  checkOutLatitude   Float?
+
+  checkOutLongitude  Float?
+
+  status             String @default("present")
+
+  totalWorkHours     Float?
+
+  createdAt          DateTime @default(now())
+
+  updatedAt          DateTime @updatedAt
+}
+
+model StaffAllocation {
+  id               Int @id @default(autoincrement())
+
+  userId           Int
+
+  user             User @relation(fields: [userId], references: [id])
+
+  organizationId   Int
+
+  organization     Organization @relation(fields: [organizationId], references: [id])
+
+  branchId         Int
+
+  branch           Branch @relation(fields: [branchId], references: [id])
+
+  floorName        String
+
+  assignedBy       Int
+
+  assignedAt       DateTime @default(now())
+
+  checkedOutAt     DateTime?
+
+  isActive         Boolean @default(true)
+
+  createdAt        DateTime @default(now())
+
+  updatedAt        DateTime @updatedAt
 }

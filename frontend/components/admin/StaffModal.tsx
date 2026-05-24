@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/admin/StaffModal.tsx
 "use client";
 
@@ -6,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Modal from "../ui/Modal";
 import type { CreateStaffInput, Department } from "@/src/types";
+import type { Branch } from "@/src/services/branch.service";
 
 interface StaffModalProps {
   isOpen: boolean;
@@ -13,7 +13,9 @@ interface StaffModalProps {
   onSubmit: (data: CreateStaffInput) => Promise<void>;
   isSubmitting: boolean;
   departments: Department[];
+  branches: Branch[];
   isLoadingDepartments: boolean;
+  isLoadingBranches: boolean;
 }
 
 export default function StaffModal({
@@ -22,7 +24,9 @@ export default function StaffModal({
   onSubmit,
   isSubmitting,
   departments,
+  branches,
   isLoadingDepartments,
+  isLoadingBranches,
 }: StaffModalProps) {
   const [selectedDeptDetails, setSelectedDeptDetails] =
     useState<Department | null>(null);
@@ -41,6 +45,7 @@ export default function StaffModal({
       email: "",
       phone: "",
       branch: "",
+      branchId: undefined,
       password: "",
       departmentId: undefined,
       organizationId: 1,
@@ -56,6 +61,7 @@ export default function StaffModal({
 
   const overtimeEnabled = watch("overtimeEnabled");
   const selectedDepartmentId = watch("departmentId");
+  const selectedBranchId = watch("branchId");
 
   // Update department details when selection changes
   useEffect(() => {
@@ -65,7 +71,6 @@ export default function StaffModal({
       );
       setSelectedDeptDetails(dept || null);
 
-      // Reset override values when department changes
       if (!overrideWorkConfig) {
         setValue("shiftStart", "");
         setValue("shiftEnd", "");
@@ -79,6 +84,18 @@ export default function StaffModal({
     }
   }, [selectedDepartmentId, departments, setValue, overrideWorkConfig]);
 
+  // Set branch name when branch is selected
+  useEffect(() => {
+    if (selectedBranchId) {
+      const branch = branches.find((b) => b.id === Number(selectedBranchId));
+      if (branch) {
+        setValue("branch", branch.name);
+      }
+    } else {
+      setValue("branch", "");
+    }
+  }, [selectedBranchId, branches, setValue]);
+
   const handleToggleOvertime = () => {
     setValue("overtimeEnabled", !overtimeEnabled);
   };
@@ -86,7 +103,6 @@ export default function StaffModal({
   const handleOverrideToggle = () => {
     setOverrideWorkConfig(!overrideWorkConfig);
     if (!overrideWorkConfig) {
-      // Clearing overrides when toggling off
       setValue("shiftStart", "");
       setValue("shiftEnd", "");
       setValue("salary", undefined);
@@ -97,13 +113,13 @@ export default function StaffModal({
   };
 
   const onFormSubmit = async (data: CreateStaffInput) => {
-    const formattedData: any = {
+    const formattedData: CreateStaffInput = {
       ...data,
       joinedOn: data.joinedOn || new Date(),
       departmentId: Number(data.departmentId),
+      branchId: data.branchId ? Number(data.branchId) : undefined,
     };
 
-    // Only include override values if override is enabled
     if (!overrideWorkConfig) {
       delete formattedData.shiftStart;
       delete formattedData.shiftEnd;
@@ -112,7 +128,6 @@ export default function StaffModal({
       delete formattedData.overtimeHourlyRate;
       delete formattedData.overtimeGraceMins;
     } else {
-      // Clean up override values
       if (formattedData.salary)
         formattedData.salary = Number(formattedData.salary);
       if (formattedData.overtimeGraceMins)
@@ -138,7 +153,6 @@ export default function StaffModal({
     onClose();
   };
 
-  // Check if no departments exist
   const hasNoDepartments = !isLoadingDepartments && departments.length === 0;
 
   return (
@@ -236,12 +250,29 @@ export default function StaffModal({
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Branch
                 </label>
-                <input
-                  type="text"
-                  {...register("branch")}
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
-                  placeholder="e.g., Mumbai, Delhi"
-                />
+                <select
+                  {...register("branchId", {
+                    valueAsNumber: true,
+                  })}
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm cursor-pointer bg-white"
+                  disabled={isLoadingBranches}
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                    backgroundPosition: "right 1rem center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "1.25rem",
+                  }}
+                >
+                  <option value="">Select branch (optional)</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 mt-1">
+                  Select a branch to assign staff location
+                </p>
               </div>
             </div>
 

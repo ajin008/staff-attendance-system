@@ -41,6 +41,7 @@ export const getAllStaff = async (
     }
 
     const res = await api.get(`${ENDPOINT.GET_ALL_STAFF}?${params.toString()}`);
+    console.log("response from get all staff:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching staff:", error);

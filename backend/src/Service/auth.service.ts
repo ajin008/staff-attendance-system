@@ -17,6 +17,7 @@ import { createOrganization } from "../Repository/organization.repository";
 import { createUser } from "../Repository/user.repository";
 import { findUserByStaffId } from "../Repository/user.repository";
 import { Prisma } from "@prisma/client";
+import { createBranches } from "../Repository/branch.repository";
 
 interface CreateStaffInput {
   name: string;
@@ -152,7 +153,8 @@ export const updateStaffService = async (
 // postgres
 
 export const registerService = async (payload: registerPayload) => {
-  const { companyName, industry, adminName, email, phone, password } = payload;
+  const { companyName, industry, adminName, email, phone, password, branches } =
+    payload;
 
   const existingUser = await findUserByEmail(email);
 
@@ -164,11 +166,29 @@ export const registerService = async (payload: registerPayload) => {
 
   const result = await prisma.$transaction(
     async (tx: Prisma.TransactionClient) => {
+      // CREATE ORGANIZATION
       const organization = await createOrganization(tx, {
         companyName,
         industry,
       });
 
+      // CREATE BRANCHES
+      if (branches.length > 0) {
+        await createBranches(
+          tx,
+          branches.map((branch) => ({
+            organizationId: organization.id,
+
+            name: branch.name,
+
+            latitude: branch.latitude,
+
+            longitude: branch.longitude,
+          }))
+        );
+      }
+
+      // CREATE ADMIN USER
       const userData: Prisma.UserCreateInput = {
         organization: {
           connect: {
@@ -177,10 +197,15 @@ export const registerService = async (payload: registerPayload) => {
         },
 
         name: adminName,
+
         email,
+
         phone,
+
         password: hashedPassword,
+
         role: "admin",
+
         joinedOn: new Date(),
       };
 
@@ -201,7 +226,9 @@ export const registerService = async (payload: registerPayload) => {
 
   return {
     token,
+
     organization: result.organization,
+
     user: result.user,
   };
 };

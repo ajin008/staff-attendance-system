@@ -16,6 +16,8 @@ import {
   deleteStaffController,
 } from "../controllers/admin.controller";
 
+import { getAllBranchesController } from "../controllers/branch.controller";
+
 const router = Router();
 
 router.post("/createDepartment", protect, adminOnly, createDepartment);
@@ -59,5 +61,7 @@ router.delete(
   adminOnly,
   deleteDepartmentController
 );
+
+router.get("/branches", protect, adminOnly, getAllBranchesController);
 
 export default router;

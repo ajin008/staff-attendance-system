@@ -1,59 +1,70 @@
+// src/services/attendance.service.ts
 import api from "../lib/axios";
 import { ENDPOINT } from "../utils/endPoint";
-import { AttendanceRecord, TodaySummary, Mood } from "../types";
 
-export const checkIn = async (): Promise<AttendanceRecord> => {
-  const res = await api.post<AttendanceRecord>(ENDPOINT.CHECK_IN);
-  return res.data;
+export interface LocationPayload {
+  latitude: number;
+  longitude: number;
+}
+
+export interface AttendanceResponse {
+  message: string;
+  attendance: {
+    id: number;
+    staffId: number;
+    date: string;
+    checkIn?: string;
+    checkOut?: string;
+    status: "PRESENT" | "ABSENT" | "LATE" | "HALF_DAY";
+    overtime?: number;
+    latitude?: number;
+    longitude?: number;
+  };
+}
+
+export interface TodayAttendanceResponse {
+  id: number;
+  staffId: number;
+  date: string;
+  checkIn?: string;
+  checkOut?: string;
+  status: string;
+  overtime?: number;
+  latitude?: number;
+  longitude?: number;
+}
+
+export const checkIn = async (
+  latitude: number,
+  longitude: number
+): Promise<AttendanceResponse> => {
+  const response = await api.post<AttendanceResponse>(ENDPOINT.CHECK_IN, {
+    latitude,
+    longitude,
+  });
+  return response.data;
 };
 
-export const checkOut = async (mood: Mood): Promise<AttendanceRecord> => {
-  const res = await api.post<AttendanceRecord>(ENDPOINT.CHECK_OUT, { mood });
-  console.log(" checkout : mood ", mood);
-  return res.data;
-};
-
-export const getMyAttendance = async (): Promise<AttendanceRecord[]> => {
-  const res = await api.get<AttendanceRecord[]>(ENDPOINT.GET_MY_ATTENDANCE);
-  return res.data;
+export const checkOut = async (
+  latitude: number,
+  longitude: number
+): Promise<AttendanceResponse> => {
+  const response = await api.post<AttendanceResponse>(ENDPOINT.CHECK_OUT, {
+    latitude,
+    longitude,
+  });
+  return response.data;
 };
 
 export const getTodayAttendance =
-  async (): Promise<AttendanceRecord | null> => {
-    const res = await api.get<{ attendance: AttendanceRecord | null }>(
-      ENDPOINT.GET_TODAY_ATTENDANCE
-    );
-    return res.data.attendance;
+  async (): Promise<TodayAttendanceResponse | null> => {
+    try {
+      const response = await api.get<TodayAttendanceResponse>(
+        ENDPOINT.GET_TODAY_ATTENDANCE
+      );
+      return response.data;
+    } catch (error) {
+      // Return null if no attendance record for today (404 or no data)
+      return null;
+    }
   };
-
-export const getTodaySummary = async (date: string): Promise<TodaySummary> => {
-  console.log("date passed to backend", date);
-  if (!date) throw new Error("Date is required");
-  const res = await api.get<TodaySummary>(
-    `${ENDPOINT.GET_TODAY_SUMMARY}?date=${date}`
-  );
-  return res.data;
-};
-
-export const getTodayAllAttendance = async (
-  date: string
-): Promise<AttendanceRecord[]> => {
-  console.log("date passed to backend", date);
-  if (!date) throw new Error("Date is required");
-  const res = await api.get<AttendanceRecord[]>(
-    `${ENDPOINT.GET_TODAY_ALL_ATTENDANCE}?date=${date}`
-  );
-  return res.data;
-};
-
-export const getAttendanceHeatmap = async (
-  month: number,
-  year: number
-): Promise<Record<string, string>> => {
-  console.log("get attendanceHeatmap fetching:");
-  const res = await api.get(
-    `${ENDPOINT.GET_HEATMAP}?month=${month}&year=${year}`
-  );
-  console.log("get attendanceHeatmap fetching", res.data);
-  return res.data;
-};
