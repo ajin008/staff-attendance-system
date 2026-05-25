@@ -34,6 +34,7 @@ export const findUserById = async (id: number) => {
 
     include: {
       branch: true,
+      department: true,
     },
   });
 };

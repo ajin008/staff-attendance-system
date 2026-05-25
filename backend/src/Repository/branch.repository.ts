@@ -26,3 +26,11 @@ export const findBranchesByOrganizationId = async (organizationId: number) => {
     },
   });
 };
+
+export const findBranchById = async (branchId: number) => {
+  return prisma.branch.findUnique({
+    where: {
+      id: branchId,
+    },
+  });
+};

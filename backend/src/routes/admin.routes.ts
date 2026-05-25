@@ -14,9 +14,18 @@ import {
   getStaffByIdController,
   updateStaffController,
   deleteStaffController,
+  getTodayAttendanceDataController,
 } from "../controllers/admin.controller";
 
 import { getAllBranchesController } from "../controllers/branch.controller";
+import { getTodayAttendanceController } from "../controllers/staff.controller";
+import {
+  createFloorController,
+  deleteFloorController,
+  getAllFloorsController,
+  getAvailableStaffController,
+  updateFloorController,
+} from "../controllers/floor.controller";
 
 const router = Router();
 
@@ -63,5 +72,27 @@ router.delete(
 );
 
 router.get("/branches", protect, adminOnly, getAllBranchesController);
+
+router.get(
+  "/attendance/today",
+  protect,
+  adminOnly,
+  getTodayAttendanceDataController
+);
+
+router.post("/createFloors", protect, adminOnly, createFloorController);
+
+router.get("/getAllFloors", protect, adminOnly, getAllFloorsController);
+
+router.patch("/floors/:id", protect, adminOnly, updateFloorController);
+
+router.delete("/floors/:id", protect, adminOnly, deleteFloorController);
+
+router.get(
+  "/floors/:floorId/available-staff",
+  protect,
+  adminOnly,
+  getAvailableStaffController
+);
 
 export default router;

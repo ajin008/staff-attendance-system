@@ -69,53 +69,67 @@ export default function StaffTable({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-100">
-              <tr>
-                {[
-                  "Staff ID",
-                  "Name",
-                  "Email",
-                  "Department",
-                  "Phone",
-                  "Actions",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[1, 2, 3, 4, 5].map((i) => (
-                <tr key={i} className="border-b border-slate-100 animate-pulse">
-                  <td className="px-6 py-4">
-                    <div className="h-4 bg-slate-100 rounded w-20"></div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="h-4 bg-slate-100 rounded w-32"></div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="h-4 bg-slate-100 rounded w-40"></div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="h-4 bg-slate-100 rounded w-24"></div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="h-4 bg-slate-100 rounded w-28"></div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="h-4 bg-slate-100 rounded w-16"></div>
-                  </td>
+      <div className="space-y-4">
+        {/* Back Button - Top */}
+        <button
+          onClick={() => router.push("/admin")}
+          className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+          <span>back to dashboard</span>
+        </button>
+
+        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50 border-b border-slate-100">
+                <tr>
+                  {[
+                    "Staff ID",
+                    "Name",
+                    "Email",
+                    "Department",
+                    "Phone",
+                    "Actions",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <tr
+                    key={i}
+                    className="border-b border-slate-100 animate-pulse"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-slate-100 rounded w-20"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-slate-100 rounded w-32"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-slate-100 rounded w-40"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-slate-100 rounded w-24"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-slate-100 rounded w-28"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-slate-100 rounded w-16"></div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
@@ -123,10 +137,10 @@ export default function StaffTable({
 
   return (
     <div className="space-y-4">
-      {/* Back Button */}
+      {/* Back Button - Top */}
       <button
         onClick={() => router.push("/admin")}
-        className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors mb-2"
+        className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
       >
         <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
         <span>back to dashboard</span>

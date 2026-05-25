@@ -1,20 +1,6 @@
 import prisma from "../utils/prisma";
 
-export const createAttendance = async (data: {
-  userId: number;
-
-  organizationId: number;
-
-  branchId: number;
-
-  checkInLatitude: number;
-
-  checkInLongitude: number;
-
-  checkInTime: Date;
-
-  status: string;
-}) => {
+export const createAttendance = async (data: any) => {
   return prisma.attendance.create({
     data,
   });
@@ -38,5 +24,21 @@ export const findTodayAttendanceByUserId = async (userId: number) => {
         lte: endOfDay,
       },
     },
+    include: {
+      branch: true,
+    },
+  });
+};
+
+export const updateAttendanceCheckOut = async (
+  attendanceId: number,
+  data: any
+) => {
+  return prisma.attendance.update({
+    where: {
+      id: attendanceId,
+    },
+
+    data,
   });
 };

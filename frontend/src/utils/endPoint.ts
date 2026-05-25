@@ -2,8 +2,8 @@ export const ENDPOINT = {
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
   CHECK_IN: "/staff/check-in",
-  CHECK_OUT: "/attendance/check-out",
-  GET_TODAY_ATTENDANCE: "/staff/getTodayAttendance",
+  CHECK_OUT: "/staff/check-out",
+  GET_TODAY_ATTENDANCE: "/staff/attendance/today",
   REGISTER: "/auth/register",
   CREATE_DEPARTMENT: "/admin/createDepartment",
   GET_ALL_DEPARTMENTS: "admin/fetchDepartment",
@@ -24,4 +24,16 @@ export const ENDPOINT = {
 
   // branch
   GET_ALL_BRANCHES: "/admin/branches",
+  GET_TODAY_ATTENDANCE_DATA: "/admin/attendance/today",
+
+  // Floor endpoints
+  GET_ALL_FLOORS: "/admin/getAllFloors",
+  CREATE_FLOOR: "/admin/createFloors",
+  UPDATE_FLOOR: (id: number) => `/admin/floors/${id}`,
+  DELETE_FLOOR: (id: number) => `/admin/floors/${id}`,
+
+  GET_AVAILABLE_STAFF: (floorId: number) =>
+    `/admin/floors/${floorId}/available-staff`,
+  GET_FLOOR_STAFF: (floorId: number) => `/admin/floors/${floorId}/staff`,
+  ASSIGN_STAFF_TO_FLOOR: (floorId: number) => `/admin/floors/${floorId}/assign`,
 };

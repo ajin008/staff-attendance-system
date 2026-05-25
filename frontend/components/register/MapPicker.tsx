@@ -5,6 +5,7 @@ import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { MapPin } from "lucide-react";
 
 // Fix for default markers in Leaflet with Next.js
 const DefaultIcon = L.icon({
@@ -52,12 +53,12 @@ function LocationMarker({
 export const MapPicker = ({
   onLocationSelect,
   selectedLocation,
-  height = "300px",
+  height = "400px",
 }: MapPickerProps) => {
   const defaultCenter: [number, number] = [20.5937, 78.9629]; // Center of India
 
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-200">
+    <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
       <MapContainer
         center={
           selectedLocation
@@ -77,8 +78,9 @@ export const MapPicker = ({
           selectedLocation={selectedLocation}
         />
       </MapContainer>
-      <div className="p-2 bg-slate-50 text-[10px] font-mono text-slate-400 text-center">
-        Click anywhere on the map to set branch location
+      <div className="p-3 bg-slate-50 flex items-center justify-center gap-2 text-[11px] font-mono text-slate-500">
+        <MapPin className="h-3 w-3" />
+        <span>Click anywhere on the map to set branch location</span>
       </div>
     </div>
   );

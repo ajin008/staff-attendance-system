@@ -24,6 +24,8 @@ model Organization {
 
   branches    Branch[]
 
+  floors      Floor[] 
+
   attendances Attendance[]
 
   staffAllocations StaffAllocation[]
@@ -135,63 +137,81 @@ model Branch {
 
   staffAllocations StaffAllocation[]
 
+  floors           Floor[]   // ADD THIS
+
   createdAt        DateTime @default(now())
 
   updatedAt        DateTime @updatedAt
 }
 
 model Attendance {
-  id                 Int @id @default(autoincrement())
+  id                    Int @id @default(autoincrement())
 
-  userId             Int
+  // RELATIONS
+  userId                Int
+  user                  User @relation(fields: [userId], references: [id])
 
-  user               User @relation(fields: [userId], references: [id])
+  organizationId        Int
+  organization          Organization @relation(fields: [organizationId], references: [id])
 
-  organizationId     Int
+  branchId              Int
+  branch                Branch @relation(fields: [branchId], references: [id])
 
-  organization       Organization @relation(fields: [organizationId], references: [id])
+  // CHECK-IN / CHECK-OUT
+  checkInTime           DateTime?
+  checkOutTime          DateTime?
 
-  branchId           Int
+  checkInLatitude       Float?
+  checkInLongitude      Float?
 
-  branch             Branch @relation(fields: [branchId], references: [id])
+  checkOutLatitude      Float?
+  checkOutLongitude     Float?
 
-  checkInTime        DateTime?
+  // SHIFT SNAPSHOT
+  shiftStart            String?
+  shiftEnd              String?
 
-  checkOutTime       DateTime?
+  // WORK METRICS
+  totalWorkMinutes      Int @default(0)
 
-  checkInLatitude    Float?
+  lateMinutes           Int @default(0)
 
-  checkInLongitude   Float?
+  earlyExitMinutes      Int @default(0)
 
-  checkOutLatitude   Float?
+  overtimeMinutes       Int @default(0)
 
-  checkOutLongitude  Float?
+  // ATTENDANCE STATUS
+  attendanceStatus      String @default("present")
 
-  status             String @default("present")
+  // FLAGS
+  isLate                Boolean @default(false)
 
-  totalWorkHours     Float?
+  isOvertime            Boolean @default(false)
 
-  createdAt          DateTime @default(now())
+  isEarlyExit           Boolean @default(false)
 
-  updatedAt          DateTime @updatedAt
+  isHalfDay     Boolean @default(false)
+
+
+  createdAt             DateTime @default(now())
+
+  updatedAt             DateTime @updatedAt
 }
 
 model StaffAllocation {
   id               Int @id @default(autoincrement())
 
   userId           Int
-
   user             User @relation(fields: [userId], references: [id])
 
   organizationId   Int
-
   organization     Organization @relation(fields: [organizationId], references: [id])
 
   branchId         Int
-
   branch           Branch @relation(fields: [branchId], references: [id])
 
-  floorName        String
+  floorId          Int
+  floor            Floor @relation(fields: [floorId], references: [id])
 
   assignedBy       Int
 
@@ -200,6 +220,30 @@ model StaffAllocation {
   checkedOutAt     DateTime?
 
   isActive         Boolean @default(true)
+
+  createdAt        DateTime @default(now())
+
+  updatedAt        DateTime @updatedAt
+}
+
+model Floor {
+  id               Int @id @default(autoincrement())
+
+  organizationId   Int
+  organization     Organization @relation(fields: [organizationId], references: [id])
+
+  branchId         Int
+  branch           Branch @relation(fields: [branchId], references: [id])
+
+  name             String
+
+  code             String?
+
+  maxCapacity      Int
+
+  isActive         Boolean @default(true)
+
+  staffAllocations StaffAllocation[]
 
   createdAt        DateTime @default(now())
 

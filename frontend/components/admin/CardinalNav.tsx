@@ -4,7 +4,7 @@
 type TabItem = {
   id: string;
   label: string;
-  hint: string; // subtle helper text that appears on hover
+  hint: string;
   icon: React.ReactNode;
 };
 
@@ -30,9 +30,9 @@ const tabs: TabItem[] = [
     ),
   },
   {
-    id: "attendance",
-    label: "Attendance",
-    hint: "check in / out",
+    id: "floor", // Changed from "attendance" to "floor"
+    label: "Floor Map", // Changed from "Attendance" to "Floor Map"
+    hint: "live tracking", // Changed from "check in / out" to "live tracking"
     icon: (
       <svg
         className="w-4 h-4"
@@ -44,7 +44,7 @@ const tabs: TabItem[] = [
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={1.5}
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
         />
       </svg>
     ),
@@ -119,8 +119,8 @@ export default function CardinalNav({
   onTabChange: (id: string) => void;
 }) {
   return (
-    <div className="border-b border-slate-100 bg-white sticky top-[57px] z-40">
-      <div className="max-w-[1600px] mx-auto px-6">
+    <div className="bg-white/80 backdrop-blur-sm sticky top-14.25 z-40">
+      <div className="max-w-400 mx-auto px-6">
         <div className="flex gap-1 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -129,55 +129,65 @@ export default function CardinalNav({
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
                 className={`
-                  group relative px-5 py-3 transition-all duration-200
+                  group relative px-4 py-2.5 transition-all duration-200 rounded-t-xl
                   ${
                     isActive
-                      ? "text-slate-900"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "text-slate-900 bg-gradient-to-t from-slate-50/80 to-transparent"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-50/50"
                   }
                 `}
               >
                 <div className="flex items-center gap-2.5">
-                  {/* Icon always visible, changes subtly when active */}
+                  {/* Icon */}
                   <span
                     className={`
-                    transition-all duration-200
-                    ${
-                      isActive
-                        ? "text-slate-900 scale-105"
-                        : "text-slate-400 group-hover:text-slate-500"
-                    }
-                  `}
+                      transition-all duration-200
+                      ${
+                        isActive
+                          ? "text-emerald-500 scale-105"
+                          : "text-slate-400 group-hover:text-slate-500"
+                      }
+                    `}
                   >
                     {tab.icon}
                   </span>
 
-                  {/* Label - clear, bold enough to read */}
-                  <span className="text-sm font-medium tracking-tight">
+                  {/* Label */}
+                  <span
+                    className={`text-sm font-medium tracking-tight ${
+                      isActive ? "text-slate-800" : ""
+                    }`}
+                  >
                     {tab.label}
                   </span>
 
-                  {/* Hint text - appears only on hover, so power users get context */}
-                  <span className="hidden sm:inline text-[11px] text-slate-400 group-hover:text-slate-500 transition-colors duration-150">
+                  {/* Hint text */}
+                  <span className="hidden sm:inline text-[10px] font-mono text-slate-400 group-hover:text-slate-500 transition-colors duration-150">
                     {tab.hint}
                   </span>
                 </div>
 
-                {/* Active indicator - thick enough to see, organic curve */}
+                {/* Active indicator - organic dot instead of bottom bar */}
                 {isActive && (
-                  <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-slate-900 rounded-full">
-                    <span className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-full"></span>
-                  </span>
+                  <>
+                    <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400">
+                      <span className="absolute inset-0 rounded-full bg-emerald-400 animate-pulse opacity-60"></span>
+                    </span>
+                    <span className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-60"></span>
+                  </>
                 )}
 
-                {/* Hover indicator for non-active tabs */}
+                {/* Hover indicator for non-active tabs - subtle underline */}
                 {!isActive && (
-                  <span className="absolute bottom-0 left-5 right-5 h-0.5 bg-slate-200 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="absolute bottom-0 left-5 right-5 h-px bg-slate-200 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                 )}
               </button>
             );
           })}
         </div>
+
+        {/* Organic shadow line instead of border */}
+        <div className="h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
       </div>
     </div>
   );

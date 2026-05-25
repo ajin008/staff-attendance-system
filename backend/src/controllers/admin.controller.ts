@@ -2,6 +2,7 @@ import { asyncHandler } from "../middleware/asyncHandler";
 import { Request, Response } from "express";
 import { adminStatusService } from "../Service/admin.service";
 import { getAllStaffService } from "../Service/staff.service";
+import { getTodayAttendanceDataService } from "../Service/admin.service";
 
 export const getStatusController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -82,5 +83,19 @@ export const updateStaffController = asyncHandler(
     const result = await updateStaffService(organizationId, staffId, req.body);
 
     res.status(200).json(result);
+  }
+);
+
+export const getTodayAttendanceDataController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const organizationId = req.user!.organizationId;
+
+    const result = await getTodayAttendanceDataService(organizationId);
+
+    res.status(200).json({
+      message: "Today's attendance fetched successfully",
+
+      data: result,
+    });
   }
 );

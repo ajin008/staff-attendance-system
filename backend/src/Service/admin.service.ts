@@ -3,6 +3,12 @@ import {
   countStaffByOrganization,
 } from "../Repository/admin.repository";
 
+import {
+  findTodayPresentStaff,
+  findTodayLateStaff,
+  findAbsentStaff,
+} from "../Repository/admin.repository";
+
 export const adminStatusService = async (
   userId: number,
   organizationId: number
@@ -20,5 +26,35 @@ export const adminStatusService = async (
     totalDepartments,
 
     pendingLeave,
+  };
+};
+
+export const getTodayAttendanceDataService = async (organizationId: number) => {
+  const [presentStaff, lateStaff, absentStaff] = await Promise.all([
+    findTodayPresentStaff(organizationId),
+
+    findTodayLateStaff(organizationId),
+
+    findAbsentStaff(organizationId),
+  ]);
+
+  return {
+    present: {
+      count: presentStaff.length,
+
+      staff: presentStaff,
+    },
+
+    absent: {
+      count: absentStaff.length,
+
+      staff: absentStaff,
+    },
+
+    late: {
+      count: lateStaff.length,
+
+      staff: lateStaff,
+    },
   };
 };

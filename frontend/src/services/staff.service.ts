@@ -80,3 +80,14 @@ export const getStaffById = async (staffId: string): Promise<User> => {
     throw error;
   }
 };
+
+export interface StaffAttendance {
+  id: number;
+  staffId: string;
+  name: string;
+  email: string;
+  checkInTime?: string;
+  isLate?: boolean;
+  lateMinutes?: number;
+  branch?: { id: number; name: string };
+}

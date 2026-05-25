@@ -22,7 +22,9 @@
     "react-leaflet": "^5.0.0",
     "shadcn": "^4.7.0",
     "sonner": "^2.0.7",
-    "use-debounce": "^10.1.1"
+    "swr": "^2.4.1",
+    "use-debounce": "^10.1.1",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -51,3 +51,84 @@ export const updateStaffByStaffId = async (
     data,
   });
 };
+
+export const findAvailableStaffByBranch = async (
+  organizationId: number,
+  branchId: number
+) => {
+  // TODAY START
+  const startOfDay = new Date();
+
+  startOfDay.setHours(0, 0, 0, 0);
+
+  // TODAY END
+  const endOfDay = new Date();
+
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return prisma.user.findMany({
+    where: {
+      organizationId,
+
+      branchId,
+
+      role: "staff",
+
+      // ONLY STAFF WHO CHECKED IN TODAY
+      attendances: {
+        some: {
+          checkInTime: {
+            not: null,
+          },
+
+          checkOutTime: null,
+
+          createdAt: {
+            gte: startOfDay,
+
+            lte: endOfDay,
+          },
+        },
+      },
+
+      // STAFF NOT ALREADY ALLOCATED
+      staffAllocations: {
+        none: {
+          isActive: true,
+        },
+      },
+    },
+
+    select: {
+      id: true,
+
+      staffId: true,
+
+      name: true,
+
+      email: true,
+
+      phone: true,
+
+      branch: {
+        select: {
+          id: true,
+
+          name: true,
+        },
+      },
+
+      department: {
+        select: {
+          id: true,
+
+          name: true,
+        },
+      },
+    },
+
+    orderBy: {
+      name: "asc",
+    },
+  });
+};
