@@ -35,6 +35,10 @@ import {
   updateLeaveStatusController,
 } from "../controllers/leave.controller";
 import { getStaffAttendanceController } from "../controllers/attendance.controller";
+import {
+  generatePayslipController,
+  getPayrollController,
+} from "../controllers/payrole.controller";
 
 const router = Router();
 
@@ -141,6 +145,15 @@ router.get(
   protect,
   adminOnly,
   getStaffAttendanceController
+);
+
+router.get("/payroll", protect, adminOnly, getPayrollController);
+
+router.post(
+  "/payroll/generate-payslip",
+  protect,
+  adminOnly,
+  generatePayslipController
 );
 
 export default router;

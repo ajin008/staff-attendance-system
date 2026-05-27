@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import prisma from "../utils/prisma";
 
 export const createOrganization = async (
   tx: Prisma.TransactionClient,
@@ -9,5 +10,21 @@ export const createOrganization = async (
 ) => {
   return tx.organization.create({
     data,
+  });
+};
+
+export const findOrganizationById = async (organizationId: number) => {
+  return prisma.organization.findUnique({
+    where: {
+      id: organizationId,
+    },
+
+    select: {
+      id: true,
+
+      companyName: true,
+
+      industry: true,
+    },
   });
 };

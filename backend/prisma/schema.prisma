@@ -32,6 +32,8 @@ model Organization {
 
   leaveRequests LeaveRequest[]
 
+  payrolls Payroll[]
+
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
@@ -85,6 +87,8 @@ model User {
   staffAllocations StaffAllocation[]
 
   leaveRequests LeaveRequest[]
+
+  payrolls Payroll[]
 
   createdAt DateTime @default(now())
 
@@ -280,6 +284,44 @@ model LeaveRequest {
   approvedBy Int?
 
   approvedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Payroll {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  payrollStartDate DateTime
+
+  payrollEndDate DateTime
+
+  basicSalary Float
+
+  presentDays Int
+
+  absentDays Int
+
+  halfDays Int
+
+  overtimeMinutes Int
+
+  deductions Float
+
+  overtimePay Float
+
+  netSalary Float
+
+  pdfUrl String?
+
+  generatedAt DateTime @default(now())
 
   createdAt DateTime @default(now())
 

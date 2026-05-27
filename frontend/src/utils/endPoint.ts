@@ -46,4 +46,8 @@ export const ENDPOINT = {
   UPDATE_LEAVE_STATUS: (leaveId: number) => `/admin/leaves/${leaveId}/status`,
   GET_STAFF_ATTENDANCE: (staffId: string) =>
     `/admin/staff/${staffId}/attendance`,
+
+  // Payroll endpoints
+  GET_PAYROLL: "/admin/payroll",
+  GENERATE_PAYSLIP: "/admin/payroll/generate-payslip",
 };

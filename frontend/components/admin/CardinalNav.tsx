@@ -30,9 +30,9 @@ const tabs: TabItem[] = [
     ),
   },
   {
-    id: "floor", // Changed from "attendance" to "floor"
-    label: "Floor Map", // Changed from "Attendance" to "Floor Map"
-    hint: "live tracking", // Changed from "check in / out" to "live tracking"
+    id: "floor",
+    label: "Floor Map",
+    hint: "live tracking",
     icon: (
       <svg
         className="w-4 h-4"
@@ -50,9 +50,9 @@ const tabs: TabItem[] = [
     ),
   },
   {
-    id: "salary",
-    label: "Salary",
-    hint: "payroll",
+    id: "payroll",
+    label: "Payroll",
+    hint: "salary & payslip",
     icon: (
       <svg
         className="w-4 h-4"
@@ -65,26 +65,6 @@ const tabs: TabItem[] = [
           strokeLinejoin="round"
           strokeWidth={1.5}
           d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: "reports",
-    label: "Reports",
-    hint: "download data",
-    icon: (
-      <svg
-        className="w-4 h-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
         />
       </svg>
     ),

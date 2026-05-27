@@ -7,12 +7,12 @@ import CardinalNav from "@/components/admin/CardinalNav";
 import DashboardStats from "@/components/admin/DashboardStats";
 import DashboardAttendanceStats from "@/components/admin/DashboardAttendanceStats";
 import FloorMap from "@/components/admin/floor/FloorMap";
+import PayrollPage from "./paryole/page";
 
-// Dashboard Tab - shows stats and summary
+// Dashboard Tab
 function DashboardContent() {
   return (
     <div className="space-y-8">
-      {/* Company Stats Section */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-4 bg-slate-400 rounded-full" />
@@ -23,7 +23,6 @@ function DashboardContent() {
         <DashboardStats />
       </div>
 
-      {/* Today's Attendance Section */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-4 bg-emerald-400 rounded-full" />
@@ -41,36 +40,8 @@ function FloorContent() {
   return <FloorMap />;
 }
 
-function StaffContent() {
-  return (
-    <div className="mt-6">
-      <div className="bg-slate-50 rounded-xl p-6 border border-slate-100">
-        <p className="text-sm text-slate-500">Staff directory and management</p>
-      </div>
-    </div>
-  );
-}
-
-function SalaryContent() {
-  return (
-    <div className="mt-6">
-      <div className="bg-slate-50 rounded-xl p-6 border border-slate-100">
-        <p className="text-sm text-slate-500">Payroll and salary records</p>
-      </div>
-    </div>
-  );
-}
-
-function ReportsContent() {
-  return (
-    <div className="mt-6">
-      <div className="bg-slate-50 rounded-xl p-6 border border-slate-100">
-        <p className="text-sm text-slate-500">
-          Generate attendance and salary reports
-        </p>
-      </div>
-    </div>
-  );
+function PayrollContent() {
+  return <PayrollPage />;
 }
 
 export default function AdminPage() {
@@ -82,10 +53,8 @@ export default function AdminPage() {
         return <DashboardContent />;
       case "floor":
         return <FloorContent />;
-      case "salary":
-        return <SalaryContent />;
-      case "reports":
-        return <ReportsContent />;
+      case "payroll":
+        return <PayrollContent />;
       default:
         return <DashboardContent />;
     }
