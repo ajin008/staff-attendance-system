@@ -34,7 +34,7 @@ const DEPARTMENT_OPTIONS = [
   { id: "others-dept", value: "others", label: "Others (Custom)" },
 ];
 
-// Predefined salary options - UNIQUE KEYS NOW
+// Predefined salary options
 const SALARY_OPTIONS = [
   { id: "default-salary", value: 0, label: "Select salary", isDefault: true },
   { id: "salary-10k", value: 10000, label: "₹10,000" },
@@ -49,7 +49,18 @@ const SALARY_OPTIONS = [
   { id: "salary-100k", value: 100000, label: "₹1,00,000" },
   { id: "salary-150k", value: 150000, label: "₹1,50,000" },
   { id: "salary-200k", value: 200000, label: "₹2,00,000" },
-  { id: "others-salary", value: -1, label: "Others (Custom)", isCustom: true }, // Using -1 instead of 0
+  { id: "others-salary", value: -1, label: "Others (Custom)", isCustom: true },
+];
+
+// Weekly off days options
+const WEEKLY_OFF_OPTIONS = [
+  { id: "monday", label: "Monday", value: "monday" },
+  { id: "tuesday", label: "Tuesday", value: "tuesday" },
+  { id: "wednesday", label: "Wednesday", value: "wednesday" },
+  { id: "thursday", label: "Thursday", value: "thursday" },
+  { id: "friday", label: "Friday", value: "friday" },
+  { id: "saturday", label: "Saturday", value: "saturday" },
+  { id: "sunday", label: "Sunday", value: "sunday" },
 ];
 
 export default function DepartmentModal({
@@ -78,12 +89,14 @@ export default function DepartmentModal({
       overtimeHourlyRate: undefined,
       defaultSalary: 0,
       salarySelect: 0,
+      weeklyOffDays: [],
     },
   });
 
   const overtimeEnabled = watch("overtimeEnabled");
   const departmentSelect = watch("departmentSelect");
   const salarySelect = watch("salarySelect");
+  const weeklyOffDays = watch("weeklyOffDays") || [];
 
   const handleToggleOvertime = () => {
     setValue("overtimeEnabled", !overtimeEnabled);
@@ -106,6 +119,18 @@ export default function DepartmentModal({
       setValue("defaultSalary", value);
     } else if (value === -1) {
       setValue("defaultSalary", 0);
+    }
+  };
+
+  const handleWeeklyOffToggle = (day: string) => {
+    const currentDays = weeklyOffDays;
+    if (currentDays.includes(day)) {
+      setValue(
+        "weeklyOffDays",
+        currentDays.filter((d) => d !== day)
+      );
+    } else {
+      setValue("weeklyOffDays", [...currentDays, day]);
     }
   };
 
@@ -265,6 +290,35 @@ export default function DepartmentModal({
               </p>
             )}
           </div>
+        </div>
+
+        {/* Weekly Off Days Selection */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Weekly Off Days
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {WEEKLY_OFF_OPTIONS.map((day) => (
+              <button
+                key={day.id}
+                type="button"
+                onClick={() => handleWeeklyOffToggle(day.value)}
+                className={`
+                  px-3 py-2 text-sm rounded-lg border transition-all
+                  ${
+                    weeklyOffDays.includes(day.value)
+                      ? "bg-emerald-50 border-emerald-500 text-emerald-700"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                  }
+                `}
+              >
+                {day.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-400 mt-2">
+            Select days when this department is off (optional)
+          </p>
         </div>
 
         {/* Salary - Dropdown */}

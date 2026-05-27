@@ -18,6 +18,8 @@ interface CreateDepartmentPayload {
 
   shiftEnd: string;
 
+  weeklyOffDays: string[];
+
   overtimeEnabled: boolean;
 
   overtimeGraceMins: number;
@@ -39,6 +41,8 @@ export const createDepartmentService = async (
 
     shiftEnd,
 
+    weeklyOffDays,
+
     overtimeEnabled,
 
     overtimeGraceMins,
@@ -52,6 +56,14 @@ export const createDepartmentService = async (
     throw new AppError("All required fields missing", 400);
   }
 
+  if (
+    !weeklyOffDays ||
+    weeklyOffDays.length === 0 ||
+    !Array.isArray(weeklyOffDays)
+  ) {
+    throw new AppError("Weekly off days required", 400);
+  }
+
   const department = await createDepartment({
     organizationId,
 
@@ -60,6 +72,7 @@ export const createDepartmentService = async (
     shiftStart,
 
     shiftEnd,
+    weeklyOffDays,
 
     overtimeEnabled,
 

@@ -85,6 +85,7 @@ export interface CreateDepartmentPayload {
   overtimeGraceMins: number;
   overtimeHourlyRate?: number;
   defaultSalary: number;
+  weeklyOffDays?: string[];
 }
 
 export interface Department {
@@ -174,5 +175,29 @@ export interface GetAllStaffResponse {
     page: number;
     limit: number;
     totalPages: number;
+  };
+}
+
+export type LeaveType = "sick" | "casual" | "emergency";
+
+export interface CreateLeavePayload {
+  leaveType: LeaveType;
+  reason: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface LeaveResponse {
+  message: string;
+  leave: {
+    id: number;
+    staffId: number;
+    leaveType: LeaveType;
+    reason: string;
+    startDate: string;
+    endDate: string;
+    status: "pending" | "approved" | "rejected";
+    createdAt: string;
+    updatedAt: string;
   };
 }

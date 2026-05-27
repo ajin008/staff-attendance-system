@@ -41,6 +41,11 @@ import {
   parseTimeToMinutes,
 } from "../utils/time";
 
+import {
+  findApprovedLeaveForToday,
+  cancelLeaveRequest,
+} from "../Repository/leave.repository";
+
 export const createStaffService = async (
   input: CreateStaffInput
 ): Promise<{ message: string; staffId: string }> => {
@@ -206,26 +211,41 @@ export const checkInStaffService = async ({
 
   longitude: number;
 }) => {
+  // FIND USER
   const user = await findUserById(userId);
 
   if (!user) {
     throw new AppError("User not found", 404);
   }
 
+  // BRANCH VALIDATION
   if (!user.branchId || !user.branch) {
     throw new AppError("User branch not assigned", 400);
   }
 
+  // DEPARTMENT VALIDATION
   if (!user.department) {
     throw new AppError("User department not assigned", 400);
   }
 
+  const approvedLeave = await findApprovedLeaveForToday(userId);
+  console.log("Approved leave for today:", approvedLeave);
+
+  // AUTO CANCEL LEAVE
+  if (approvedLeave) {
+    await cancelLeaveRequest(approvedLeave.id);
+
+    console.log("Approved leave auto-cancelled");
+  }
+
+  // ALREADY CHECKED IN
   const existingAttendance = await findTodayAttendanceByUserId(userId);
 
   if (existingAttendance) {
     throw new AppError("Already checked in today", 400);
   }
 
+  // GPS VALIDATION
   const distance = calculateDistanceInMeters(
     latitude,
     longitude,
@@ -237,37 +257,53 @@ export const checkInStaffService = async ({
     throw new AppError("You are outside allowed office radius", 400);
   }
 
+  // CURRENT TIME
   const now = new Date();
 
+  // WEEKDAY
+  const today = now
+    .toLocaleDateString("en-US", {
+      weekday: "long",
+    })
+    .toLowerCase();
+
+  console.log("Today:", today);
+
+  // WEEKLY OFF CHECK
+  const isWeeklyOff = user.department.weeklyOffDays.includes(today);
+
+  if (isWeeklyOff) {
+    throw new AppError(`Today is weekly off (${today})`, 400);
+  }
+
+  // EFFECTIVE SHIFTS
   const effectiveShiftStart = user.shiftStart || user.department.shiftStart;
-  console.log("Effective Shift Start:", effectiveShiftStart);
 
   const effectiveShiftEnd = user.shiftEnd || user.department.shiftEnd;
+
+  console.log("Effective Shift Start:", effectiveShiftStart);
+
   console.log("Effective Shift End:", effectiveShiftEnd);
 
   // CURRENT TIME IN MINUTES
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // SHIFT END IN MINUTES
+  // SHIFT START MINUTES
   const shiftStartMinutes = parseTimeToMinutes(effectiveShiftStart);
 
+  // PREVENT EARLY CHECK-IN
   if (currentMinutes < shiftStartMinutes) {
-    // console.log(
-    //   "currentMinutes:",
-    //   currentMinutes,
-    //   "shiftEndMinutes:",
-    //   shiftEndMinutes
-    // );
-
     throw new AppError("Shift not yet started. Check-in not allowed.", 400);
   }
 
+  // LATE CALCULATION
   const lateMinutes = calculateLateMinutes(
     effectiveShiftStart,
     now,
     user.department.overtimeGraceMins
   );
 
+  // CREATE ATTENDANCE
   const attendance = await createAttendance({
     userId,
 
@@ -281,9 +317,10 @@ export const checkInStaffService = async ({
 
     checkInTime: now,
 
-    shiftStart: user.department.shiftStart,
+    // SNAPSHOT
+    shiftStart: effectiveShiftStart,
 
-    shiftEnd: user.department.shiftEnd,
+    shiftEnd: effectiveShiftEnd,
 
     attendanceStatus: "present",
 
@@ -305,6 +342,10 @@ export const checkInStaffService = async ({
       lateMinutes: attendance.lateMinutes,
 
       isLate: attendance.isLate,
+
+      shiftStart: attendance.shiftStart,
+
+      shiftEnd: attendance.shiftEnd,
 
       branch: {
         id: user.branch.id,

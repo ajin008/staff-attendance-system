@@ -82,8 +82,6 @@ export default function AdminPage() {
         return <DashboardContent />;
       case "floor":
         return <FloorContent />;
-      case "staff":
-        return <StaffContent />;
       case "salary":
         return <SalaryContent />;
       case "reports":

@@ -24,8 +24,17 @@ import {
   deleteFloorController,
   getAllFloorsController,
   getAvailableStaffController,
+  getFloorStaffController,
   updateFloorController,
 } from "../controllers/floor.controller";
+
+import { assignStaffToFloorController } from "../controllers/floor.controller";
+import { removeStaffFromFloorController } from "../controllers/floor.controller";
+import {
+  getAllLeavesController,
+  updateLeaveStatusController,
+} from "../controllers/leave.controller";
+import { getStaffAttendanceController } from "../controllers/attendance.controller";
 
 const router = Router();
 
@@ -93,6 +102,45 @@ router.get(
   protect,
   adminOnly,
   getAvailableStaffController
+);
+
+// routes/admin.routes.ts
+
+router.post(
+  "/floors/:floorId/assign",
+  protect,
+  adminOnly,
+  assignStaffToFloorController
+);
+
+router.get(
+  "/floors/:floorId/staff",
+  protect,
+  adminOnly,
+  getFloorStaffController
+);
+
+router.delete(
+  "/floors/:floorId/staff/:staffId",
+  protect,
+  adminOnly,
+  removeStaffFromFloorController
+);
+
+router.patch(
+  "/leaves/:leaveId/status",
+  protect,
+  adminOnly,
+  updateLeaveStatusController
+);
+
+router.get("/all-leaves", protect, adminOnly, getAllLeavesController);
+
+router.get(
+  "/staff/:staffId/attendance",
+  protect,
+  adminOnly,
+  getStaffAttendanceController
 );
 
 export default router;

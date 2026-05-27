@@ -1,5 +1,10 @@
 import { asyncHandler } from "../middleware/asyncHandler";
 import { Request, Response } from "express";
+import {
+  assignStaffToFloorService,
+  getFloorStaffService,
+  removeStaffFromFloorService,
+} from "../Service/floor.service";
 
 import {
   createFloorService,
@@ -109,5 +114,66 @@ export const getAvailableStaffController = asyncHandler(
 
       staff,
     });
+  }
+);
+
+export const assignStaffToFloorController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("assignStaffToFloorController triggering");
+
+    const organizationId = req.user!.organizationId;
+
+    const assignedBy = req.user!.userId;
+
+    const floorId = Number(req.params.floorId);
+
+    const { staffId } = req.body;
+
+    const result = await assignStaffToFloorService({
+      organizationId,
+      assignedBy,
+      floorId,
+      userId: staffId,
+    });
+
+    res.status(200).json(result);
+  }
+);
+
+export const getFloorStaffController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("getFloorStaffController triggering");
+
+    const organizationId = req.user!.organizationId;
+
+    const floorId = Number(req.params.floorId);
+
+    const staff = await getFloorStaffService(organizationId, floorId);
+
+    res.status(200).json({
+      message: "Floor staff fetched successfully",
+
+      staff,
+    });
+  }
+);
+
+export const removeStaffFromFloorController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("removeStaffFromFloorController triggering");
+
+    const organizationId = req.user!.organizationId;
+
+    const floorId = Number(req.params.floorId);
+
+    const staffId = Number(req.params.staffId);
+
+    const result = await removeStaffFromFloorService({
+      organizationId,
+      floorId,
+      userId: staffId,
+    });
+
+    res.status(200).json(result);
   }
 );

@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
@@ -11,15 +12,55 @@ interface Props {
 
 export default function DatePicker({ selected, onSelect }: Props) {
   const [open, setOpen] = useState(false);
+  const [today, setToday] = useState<Date>(new Date());
+
+  useEffect(() => {
+    // Set today's date in local timezone
+    const now = new Date();
+    setToday(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+  }, []);
+
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      // Create local date at midnight
+      const localDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      );
+      onSelect(localDate);
+      setOpen(false);
+    }
+  };
+
+  // Disable dates that are before today (local timezone)
+  const disabledDays = (date: Date) => {
+    const compareDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    const compareToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    return compareDate < compareToday;
+  };
+
+  const displayDate = selected.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
   return (
     <div className="relative">
-      {/* Trigger button */}
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 px-3.5 py-2 rounded-xl
                    border border-slate-200 bg-white hover:bg-slate-50
-                   transition-colors text-sm text-slate-700"
+                   transition-colors text-sm text-slate-700 w-full"
       >
         <svg
           className="h-3.5 w-3.5 text-slate-400"
@@ -34,14 +75,9 @@ export default function DatePicker({ selected, onSelect }: Props) {
             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
-        {selected.toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        })}
+        {displayDate}
       </button>
 
-      {/* Calendar dropdown */}
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
@@ -53,13 +89,13 @@ export default function DatePicker({ selected, onSelect }: Props) {
             <DayPicker
               mode="single"
               selected={selected}
-              onSelect={(date) => {
-                if (date) {
-                  onSelect(date);
-                  setOpen(false);
-                }
+              onSelect={handleSelect}
+              disabled={disabledDays}
+              defaultMonth={today}
+              modifiersClassNames={{
+                selected: "bg-emerald-500 text-white rounded-md",
+                today: "border border-emerald-500 rounded-md",
               }}
-              disabled={{ after: new Date() }}
             />
           </div>
         </>

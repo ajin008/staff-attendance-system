@@ -9,6 +9,8 @@ export const createDepartment = async (data: {
 
   shiftEnd: string;
 
+  weeklyOffDays: string[];
+
   overtimeEnabled: boolean;
 
   overtimeGraceMins: number;

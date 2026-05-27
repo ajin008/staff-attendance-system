@@ -133,3 +133,66 @@ export const getTodayAttendanceData =
     );
     return response.data;
   };
+
+export interface AttendanceRecord {
+  id: number;
+  date: string;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  status: "present" | "absent" | "late" | "half-day";
+  lateMinutes: number;
+  isLate: boolean;
+  branch: {
+    id: number;
+    name: string;
+  };
+  workHours?: number;
+}
+
+export interface StaffAttendanceResponse {
+  message: string;
+  data: {
+    staff: {
+      id: number;
+      staffId: string;
+      name: string;
+      email: string;
+      department: {
+        id: number;
+        name: string;
+      };
+    };
+    attendance: AttendanceRecord[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  };
+}
+
+export interface GetStaffAttendanceParams {
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const getStaffAttendance = async (
+  staffId: string,
+  params: GetStaffAttendanceParams
+): Promise<StaffAttendanceResponse> => {
+  const queryParams = new URLSearchParams();
+
+  if (params.startDate) queryParams.append("startDate", params.startDate);
+  if (params.endDate) queryParams.append("endDate", params.endDate);
+  if (params.page) queryParams.append("page", params.page.toString());
+  if (params.limit) queryParams.append("limit", params.limit.toString());
+
+  const url = `${ENDPOINT.GET_STAFF_ATTENDANCE(
+    staffId
+  )}?${queryParams.toString()}`;
+  const response = await api.get<StaffAttendanceResponse>(url);
+  return response.data;
+};

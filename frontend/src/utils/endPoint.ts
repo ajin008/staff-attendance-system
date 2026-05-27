@@ -36,4 +36,14 @@ export const ENDPOINT = {
     `/admin/floors/${floorId}/available-staff`,
   GET_FLOOR_STAFF: (floorId: number) => `/admin/floors/${floorId}/staff`,
   ASSIGN_STAFF_TO_FLOOR: (floorId: number) => `/admin/floors/${floorId}/assign`,
+  REMOVE_STAFF_FROM_FLOOR: (floorId: number, staffId: number) =>
+    `/admin/floors/${floorId}/staff/${staffId}`,
+
+  // staff leave endpoints
+  CREATE_LEAVE: "/staff/leaves/create",
+  GET_MY_LEAVES: "/staff/leaves/my-leaves",
+  GET_ALL_LEAVES: "/admin/all-leaves",
+  UPDATE_LEAVE_STATUS: (leaveId: number) => `/admin/leaves/${leaveId}/status`,
+  GET_STAFF_ATTENDANCE: (staffId: string) =>
+    `/admin/staff/${staffId}/attendance`,
 };

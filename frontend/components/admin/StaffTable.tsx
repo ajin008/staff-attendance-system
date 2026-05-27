@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // components/admin/StaffTable.tsx
 "use client";
 
@@ -11,6 +12,10 @@ import {
   Search,
   X,
   ArrowLeft,
+  Calendar,
+  Building2,
+  Users,
+  Clock,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Staff, Department } from "@/src/types";
@@ -47,9 +52,7 @@ export default function StaffTable({
   const router = useRouter();
   const [localSearch, setLocalSearch] = useState(searchTerm);
 
-  // Update local search when prop changes (from clear button)
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalSearch(searchTerm);
   }, [searchTerm]);
 
@@ -67,17 +70,40 @@ export default function StaffTable({
     return department?.name || "—";
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "—";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {/* Back Button - Top */}
-        <button
-          onClick={() => router.push("/admin")}
-          className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-          <span>back to dashboard</span>
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => router.push("/admin")}
+            className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span>back to dashboard</span>
+          </button>
+
+          <button
+            onClick={() => router.push("/admin/departments")}
+            className="relative group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:scale-[0.98] active:scale-[0.96]"
+          >
+            <span className="absolute inset-0 rounded-full bg-slate-50 group-hover:bg-slate-100 transition-all duration-300 scale-105" />
+            <span className="relative flex items-center gap-2 text-slate-600">
+              <Building2 className="h-4 w-4" />
+              <span>manage departments</span>
+              <span className="text-[10px] font-mono text-slate-400">✦</span>
+            </span>
+          </button>
+        </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
           <div className="overflow-x-auto">
@@ -89,6 +115,7 @@ export default function StaffTable({
                     "Name",
                     "Email",
                     "Department",
+                    "Joined",
                     "Phone",
                     "Actions",
                   ].map((h) => (
@@ -123,7 +150,10 @@ export default function StaffTable({
                       <div className="h-4 bg-slate-100 rounded w-28"></div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="h-4 bg-slate-100 rounded w-16"></div>
+                      <div className="h-4 bg-slate-100 rounded w-28"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-slate-100 rounded w-32"></div>
                     </td>
                   </tr>
                 ))}
@@ -137,16 +167,30 @@ export default function StaffTable({
 
   return (
     <div className="space-y-4">
-      {/* Back Button - Top */}
-      <button
-        onClick={() => router.push("/admin")}
-        className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-        <span>back to dashboard</span>
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => router.push("/admin")}
+          className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+          <span>back to dashboard</span>
+        </button>
 
-      {/* Search Bar */}
+        <button
+          onClick={() => router.push("/admin/departments")}
+          className="relative group"
+        >
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-slate-50 to-slate-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-slate-600 hover:text-slate-800 transition-all duration-200">
+            <Building2 className="h-4 w-4" />
+            <span>departments</span>
+            <span className="text-[11px] font-mono text-slate-300 group-hover:text-slate-400 transition-colors">
+              / {departments.length}
+            </span>
+          </div>
+        </button>
+      </div>
+
       <form onSubmit={handleSearchSubmit} className="relative max-w-md">
         <input
           type="text"
@@ -167,24 +211,23 @@ export default function StaffTable({
         )}
       </form>
 
-      {/* Staff Count with Search Info */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <p className="text-xs text-slate-400">
           {searchTerm ? (
             <>
-              found {totalStaff} result{totalStaff !== 1 ? "s" : ""} for &quot;
+              found {totalStaff} result{totalStaff !== 1 ? "s" : ""} for &#34;
               <span className="font-medium text-slate-500">{searchTerm}</span>
-              &quot;
+              &#34;
             </>
           ) : (
             <>
-              showing {staff.length} of {totalStaff} employees
+              <Users className="inline h-3 w-3 mr-1" />
+              {staff.length} of {totalStaff} team members
             </>
           )}
         </p>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -203,6 +246,9 @@ export default function StaffTable({
                   Department
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  Joined
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Phone
                 </th>
                 <th className="px-6 py-4 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
@@ -213,7 +259,7 @@ export default function StaffTable({
             <tbody>
               {staff.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <p className="text-sm text-slate-400">
                         no employees found
@@ -233,7 +279,7 @@ export default function StaffTable({
                 staff.map((member) => (
                   <tr
                     key={member.id}
-                    className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
+                    className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors group"
                   >
                     <td className="px-6 py-4">
                       <p className="text-sm font-mono text-slate-600">
@@ -249,9 +295,18 @@ export default function StaffTable({
                       <p className="text-sm text-slate-600">{member.email}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex px-2 py-1 rounded-full bg-slate-100 text-xs text-slate-600">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-xs text-slate-600">
+                        <Building2 className="h-3 w-3" />
                         {getDepartmentName(member.department)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-slate-300" />
+                        <span className="text-sm text-slate-500">
+                          {formatDate(member.joinedOn || member.createdAt)}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm text-slate-500">
@@ -259,25 +314,44 @@ export default function StaffTable({
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* View Attendance Button - Clear Text Button */}
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/admin/staff/${member.staffId}/attendance`
+                            )
+                          }
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all duration-200"
+                          title="View Attendance Records"
+                        >
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>attendance</span>
+                        </button>
+
+                        {/* View Details Button */}
                         <button
                           onClick={() => onView(member)}
                           className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
-                          title="View"
+                          title="View Details"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
+
+                        {/* Edit Button */}
                         <button
                           onClick={() => onEdit(member)}
                           className="p-2 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200"
-                          title="Edit"
+                          title="Edit Staff"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
+
+                        {/* Delete Button */}
                         <button
                           onClick={() => onDelete(member)}
                           className="p-2 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200"
-                          title="Delete"
+                          title="Delete Staff"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -290,7 +364,6 @@ export default function StaffTable({
           </table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/30">
             <button

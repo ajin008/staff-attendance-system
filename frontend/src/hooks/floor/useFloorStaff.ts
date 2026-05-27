@@ -1,12 +1,11 @@
-import type { Staff } from "./../../types/index";
 // src/hooks/floor/useFloorStaff.ts
 import { useState, useEffect } from "react";
 import useSWR from "swr";
 import {
   getFloorStaff,
   assignStaffToFloor,
+  removeStaffFromFloor,
 } from "../../services/floor.service";
-
 import { toast } from "sonner";
 
 const getFloorStaffKey = (floorId: number) => `/admin/floors/${floorId}/staff`;
@@ -43,17 +42,17 @@ export function useFloorStaff(floorId: number, maxCapacity: number) {
 
   // Update heat map when assigned staff changes
   useEffect(() => {
-    if (assignedStaff) {
-      const occupiedSeats = assignedStaff.map((_, index) => index);
+    if (assignedStaff && Array.isArray(assignedStaff)) {
+      const occupiedCount = assignedStaff.length;
       const newSeats = Array.from({ length: maxCapacity }, (_, i) => ({
         id: i,
-        isOccupied: occupiedSeats.includes(i),
+        isOccupied: i < occupiedCount,
       }));
 
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setHeatMapData({
         seats: newSeats,
-        occupiedCount: assignedStaff.length,
+        occupiedCount: occupiedCount,
       });
     }
   }, [assignedStaff, maxCapacity]);
@@ -84,14 +83,13 @@ export function useFloorStaff(floorId: number, maxCapacity: number) {
     // Also update the assigned staff list optimistically
     const optimisticStaff = [
       ...(assignedStaff || []),
-      { id: staffId, staffId: `ST-${staffId}`, name: "Loading..." }, // Temporary placeholder
+      { id: staffId, staffId: `ST-${staffId}`, name: "Loading..." },
     ];
     mutate(optimisticStaff, false);
 
     try {
-      const response = await assignStaffToFloor(floorId, staffId);
-      // Refresh data from server
-      await mutate();
+      await assignStaffToFloor(floorId, staffId);
+      await mutate(); // Refresh data from server
       toast.success("Staff assigned successfully");
     } catch (error) {
       // Revert optimistic updates on error
@@ -105,12 +103,62 @@ export function useFloorStaff(floorId: number, maxCapacity: number) {
     }
   };
 
+  const removeFromFloor = async (staffId: number) => {
+    // Find which seat this staff occupies based on their position in the array
+    const staffIndex = (assignedStaff || []).findIndex((s) => s.id === staffId);
+
+    if (staffIndex === -1) {
+      toast.error("Staff not found on this floor");
+      return;
+    }
+
+    // Optimistic update - remove from heat map
+    const optimisticSeats = [...heatMapData.seats];
+    optimisticSeats[staffIndex] = {
+      ...optimisticSeats[staffIndex],
+      isOccupied: false,
+    };
+
+    // Shift remaining seats to maintain order
+    const reorderedSeats = [...optimisticSeats];
+    const occupiedSeats = reorderedSeats.filter((seat) => seat.isOccupied);
+    const emptySeats = reorderedSeats.filter((seat) => !seat.isOccupied);
+    const newSeats = [...occupiedSeats, ...emptySeats];
+
+    setHeatMapData({
+      seats: newSeats,
+      occupiedCount: heatMapData.occupiedCount - 1,
+    });
+
+    // Optimistic update - remove from assigned staff list
+    const optimisticStaff = (assignedStaff || []).filter(
+      (s) => s.id !== staffId
+    );
+    mutate(optimisticStaff, false);
+
+    try {
+      await removeStaffFromFloor(floorId, staffId);
+      await mutate(); // Refresh data from server
+      toast.success("Staff removed successfully");
+    } catch (error) {
+      // Revert on error
+      setHeatMapData({
+        seats: heatMapData.seats,
+        occupiedCount: heatMapData.occupiedCount,
+      });
+      await mutate();
+      toast.error("Failed to remove staff");
+      throw error;
+    }
+  };
+
   return {
     assignedStaff: assignedStaff || [],
     isLoading,
     error,
     heatMapData,
     assignToFloor,
+    removeFromFloor,
     refreshStaff: mutate,
   };
 }

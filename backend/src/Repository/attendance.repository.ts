@@ -42,3 +42,75 @@ export const updateAttendanceCheckOut = async (
     data,
   });
 };
+
+export const findStaffAttendance = async ({
+  userId,
+  skip,
+  limit,
+  startDate,
+  endDate,
+}: {
+  userId: number;
+
+  skip: number;
+
+  limit: number;
+
+  startDate?: string;
+
+  endDate?: string;
+}) => {
+  return prisma.attendance.findMany({
+    where: {
+      userId,
+
+      ...(startDate &&
+        endDate && {
+          createdAt: {
+            gte: new Date(startDate),
+
+            lte: new Date(endDate),
+          },
+        }),
+    },
+
+    include: {
+      branch: true,
+    },
+
+    skip,
+
+    take: limit,
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
+export const countStaffAttendance = async ({
+  userId,
+  startDate,
+  endDate,
+}: {
+  userId: number;
+
+  startDate?: string;
+
+  endDate?: string;
+}) => {
+  return prisma.attendance.count({
+    where: {
+      userId,
+
+      ...(startDate &&
+        endDate && {
+          createdAt: {
+            gte: new Date(startDate),
+
+            lte: new Date(endDate),
+          },
+        }),
+    },
+  });
+};

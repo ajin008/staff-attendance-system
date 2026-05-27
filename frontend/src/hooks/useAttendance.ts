@@ -56,7 +56,7 @@ export const useAttendance = () => {
         toast.info("You've already completed today's shift");
       }
     } catch (error) {
-      console.error("Error fetching today's attendance:", error);
+      // console.error("Error fetching today's attendance:", error);
       setState((prev) => ({ ...prev, isInitialLoading: false }));
     }
   }, []);

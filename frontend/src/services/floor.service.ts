@@ -20,13 +20,31 @@ export interface Floor {
   staff?: Staff[];
   createdAt?: string;
   updatedAt?: string;
+  organizationId?: number;
+  code?: string | null;
+  _count?: {
+    staffAllocations?: number;
+  };
 }
 
 export interface Staff {
   id: number;
   staffId: string;
   name: string;
+  email?: string;
+  phone?: string;
   checkInTime?: string;
+  assignedAt?: string;
+  assignedBy?: number;
+  floorId?: number;
+  branchId?: number;
+  isActive?: boolean;
+  checkedOutAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  userId?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  attendance?: any[];
 }
 
 export interface CreateFloorPayload {
@@ -53,12 +71,31 @@ export interface CreateFloorResponse {
 
 // Get all floors
 export const getAllFloors = async (): Promise<Floor[]> => {
-  //   console.log("Fetching all floors...");
   const response = await api.get<GetAllFloorsResponse>(ENDPOINT.GET_ALL_FLOORS);
-  //   console.log("Received floors data:", response.data.floors);
-  return response.data.floors;
-};
+  console.log("Raw floors data from backend:", response.data.floors);
 
+  // Transform the backend data to match frontend interface
+  const transformedFloors = response.data.floors.map((floor: Floor) => ({
+    id: floor.id,
+    name: floor.name,
+    maxCapacity: floor.maxCapacity,
+    branchId: floor.branchId,
+    isActive: floor.isActive,
+    branch: floor.branch,
+    createdAt: floor.createdAt,
+    updatedAt: floor.updatedAt,
+    organizationId: floor.organizationId,
+    code: floor.code,
+    // Transform _count to currentStaffCount
+    currentStaffCount: floor._count?.staffAllocations || 0,
+    availableSlots: floor.maxCapacity - (floor._count?.staffAllocations || 0),
+    isFull: (floor._count?.staffAllocations || 0) >= floor.maxCapacity,
+    staff: [], // Staff details are not included in list view, only in detail view
+  }));
+
+  console.log("Transformed floors data:", transformedFloors);
+  return transformedFloors;
+};
 // Create new floor
 export const createFloor = async (
   payload: CreateFloorPayload
@@ -98,7 +135,38 @@ export const getAvailableStaff = async (floorId: number): Promise<Staff[]> => {
 // Get staff assigned to a specific floor
 export const getFloorStaff = async (floorId: number): Promise<Staff[]> => {
   const response = await api.get(ENDPOINT.GET_FLOOR_STAFF(floorId));
-  return response.data.staff || response.data;
+  console.log("getFloorStaff response:", response.data);
+
+  if (response.data.staff && Array.isArray(response.data.staff)) {
+    // Transform the data to extract user info into top-level properties
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transformedStaff = response.data.staff.map((item: any) => ({
+      id: item.user?.id || item.id,
+      staffId: item.user?.staffId || item.staffId,
+      name: item.user?.name || item.name,
+      email: item.user?.email || item.email,
+      phone: item.user?.phone || item.phone,
+      assignedAt: item.assignedAt,
+      assignedBy: item.assignedBy,
+      floorId: item.floorId,
+      branchId: item.branchId,
+      isActive: item.isActive,
+      checkedOutAt: item.checkedOutAt,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      userId: item.userId,
+      attendance: item.user?.attendance || [],
+    }));
+
+    console.log("🔄 Transformed staff data:", transformedStaff);
+    return transformedStaff;
+  }
+
+  if (Array.isArray(response.data)) {
+    return response.data;
+  }
+
+  return [];
 };
 
 // Assign staff to floor
@@ -109,5 +177,17 @@ export const assignStaffToFloor = async (
   const response = await api.post(ENDPOINT.ASSIGN_STAFF_TO_FLOOR(floorId), {
     staffId,
   });
+  console.log("assignStaffToFloor response:", response.data);
+  return response.data;
+};
+
+export const removeStaffFromFloor = async (
+  floorId: number,
+  staffId: number
+): Promise<{ message: string }> => {
+  console.log(`Removing staff ${staffId} from floor ${floorId}...`);
+  const response = await api.delete(
+    ENDPOINT.REMOVE_STAFF_FROM_FLOOR(floorId, staffId)
+  );
   return response.data;
 };

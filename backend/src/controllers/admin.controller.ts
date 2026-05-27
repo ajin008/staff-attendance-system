@@ -13,7 +13,7 @@ export const getStatusController = asyncHandler(
     const organizationId = req.user!.organizationId;
 
     const result = await adminStatusService(userId, organizationId);
-    console.log("status: result:", result);
+    // console.log("status: result:", result);
 
     res.status(200).json({
       message: "Dashboard status fetched successfully",

@@ -132,3 +132,58 @@ export const findAvailableStaffByBranch = async (
     },
   });
 };
+
+export const findActiveAllocationByUserId = async (userId: number) => {
+  return prisma.staffAllocation.findFirst({
+    where: {
+      userId,
+
+      isActive: true,
+    },
+  });
+};
+
+export const createStaffAllocation = async (data: {
+  userId: number;
+
+  organizationId: number;
+
+  branchId: number;
+
+  floorId: number;
+
+  assignedBy: number;
+}) => {
+  return prisma.staffAllocation.create({
+    data,
+  });
+};
+
+export const findActiveAllocationByFloorAndUser = async (
+  floorId: number,
+  userId: number
+) => {
+  return prisma.staffAllocation.findFirst({
+    where: {
+      floorId,
+
+      userId,
+
+      isActive: true,
+    },
+  });
+};
+
+export const deactivateStaffAllocation = async (allocationId: number) => {
+  return prisma.staffAllocation.update({
+    where: {
+      id: allocationId,
+    },
+
+    data: {
+      isActive: false,
+
+      checkedOutAt: new Date(),
+    },
+  });
+};

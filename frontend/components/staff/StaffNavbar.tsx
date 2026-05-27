@@ -14,8 +14,11 @@ import {
   Menu,
   X,
   ChevronRight,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useLeaveRequest } from "@/src/hooks/staff/useLeaveRequest";
+import LeaveRequestModal from "./LeaveRequestModal";
 
 interface NavItem {
   name: string;
@@ -35,8 +38,8 @@ const navItems: NavItem[] = [
     icon: <Clock className="h-4 w-4" />,
   },
   {
-    name: "History",
-    href: "/staff/history",
+    name: "leave ",
+    href: "/staff/leave",
     icon: <Calendar className="h-4 w-4" />,
   },
   {
@@ -52,6 +55,14 @@ export const StaffNavbar = () => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const {
+    isOpen: isLeaveModalOpen,
+    isSubmitting: isLeaveSubmitting,
+    openModal: openLeaveModal,
+    closeModal: closeLeaveModal,
+    submitLeaveRequest,
+  } = useLeaveRequest();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -178,11 +189,20 @@ export const StaffNavbar = () => {
 
             {/* User Menu Section */}
             <div className="flex items-center gap-3">
+              {/* Leave Request Button */}
+              <button
+                onClick={openLeaveModal}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all duration-200"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span className="text-xs">Request Leave</span>
+              </button>
+
               {/* Staff info - organic card feel */}
               <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-50/80 border border-slate-100">
                 {/* Avatar - hand-drawn style */}
                 <div className="relative">
-                  <div className="w-7 h-7 rounded-full bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                     <span className="text-[11px] font-medium text-slate-600">
                       {getStaffInitials()}
                     </span>
@@ -227,7 +247,7 @@ export const StaffNavbar = () => {
         </div>
 
         {/* Decorative bottom line - handmade touch */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-slate-200/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200/50 to-transparent" />
       </nav>
 
       {/* Mobile Menu Overlay */}
@@ -301,6 +321,18 @@ export const StaffNavbar = () => {
               );
             })}
 
+            {/* Mobile Leave Request Button */}
+            <button
+              onClick={() => {
+                openLeaveModal();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-150"
+            >
+              <FileText className="h-4 w-4" />
+              <span className="text-sm font-medium">Request Leave</span>
+            </button>
+
             {/* Mobile logout */}
             <div className="border-t border-slate-100 my-2" />
             <button
@@ -340,6 +372,14 @@ export const StaffNavbar = () => {
           </div>
         </div>
       </div>
+
+      {/* Leave Request Modal */}
+      <LeaveRequestModal
+        isOpen={isLeaveModalOpen}
+        onClose={closeLeaveModal}
+        onSubmit={submitLeaveRequest}
+        isSubmitting={isLeaveSubmitting}
+      />
 
       {/* Spacer to prevent content from going under navbar */}
       <div className="h-16 lg:h-20" />
