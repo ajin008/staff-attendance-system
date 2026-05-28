@@ -5,6 +5,7 @@ import {
   deleteDepartmentController,
   fetchDepartmentController,
   getDepartmentByIdController,
+  toggleDepartmentStatusController,
   updateDepartmentController,
 } from "../controllers/department.controller";
 import { createStaff } from "../controllers/auth.controller";
@@ -17,7 +18,10 @@ import {
   getTodayAttendanceDataController,
 } from "../controllers/admin.controller";
 
-import { getAllBranchesController } from "../controllers/branch.controller";
+import {
+  deleteBranchController,
+  getAllBranchesController,
+} from "../controllers/branch.controller";
 import { getTodayAttendanceController } from "../controllers/staff.controller";
 import {
   createFloorController,
@@ -39,6 +43,12 @@ import {
   generatePayslipController,
   getPayrollController,
 } from "../controllers/payrole.controller";
+import {
+  getProfileDetailsController,
+  updateProfileDetailsController,
+} from "../controllers/profile.controller";
+
+import { createBranchController } from "../controllers/branch.controller";
 
 const router = Router();
 
@@ -154,6 +164,37 @@ router.post(
   protect,
   adminOnly,
   generatePayslipController
+);
+
+router.patch(
+  "/toggleDepartmentStatus/:departmentId",
+  protect,
+  adminOnly,
+  toggleDepartmentStatusController
+);
+router.get(
+  "/profile-settings/get-profile",
+  protect,
+  adminOnly,
+  getProfileDetailsController
+);
+
+router.put(
+  "/profile-settings/update-profile",
+  protect,
+  adminOnly,
+  updateProfileDetailsController
+);
+
+router.post("/create-branch", protect, adminOnly, createBranchController);
+
+router.delete("/branches/:branchId", protect, adminOnly);
+
+router.delete(
+  "/branches/:branchId",
+  protect,
+  adminOnly,
+  deleteBranchController
 );
 
 export default router;

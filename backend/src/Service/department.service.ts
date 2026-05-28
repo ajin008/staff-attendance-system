@@ -3,6 +3,7 @@ import AppError from "../utils/AppError";
 import {
   countDepartmentByOrganization,
   createDepartment,
+  updateDepartmentStatus,
 } from "../Repository/department.repository";
 import { findDepartmentByOrganizationId } from "../Repository/department.repository";
 import {
@@ -172,4 +173,28 @@ export const updateDepartmentService = async (
   return {
     message: "Department updated successfully",
   };
+};
+
+export const toggleDepartmentStatusService = async ({
+  organizationId,
+  departmentId,
+  isActive,
+}: {
+  organizationId: number;
+
+  departmentId: number;
+
+  isActive: boolean;
+}) => {
+  const department = await findDepartmentById(organizationId, departmentId);
+
+  if (!department) {
+    throw new AppError("Department not found", 404);
+  }
+
+  if (department.organizationId !== organizationId) {
+    throw new AppError("Unauthorized access", 403);
+  }
+
+  return updateDepartmentStatus(departmentId, isActive);
 };

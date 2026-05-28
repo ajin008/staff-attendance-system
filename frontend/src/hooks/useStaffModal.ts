@@ -50,8 +50,15 @@ export function useStaffModal({ onStatsChange }: UseStaffModalProps = {}) {
     setError(null);
     try {
       const departmentsData = await getAllDepartments();
-      console.log("Fetched departments:", departmentsData);
-      setDepartments(departmentsData || []);
+      console.log("Fetched raw departments:", departmentsData);
+
+      // Filter out departments whose operational state is inactive
+      const activeDepartments = (departmentsData || []).filter(
+        (dept: Department) => dept.isActive !== false
+      );
+
+      console.log("Filtered active departments:", activeDepartments);
+      setDepartments(activeDepartments);
     } catch (error) {
       console.error("Error fetching departments:", error);
       setError("Failed to load departments");

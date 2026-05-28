@@ -118,3 +118,18 @@ export const countDepartmentByOrganization = async (
     },
   });
 };
+
+export const updateDepartmentStatus = async (
+  departmentId: number,
+  isActive: boolean
+) => {
+  return prisma.department.update({
+    where: {
+      id: departmentId,
+    },
+
+    data: {
+      isActive,
+    },
+  });
+};

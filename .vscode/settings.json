@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["CREATEDEPARTMENT", "Myattendence"],
+  "cSpell.words": ["attendence", "CREATEDEPARTMENT", "Myattendence"],
   "sqltools.connections": [
     {
       "ssh": "Disabled",

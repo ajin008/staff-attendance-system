@@ -28,3 +28,20 @@ export const findOrganizationById = async (organizationId: number) => {
     },
   });
 };
+
+export const updateOrganizationProfile = async (
+  organizationId: number,
+  data: {
+    companyName: string;
+
+    industry: string;
+  }
+) => {
+  return prisma.organization.update({
+    where: {
+      id: organizationId,
+    },
+
+    data,
+  });
+};

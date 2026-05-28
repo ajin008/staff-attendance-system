@@ -169,3 +169,13 @@ export const findAbsentStaff = async (organizationId: number) => {
     },
   });
 };
+
+export const updateAdminProfile = async (userId: number, data: any) => {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+
+    data,
+  });
+};

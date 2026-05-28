@@ -1,8 +1,7 @@
 export const getISTDate = () => {
   const date = new Date();
 
-  // ADD 1 DAY
-  date.setDate(date.getDate() + 1);
+  date.setDate(date.getDate());
 
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kolkata",

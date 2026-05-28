@@ -169,3 +169,19 @@ export const findFloorStaff = async (floorId: number) => {
     },
   });
 };
+
+export const checkOutStaffAllocation = async (userId: number) => {
+  return prisma.staffAllocation.updateMany({
+    where: {
+      userId,
+
+      isActive: true,
+    },
+
+    data: {
+      isActive: false,
+
+      checkedOutAt: new Date(),
+    },
+  });
+};

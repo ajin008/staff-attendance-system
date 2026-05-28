@@ -114,3 +114,30 @@ export const countStaffAttendance = async ({
     },
   });
 };
+
+export const findAllAttendanceSummary = async ({
+  userId,
+  startDate,
+  endDate,
+}: {
+  userId: number;
+
+  startDate?: string;
+
+  endDate?: string;
+}) => {
+  return prisma.attendance.findMany({
+    where: {
+      userId,
+
+      ...(startDate &&
+        endDate && {
+          createdAt: {
+            gte: new Date(startDate),
+
+            lte: new Date(endDate),
+          },
+        }),
+    },
+  });
+};

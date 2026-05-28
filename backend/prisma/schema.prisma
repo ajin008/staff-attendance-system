@@ -105,6 +105,8 @@ model Department {
   // DEFAULT RULES
   shiftStart String
 
+  isActive Boolean @default(true)
+
   shiftEnd String
 
   weeklyOffDays String[]

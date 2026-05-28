@@ -187,3 +187,26 @@ export const deactivateStaffAllocation = async (allocationId: number) => {
     },
   });
 };
+
+export const findStaffProfile = async ({
+  userId,
+  organizationId,
+}: {
+  userId: number;
+
+  organizationId: number;
+}) => {
+  return prisma.user.findFirst({
+    where: {
+      id: userId,
+
+      organizationId,
+    },
+
+    include: {
+      department: true,
+
+      branch: true,
+    },
+  });
+};

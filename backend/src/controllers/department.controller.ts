@@ -6,6 +6,7 @@ import {
   deleteDepartmentService,
   getDepartmentByIdService,
   updateDepartmentService,
+  toggleDepartmentStatusService,
 } from "../Service/department.service";
 
 export const createDepartment = asyncHandler(
@@ -77,5 +78,31 @@ export const updateDepartmentController = asyncHandler(
     );
 
     res.status(200).json(result);
+  }
+);
+
+export const toggleDepartmentStatusController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("toggleDepartmentStatusController triggering");
+
+    const organizationId = req.user!.organizationId;
+
+    const departmentId = Number(req.params.departmentId);
+
+    const { isActive } = req.body;
+
+    const result = await toggleDepartmentStatusService({
+      organizationId,
+
+      departmentId,
+
+      isActive,
+    });
+
+    res.status(200).json({
+      message: "Department status updated successfully",
+
+      data: result,
+    });
   }
 );

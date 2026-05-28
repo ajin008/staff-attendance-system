@@ -12,7 +12,7 @@ const tabs: TabItem[] = [
   {
     id: "dashboard",
     label: "Dashboard",
-    hint: "today's overview",
+    hint: "overview",
     icon: (
       <svg
         className="w-4 h-4"
@@ -52,7 +52,7 @@ const tabs: TabItem[] = [
   {
     id: "payroll",
     label: "Payroll",
-    hint: "salary & payslip",
+    hint: "compensation",
     icon: (
       <svg
         className="w-4 h-4"
@@ -79,9 +79,9 @@ export default function CardinalNav({
   onTabChange: (id: string) => void;
 }) {
   return (
-    <div className="bg-white/80 backdrop-blur-sm sticky top-14.25 z-40">
-      <div className="max-w-400 mx-auto px-6">
-        <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+    <div className="bg-white border-b border-slate-100 sticky top-[69px] z-40">
+      <div className="max-w-[1600px] mx-auto px-6">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -89,65 +89,41 @@ export default function CardinalNav({
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
                 className={`
-                  group relative px-4 py-2.5 transition-all duration-200 rounded-t-xl
+                  group relative py-4 transition-all duration-200 text-left flex items-center gap-2
                   ${
                     isActive
-                      ? "text-slate-900 bg-gradient-to-t from-slate-50/80 to-transparent"
-                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-50/50"
+                      ? "text-slate-900 font-semibold"
+                      : "text-slate-400 hover:text-slate-600"
                   }
                 `}
               >
-                <div className="flex items-center gap-2.5">
-                  {/* Icon */}
-                  <span
-                    className={`
-                      transition-all duration-200
-                      ${
-                        isActive
-                          ? "text-emerald-500 scale-105"
-                          : "text-slate-400 group-hover:text-slate-500"
-                      }
-                    `}
-                  >
-                    {tab.icon}
-                  </span>
+                {/* Clean, low-opacity Icon toggle */}
+                <span
+                  className={
+                    isActive
+                      ? "text-slate-950"
+                      : "text-slate-300 group-hover:text-slate-400"
+                  }
+                >
+                  {tab.icon}
+                </span>
 
-                  {/* Label */}
-                  <span
-                    className={`text-sm font-medium tracking-tight ${
-                      isActive ? "text-slate-800" : ""
-                    }`}
-                  >
-                    {tab.label}
-                  </span>
+                {/* Tab Plain Label */}
+                <span className="text-sm tracking-tight">{tab.label}</span>
 
-                  {/* Hint text */}
-                  <span className="hidden sm:inline text-[10px] font-mono text-slate-400 group-hover:text-slate-500 transition-colors duration-150">
-                    {tab.hint}
-                  </span>
-                </div>
+                {/* Inline structural breadcrumb/hint instead of a neon indicator */}
+                <span className="hidden sm:inline text-[10px] font-mono text-slate-300 bg-slate-50 border border-slate-100/70 px-1.5 py-0.5 rounded-md">
+                  {tab.hint}
+                </span>
 
-                {/* Active indicator - organic dot instead of bottom bar */}
+                {/* Solid minimal crisp underline matching top tier CRM designs */}
                 {isActive && (
-                  <>
-                    <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400">
-                      <span className="absolute inset-0 rounded-full bg-emerald-400 animate-pulse opacity-60"></span>
-                    </span>
-                    <span className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-60"></span>
-                  </>
-                )}
-
-                {/* Hover indicator for non-active tabs - subtle underline */}
-                {!isActive && (
-                  <span className="absolute bottom-0 left-5 right-5 h-px bg-slate-200 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0F0F11]" />
                 )}
               </button>
             );
           })}
         </div>
-
-        {/* Organic shadow line instead of border */}
-        <div className="h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
       </div>
     </div>
   );

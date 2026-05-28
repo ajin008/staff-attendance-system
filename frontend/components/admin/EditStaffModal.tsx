@@ -51,7 +51,6 @@ export default function EditStaffModal({
     if (selectedBranchId) {
       const branch = branches.find((b) => b.id === Number(selectedBranchId));
       if (branch) {
-        // For form display, we store the branch object
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setValue("branch", branch as any);
       }
@@ -68,7 +67,7 @@ export default function EditStaffModal({
         email: staff.email || "",
         phone: staff.phone || "",
         branch: staff.branch,
-        branchId: staff.branch?.id, // Get branchId from branch object
+        branchId: staff.branch?.id,
         departmentId: staff.department?.id,
       });
     }
@@ -77,7 +76,6 @@ export default function EditStaffModal({
   if (!staff) return null;
 
   const onFormSubmit = (data: Partial<Staff>) => {
-    // Clean up data before sending
     const submitData = {
       name: data.name,
       email: data.email,
@@ -90,30 +88,41 @@ export default function EditStaffModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Employee" size="md">
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-        {/* Staff ID Display */}
-        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-          <p className="text-xs text-slate-400 mb-1">Staff ID</p>
-          <p className="text-sm font-mono text-slate-600">{staff.staffId}</p>
+      <form
+        onSubmit={handleSubmit(onFormSubmit)}
+        className="space-y-4 antialiased"
+      >
+        {/* Flat Staff ID Core Node Node Block */}
+        <div className="bg-slate-50 rounded-md p-3 border border-slate-200/60">
+          <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+            System Node Staff ID
+          </p>
+          <p className="text-xs font-mono font-bold text-slate-800">
+            {staff.staffId}
+          </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Full Name <span className="text-red-400">*</span>
+        {/* Input Text Section Matrix Row */}
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-tight">
+            Full Name <span className="text-rose-500 font-normal">*</span>
           </label>
           <input
             type="text"
             {...register("name", { required: "Name is required" })}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+            className="w-full px-3.5 py-2 rounded-md border border-slate-200 focus:border-slate-900 focus:outline-none text-xs font-medium text-slate-900 transition-colors placeholder:text-slate-300"
           />
           {errors.name && (
-            <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>
+            <p className="text-[11px] font-medium text-rose-500 mt-0.5">
+              {errors.name.message}
+            </p>
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Email <span className="text-red-400">*</span>
+        {/* Email Address Section Row */}
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-tight">
+            Email Address <span className="text-rose-500 font-normal">*</span>
           </label>
           <input
             type="email"
@@ -124,66 +133,73 @@ export default function EditStaffModal({
                 message: "Invalid email address",
               },
             })}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+            className="w-full px-3.5 py-2 rounded-md border border-slate-200 focus:border-slate-900 focus:outline-none text-xs font-medium text-slate-900 transition-colors placeholder:text-slate-300"
           />
           {errors.email && (
-            <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
+            <p className="text-[11px] font-medium text-rose-500 mt-0.5">
+              {errors.email.message}
+            </p>
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Phone
+        {/* Phone Comms Vector Identifier Row */}
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-tight">
+            Phone Identifier
           </label>
           <input
-            type="tel"
+            type="text"
             {...register("phone")}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+            className="w-full px-3.5 py-2 rounded-md border border-slate-200 focus:border-slate-900 focus:outline-none text-xs font-mono text-slate-900 transition-colors placeholder:text-slate-300"
+            placeholder="+910000000000"
           />
         </div>
 
-        {/* Branch Dropdown */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Branch
+        {/* Branch Allocation Node Selector Menu */}
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-tight">
+            Branch Allocation Location
           </label>
           <select
             {...register("branchId", { valueAsNumber: true })}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm cursor-pointer bg-white"
+            className="w-full px-3.5 py-2 rounded-md border border-slate-200 focus:border-slate-900 focus:outline-none text-xs font-medium text-slate-900 transition-colors cursor-pointer bg-white appearance-none"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-              backgroundPosition: "right 1rem center",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+              backgroundPosition: "right 0.85rem center",
               backgroundRepeat: "no-repeat",
-              backgroundSize: "1.25rem",
+              backgroundSize: "1rem",
             }}
           >
-            <option value="">Select branch (optional)</option>
+            <option value="">
+              Select operational branch location (optional)
+            </option>
             {branches.map((branch) => (
               <option key={branch.id} value={branch.id}>
                 {branch.name}
               </option>
             ))}
           </select>
-          <p className="text-xs text-slate-400 mt-1">
-            Select a branch to assign staff location
+          <p className="text-[10px] text-slate-400 font-normal">
+            Assign regional physical workspace anchor coordinates.
           </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Department
+        {/* Operational Group Cluster Department Dropdown Vector */}
+        <div className="space-y-1">
+          <label className="block text-xs font-bold text-slate-800 uppercase tracking-tight">
+            Department Cluster Segment
           </label>
           <select
             {...register("departmentId", { valueAsNumber: true })}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm cursor-pointer bg-white"
+            className="w-full px-3.5 py-2 rounded-md border border-slate-200 focus:border-slate-900 focus:outline-none text-xs font-medium text-slate-900 transition-colors cursor-pointer bg-white appearance-none"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-              backgroundPosition: "right 1rem center",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+              backgroundPosition: "right 0.85rem center",
               backgroundRepeat: "no-repeat",
-              backgroundSize: "1.25rem",
+              backgroundSize: "1rem",
             }}
           >
-            <option value="">Select department</option>
+            <option value="">Select core infrastructure department</option>
             {departments.map((dept) => (
               <option key={dept.id} value={dept.id}>
                 {dept.name}
@@ -192,20 +208,21 @@ export default function EditStaffModal({
           </select>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        {/* Structural Form Control Matrix Interface Actions */}
+        <div className="flex gap-3 pt-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-700 hover:bg-slate-50 border border-slate-200 transition-colors"
+            className="flex-1 px-4 py-2 border border-slate-200 rounded-md text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all focus:outline-none"
           >
-            Cancel
+            Cancel Allocation
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 px-4 py-2 bg-slate-900 border border-slate-950 rounded-md text-xs font-bold uppercase tracking-wider text-white hover:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-all focus:outline-none"
           >
-            {isSubmitting ? "Saving..." : "Save Changes"}
+            {isSubmitting ? "Writing Registry Data..." : "Apply Layout Shifts"}
           </button>
         </div>
       </form>

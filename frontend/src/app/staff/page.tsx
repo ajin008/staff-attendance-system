@@ -8,57 +8,90 @@ import { useAuth } from "@/src/context/AuthContext";
 export default function StaffDashboardPage() {
   const { user } = useAuth();
 
+  const getFormattedDate = () => {
+    return new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   return (
-    <>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
       <StaffNavbar />
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          {/* Welcome Section */}
-          <div className="mb-10 lg:mb-12">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-1 h-6 bg-emerald-400 rounded-full" />
-              <span className="text-[11px] font-mono text-emerald-500 tracking-wider">
-                DASHBOARD
-              </span>
+
+      {/* Hero Header Block Inherited From Admin Dashboard UI */}
+      <div className="w-full bg-[#0F0F11] text-white pt-10 pb-24 border-b border-neutral-900">
+        <div className="w-full max-w-[1600px] mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="space-y-2 flex-1">
+            <div className="flex items-center gap-2 text-xs font-mono font-medium text-neutral-500 uppercase tracking-wider">
+              <span>Overview</span>
+              <span className="text-neutral-700">/</span>
+              <span className="text-neutral-300">Staff Workspace</span>
             </div>
-            <h1 className="text-3xl lg:text-4xl font-light tracking-tight text-slate-800">
-              Welcome back,{" "}
-              <span className="font-medium">
-                {user?.name?.split(" ")[0] || "Staff"}
-              </span>
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mt-1">
+              Welcome back, {user?.name || "Employee"}
             </h1>
-            <p className="text-sm text-slate-400 mt-2">
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+            <p className="text-xs md:text-sm text-neutral-400 font-normal leading-relaxed max-w-xl">
+              Access your personal terminal gateway to register real-time shift
+              markers, verify location criteria, and review workspace
+              instructions.
             </p>
           </div>
 
-          {/* Check In/Out Section */}
-          <div className="max-w-md">
-            <CheckInOutButton />
-          </div>
-
-          {/* Decorative elements */}
-          <div className="fixed bottom-8 right-8 opacity-30 pointer-events-none">
-            <svg className="w-32 h-32" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="0.5"
-                strokeDasharray="4 6"
-                className="text-slate-400"
-              />
-            </svg>
+          <div className="sm:text-right self-end sm:self-start pt-1">
+            <span className="text-xs font-mono font-medium tracking-wider text-neutral-400 bg-neutral-900/60 border border-neutral-800/80 px-3 py-1.5 rounded-md inline-block whitespace-nowrap">
+              {getFormattedDate()}
+            </span>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Main Content Stage Canvas */}
+      <div className="w-full max-w-[1600px] mx-auto px-6 pb-16 flex-1 -mt-12">
+        {/* Attendance Action Workspace Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          {/* Column 1: Core Action Control Portal */}
+          <div className="lg:col-span-1 bg-white border border-slate-200 rounded-lg p-1.5 shadow-xs">
+            <CheckInOutButton />
+          </div>
+
+          {/* Column 2 & 3: Informational Compliance Guidelines Card */}
+          <div className="lg:col-span-2 border border-slate-200 rounded-lg p-6 bg-white shadow-xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-4">
+              Daily Operational Guidelines
+            </span>
+
+            <div className="divide-y divide-slate-100 text-xs text-slate-600">
+              <div className="pb-3.5 flex items-start gap-3">
+                <span className="font-mono text-emerald-500 font-bold mt-0.5">
+                  01.
+                </span>
+                <p className="leading-relaxed">
+                  Please ensure your preferred web browser environment has{" "}
+                  <strong className="text-slate-900 font-semibold">
+                    location access services enabled
+                  </strong>{" "}
+                  prior to evaluating or dispatching any live attendance
+                  registry updates.
+                </p>
+              </div>
+
+              <div className="pt-3.5 flex items-start gap-3">
+                <span className="font-mono text-emerald-500 font-bold mt-0.5">
+                  02.
+                </span>
+                <p className="leading-relaxed">
+                  All biometric and coordinate data logs are securely validated
+                  in real time against your designated office infrastructure
+                  parameter boundaries.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

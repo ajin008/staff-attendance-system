@@ -4,67 +4,96 @@
 import { useState } from "react";
 import AdminNavbar from "@/components/admin/AdminNavbar";
 import CardinalNav from "@/components/admin/CardinalNav";
-import DashboardStats from "@/components/admin/DashboardStats";
-import DashboardAttendanceStats from "@/components/admin/DashboardAttendanceStats";
 import FloorMap from "@/components/admin/floor/FloorMap";
 import PayrollPage from "./paryole/page";
-
-// Dashboard Tab
-function DashboardContent() {
-  return (
-    <div className="space-y-8">
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-1 h-4 bg-slate-400 rounded-full" />
-          <h2 className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-            Company Overview
-          </h2>
-        </div>
-        <DashboardStats />
-      </div>
-
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-1 h-4 bg-emerald-400 rounded-full" />
-          <h2 className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-            Today&apos;s Attendance
-          </h2>
-        </div>
-        <DashboardAttendanceStats />
-      </div>
-    </div>
-  );
-}
-
-function FloorContent() {
-  return <FloorMap />;
-}
-
-function PayrollContent() {
-  return <PayrollPage />;
-}
+import DashboardClient from "@/components/admin/admin-dashbaord/DashboardClient";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { user, isLoading } = useAuth();
+
+  const getFormattedDate = () => {
+    return new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardContent />;
+        return <DashboardClient />;
       case "floor":
-        return <FloorContent />;
+        return <FloorMap />;
       case "payroll":
-        return <PayrollContent />;
+        return <PayrollPage />;
       default:
-        return <DashboardContent />;
+        return <DashboardClient />;
     }
   };
 
+  const adminName = user?.name || "Administrator";
+
   return (
-    <div className="min-h-screen bg-white">
-      <AdminNavbar />
-      <CardinalNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="max-w-400 mx-auto px-6 pb-12">{renderContent()}</div>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+      {/* Top Header Navigation Block */}
+      <div className="w-full bg-white border-b border-slate-100">
+        <AdminNavbar />
+        <CardinalNav activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+
+      {/* Hero Header Block */}
+      {activeTab === "dashboard" && (
+        <div className="w-full bg-[#0F0F11] text-white pt-10 pb-24 border-b border-neutral-900">
+          <div className="w-full max-w-[1600px] mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            {/* Left Column: Context Metadata & Dynamic Greeting */}
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2 text-xs font-mono font-medium text-neutral-500 uppercase tracking-wider">
+                <span>Overview</span>
+                <span className="text-neutral-700">/</span>
+                <span className="text-neutral-300">Workspace</span>
+              </div>
+
+              {isLoading ? (
+                <div className="space-y-3 pt-1">
+                  <div className="h-9 w-64 bg-neutral-800 rounded-lg animate-pulse" />
+                  <div className="h-4 w-96 bg-neutral-800 rounded-md animate-pulse" />
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mt-1">
+                    Welcome back, {adminName}
+                  </h1>
+
+                  <p className="text-xs md:text-sm text-neutral-400 font-normal leading-relaxed max-w-xl">
+                    Monitor real-time system logs, audit staff clock-ins, and
+                    oversee pending workspace metrics.
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Right Column: Precise Operational Date Badge */}
+            <div className="sm:text-right self-end sm:self-start pt-1">
+              <span className="text-xs font-mono font-medium tracking-wider text-neutral-400 bg-neutral-900/60 border border-neutral-800/80 px-3 py-1.5 rounded-md inline-block whitespace-nowrap">
+                {getFormattedDate()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Stage Canvas */}
+      <div
+        className={`w-full max-w-[1600px] mx-auto px-6 pb-16 flex-1 ${
+          activeTab === "dashboard" ? "-mt-12" : "pt-8"
+        }`}
+      >
+        {renderContent()}
+      </div>
     </div>
   );
 }

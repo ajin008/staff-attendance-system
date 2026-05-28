@@ -6,8 +6,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useDebounce } from "use-debounce";
 import { toast } from "sonner";
 import {
-  getAllDepartmentsPaginated, // Changed to use paginated version
-  deleteDepartment,
+  getAllDepartmentsPaginated,
+  toggleDepartmentStatus, // Integrated the updated micro-service call
   updateDepartment,
 } from "@/src/services/department.service";
 import type { Department, GetAllDepartmentsResponse } from "@/src/types";
@@ -23,15 +23,14 @@ export function useDepartmentManagement() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalDepartments, setTotalDepartments] = useState(0);
 
-  // Modal states
+  // Structural Modal States Array
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] =
     useState<Department | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset page when search term changes
+  // Parameter boundary adjustment reset hook
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearchTerm]);
@@ -68,26 +67,29 @@ export function useDepartmentManagement() {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (department: Department) => {
-    setSelectedDepartment(department);
-    setIsDeleteModalOpen(true);
-  };
+  // Immediate mutation interaction controller mapping
+  const handleToggleStatus = async (department: Department) => {
+    const nextState = !department.isActive;
+    const trackingToastId = toast.loading(
+      `Transitioning operational metrics array for ${department.name}...`
+    );
 
-  const confirmDelete = async () => {
-    if (!selectedDepartment) return;
-
-    setIsSubmitting(true);
     try {
-      await deleteDepartment(selectedDepartment.id);
-      toast.success("Department deleted successfully");
+      await toggleDepartmentStatus(department.id, nextState);
+
+      // Immediate structural array reflection map bypassing network retrieval
+      setDepartments((prevDepartments) =>
+        prevDepartments.map((d) =>
+          d.id === department.id ? { ...d, isActive: nextState } : d
+        )
+      );
+
+      toast.success(`${department.name} state successfully synchronized`, {
+        id: trackingToastId,
+      });
       triggerDashboardRefresh();
-      setIsDeleteModalOpen(false);
-      setSelectedDepartment(null);
-      fetchDepartments();
     } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsSubmitting(false);
+      toast.error(getErrorMessage(error), { id: trackingToastId });
     }
   };
 
@@ -97,7 +99,7 @@ export function useDepartmentManagement() {
     setIsSubmitting(true);
     try {
       await updateDepartment(selectedDepartment.id, data);
-      toast.success("Department updated successfully");
+      toast.success("Department parameters modified successfully");
       triggerDashboardRefresh();
       setIsEditModalOpen(false);
       setSelectedDepartment(null);
@@ -122,18 +124,15 @@ export function useDepartmentManagement() {
     totalDepartments,
     isViewModalOpen,
     isEditModalOpen,
-    isDeleteModalOpen,
     selectedDepartment,
     isSubmitting,
     setCurrentPage,
     handleView,
     handleEdit,
-    handleDelete,
-    confirmDelete,
+    handleToggleStatus,
     confirmUpdate,
     handleSearch,
     closeViewModal: () => setIsViewModalOpen(false),
     closeEditModal: () => setIsEditModalOpen(false),
-    closeDeleteModal: () => setIsDeleteModalOpen(false),
   };
 }

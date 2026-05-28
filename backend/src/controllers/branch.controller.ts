@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 
 import { asyncHandler } from "../middleware/asyncHandler";
 
-import { getAllBranchesService } from "../Service/branch.service";
+import {
+  createBranchService,
+  deleteBranchService,
+  getAllBranchesService,
+} from "../Service/branch.service";
 
 export const getAllBranchesController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -14,6 +18,51 @@ export const getAllBranchesController = asyncHandler(
       message: "Branches fetched successfully",
 
       branches,
+    });
+  }
+);
+
+export const createBranchController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("createBranchController triggering");
+
+    const organizationId = req.user!.organizationId;
+
+    const { name, latitude, longitude } = req.body;
+
+    const branch = await createBranchService({
+      organizationId,
+
+      name,
+
+      latitude,
+
+      longitude,
+    });
+
+    res.status(201).json({
+      message: "Branch created successfully",
+
+      branch,
+    });
+  }
+);
+
+export const deleteBranchController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("deleteBranchController triggering");
+
+    const organizationId = req.user!.organizationId;
+
+    const branchId = Number(req.params.branchId);
+
+    await deleteBranchService({
+      organizationId,
+      branchId,
+    });
+
+    res.status(200).json({
+      message: "Branch deleted successfully",
     });
   }
 );

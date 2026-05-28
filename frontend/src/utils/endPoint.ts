@@ -21,7 +21,8 @@ export const ENDPOINT = {
     `/admin/deleteDepartment/${departmentId}`,
   UPDATE_DEPARTMENT: (departmentId: number) =>
     `/admin/updateDepartment/${departmentId}`,
-
+  TOGGLE_DEPARTMENT: (departmentId: number) =>
+    `/admin/toggleDepartmentStatus/${departmentId}`,
   // branch
   GET_ALL_BRANCHES: "/admin/branches",
   GET_TODAY_ATTENDANCE_DATA: "/admin/attendance/today",
@@ -50,4 +51,14 @@ export const ENDPOINT = {
   // Payroll endpoints
   GET_PAYROLL: "/admin/payroll",
   GENERATE_PAYSLIP: "/admin/payroll/generate-payslip",
+
+  // profile endpoints
+  GET_PROFILE: "/admin/profile-settings/get-profile",
+  UPDATE_PROFILE: "/admin/profile-settings/update-profile",
+  ADD_BRANCH: "/admin/create-branch",
+  UPDATE_BRANCH: (branchId: number) => `/admin/branches/${branchId}`,
+
+  // profile staff
+  GET_MY_PROFILE: "/staff/profile",
+  GET_MY_ATTENDANCE: "/staff/attendance/history",
 };

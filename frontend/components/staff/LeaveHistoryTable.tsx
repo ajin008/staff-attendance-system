@@ -1,7 +1,7 @@
 // components/staff/LeaveHistoryTable.tsx
 "use client";
 
-import { Calendar, FileText, Clock, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Loader2, ArrowRight } from "lucide-react";
 import type { Leave } from "@/src/services/leave.service";
 import LeaveStatusBadge from "./LeaveStatusBadge";
 
@@ -16,7 +16,7 @@ export default function LeaveHistoryTable({
 }: LeaveHistoryTableProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString("en-IN", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -39,114 +39,122 @@ export default function LeaveHistoryTable({
   const getLeaveTypeColor = (type: string) => {
     switch (type) {
       case "sick":
-        return "bg-blue-50 text-blue-700";
+        return "text-blue-600 bg-blue-50/60 border border-blue-100";
       case "casual":
-        return "bg-purple-50 text-purple-700";
+        return "text-purple-600 bg-purple-50/60 border border-purple-100";
       case "emergency":
-        return "bg-red-50 text-red-700";
+        return "text-rose-600 bg-rose-50/60 border border-rose-100";
       default:
-        return "bg-slate-50 text-slate-700";
+        return "text-slate-600 bg-slate-50 border border-slate-100";
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-pulse text-slate-400">
-          Loading leave history...
-        </div>
+      <div className="border border-slate-200 rounded-lg p-12 bg-white shadow-xs flex items-center justify-center gap-3">
+        <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+        <span className="text-xs font-medium text-slate-500">
+          Loading leave historical registry...
+        </span>
       </div>
     );
   }
 
   if (leaves.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-xl border border-slate-100">
-        <Calendar className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-        <p className="text-slate-500">No leave requests found</p>
-        <p className="text-xs text-slate-400 mt-1">
-          Your leave history will appear here
+      <div className="text-center py-12 bg-white rounded-lg border border-slate-200 shadow-xs">
+        <Calendar className="h-8 w-8 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
+        <p className="text-xs font-semibold text-slate-800">
+          No leave requests found
+        </p>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          Your submitted historical applications will appear here.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+    <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-slate-50 border-b border-slate-100">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Leave Type
+        <table className="w-full border-collapse text-left">
+          <thead>
+            <tr className="bg-slate-50/70 border-b border-slate-200">
+              <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Leave Category
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Duration
+              <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Duration Timeline
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Days
+              <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">
+                Total
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Reason
+              <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Reason Statement
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Status
               </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Requested On
+              <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Submitted
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-slate-100 text-xs">
             {leaves.map((leave) => (
               <tr
                 key={leave.id}
-                className="hover:bg-slate-50/50 transition-colors"
+                className="hover:bg-slate-50/40 transition-colors"
               >
-                <td className="px-6 py-4">
+                {/* Category Badge Column */}
+                <td className="px-5 py-4 whitespace-nowrap">
                   <span
-                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getLeaveTypeColor(
+                    className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wide ${getLeaveTypeColor(
                       leave.leaveType
                     )}`}
                   >
                     {getLeaveTypeLabel(leave.leaveType)}
                   </span>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-col">
-                    <span className="text-sm text-slate-700">
-                      {formatDate(leave.startDate)}
-                    </span>
-                    <span className="text-xs text-slate-400">to</span>
-                    <span className="text-sm text-slate-700">
-                      {formatDate(leave.endDate)}
-                    </span>
+
+                {/* Timeline Range Column */}
+                <td className="px-5 py-4 whitespace-nowrap font-medium text-slate-700">
+                  <div className="flex items-center gap-2">
+                    <span>{formatDate(leave.startDate)}</span>
+                    <ArrowRight className="h-3 w-3 text-slate-300" />
+                    <span>{formatDate(leave.endDate)}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="text-sm text-slate-600">
-                      {leave.totalDays} {leave.totalDays === 1 ? "day" : "days"}
-                    </span>
-                  </div>
+
+                {/* Days Count Column */}
+                <td className="px-5 py-4 whitespace-nowrap text-center">
+                  <span className="font-mono font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">
+                    {leave.totalDays}
+                  </span>
                 </td>
-                <td className="px-6 py-4">
+
+                {/* Reason Text Snippet Column */}
+                <td className="px-5 py-4">
                   <div className="max-w-xs">
-                    <p className="text-sm text-slate-600 line-clamp-2">
+                    <p
+                      className="text-slate-600 line-clamp-1 leading-relaxed"
+                      title={leave.reason}
+                    >
                       {leave.reason}
                     </p>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+
+                {/* Status Column */}
+                <td className="px-5 py-4 whitespace-nowrap">
                   <LeaveStatusBadge status={leave.status} />
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="text-sm text-slate-500">
-                      {formatDate(leave.createdAt)}
-                    </span>
+
+                {/* Created On Timestamp Column */}
+                <td className="px-5 py-4 whitespace-nowrap text-slate-400">
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <Clock className="h-3.5 w-3.5 text-slate-300" />
+                    <span>{formatDate(leave.createdAt)}</span>
                   </div>
                 </td>
               </tr>

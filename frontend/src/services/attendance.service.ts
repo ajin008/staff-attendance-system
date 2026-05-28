@@ -152,7 +152,7 @@ export interface AttendanceRecord {
 export interface StaffAttendanceResponse {
   message: string;
   data: {
-    staff: {
+    staff?: {
       id: number;
       staffId: string;
       name: string;
@@ -163,6 +163,13 @@ export interface StaffAttendanceResponse {
       };
     };
     attendance: AttendanceRecord[];
+    summary?: {
+      totalDays: number;
+      presentDays: number;
+      absentDays: number;
+      lateDays: number;
+      totalWorkHours: number;
+    };
     pagination: {
       total: number;
       page: number;
@@ -193,6 +200,23 @@ export const getStaffAttendance = async (
   const url = `${ENDPOINT.GET_STAFF_ATTENDANCE(
     staffId
   )}?${queryParams.toString()}`;
+  const response = await api.get<StaffAttendanceResponse>(url);
+  return response.data;
+};
+
+// for staff
+
+export const getMyAttendance = async (
+  params: GetStaffAttendanceParams
+): Promise<StaffAttendanceResponse> => {
+  const queryParams = new URLSearchParams();
+
+  if (params.startDate) queryParams.append("startDate", params.startDate);
+  if (params.endDate) queryParams.append("endDate", params.endDate);
+  if (params.page) queryParams.append("page", params.page.toString());
+  if (params.limit) queryParams.append("limit", params.limit.toString());
+
+  const url = `${ENDPOINT.GET_MY_ATTENDANCE}?${queryParams.toString()}`;
   const response = await api.get<StaffAttendanceResponse>(url);
   return response.data;
 };

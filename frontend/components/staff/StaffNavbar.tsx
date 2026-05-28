@@ -1,7 +1,7 @@
 // components/staff/StaffNavbar.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
@@ -13,40 +13,21 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronRight,
-  FileText,
+  LayoutGrid,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useLeaveRequest } from "@/src/hooks/staff/useLeaveRequest";
-import LeaveRequestModal from "./LeaveRequestModal";
 
 interface NavItem {
   name: string;
   href: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
-const navItems: NavItem[] = [
-  {
-    name: "Dashboard",
-    href: "/staff",
-    icon: <Home className="h-4 w-4" />,
-  },
-  {
-    name: "Attendance",
-    href: "/staff/attendance",
-    icon: <Clock className="h-4 w-4" />,
-  },
-  {
-    name: "leave ",
-    href: "/staff/leave",
-    icon: <Calendar className="h-4 w-4" />,
-  },
-  {
-    name: "Profile",
-    href: "/staff/profile",
-    icon: <User className="h-4 w-4" />,
-  },
+const NAV_REGISTRY: NavItem[] = [
+  { name: "Dashboard", href: "/staff", icon: Home },
+  { name: "Attendance", href: "/staff/attendance", icon: Clock },
+  { name: "Leave", href: "/staff/leave", icon: Calendar },
+  { name: "My Profile", href: "/staff/profile", icon: User },
 ];
 
 export const StaffNavbar = () => {
@@ -54,236 +35,110 @@ export const StaffNavbar = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  const {
-    isOpen: isLeaveModalOpen,
-    isSubmitting: isLeaveSubmitting,
-    openModal: openLeaveModal,
-    closeModal: closeLeaveModal,
-    submitLeaveRequest,
-  } = useLeaveRequest();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleLogout = () => {
     logout();
-    toast.success("Logged out successfully");
+    toast.success("Signed out successfully");
     router.push("/login");
-  };
-
-  const getStaffInitials = () => {
-    if (!user?.name) return "ST";
-    return user.name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   return (
     <>
-      {/* Organic navbar container */}
-      <nav
-        className={`
-          fixed top-0 left-0 right-0 z-50
-          transition-all duration-500 ease-out
-          ${
-            scrolled
-              ? "bg-white/80 backdrop-blur-lg border-b border-slate-100 shadow-sm"
-              : "bg-transparent"
-          }
-        `}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo Section - Handmade feel */}
-            <div className="flex items-center gap-3">
-              <Link href="/staff" className="group flex items-center gap-2">
-                {/* Organic squiggle logo mark */}
-                <div className="relative">
-                  <svg
-                    className="w-7 h-7 text-emerald-500"
-                    viewBox="0 0 40 40"
-                    fill="none"
-                  >
-                    <path
-                      d="M12,20 C12,15 16,12 20,12 C24,12 28,15 28,20 C28,25 24,28 20,28 C16,28 12,25 12,20 Z"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M20,8 L20,32 M8,20 L32,20"
-                      stroke="currentColor"
-                      strokeWidth="0.8"
-                      strokeDasharray="3 3"
-                      opacity="0.4"
-                    />
-                  </svg>
-                  <div className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                </div>
-
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium tracking-tight text-slate-800 leading-none">
-                    Pulse
-                  </span>
-                  <span className="text-[9px] font-mono text-slate-400 tracking-wider">
-                    STAFF PORTAL
-                  </span>
-                </div>
-              </Link>
-
-              {/* Hand-drawn divider */}
-              <div className="hidden sm:block w-px h-6 bg-slate-200 mx-1" />
-              <div className="hidden sm:flex items-center gap-1.5">
-                <div className="w-1 h-1 rounded-full bg-emerald-400" />
-                <span className="text-[10px] font-mono text-slate-400">
-                  {user?.staffId || "STAFF"}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0F0F11] text-white border-b border-neutral-900 antialiased select-none">
+        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
+          {/* Section 01: Corporate Branding Node */}
+          <div className="flex items-center gap-5">
+            <Link
+              href="/staff"
+              className="flex items-center gap-2.5 focus:outline-none"
+            >
+              <div className="p-1.5 border border-neutral-800 bg-neutral-900 text-white rounded">
+                <LayoutGrid className="h-4 w-4 stroke-[2.5]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-mono font-bold tracking-wider text-white uppercase">
+                  {user?.organizationId || "Pulse CRM"}
+                </span>
+                <span className="text-[10px] text-neutral-500 font-mono tracking-widest uppercase">
+                  Workspace
                 </span>
               </div>
-            </div>
+            </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/staff" && pathname?.startsWith(item.href));
+            <div className="hidden sm:block h-4 w-px bg-neutral-800" />
 
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`
-                      relative group px-4 py-2 rounded-full text-sm font-medium
-                      transition-all duration-200 ease-out
-                      ${
-                        isActive
-                          ? "text-slate-900 bg-slate-100"
-                          : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-                      }
-                    `}
-                  >
-                    <span className="flex items-center gap-2">
-                      {item.icon}
-                      {item.name}
-                    </span>
-
-                    {/* Active indicator dot */}
-                    {isActive && (
-                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400" />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* User Menu Section */}
-            <div className="flex items-center gap-3">
-              {/* Leave Request Button */}
-              <button
-                onClick={openLeaveModal}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all duration-200"
-              >
-                <FileText className="h-3.5 w-3.5" />
-                <span className="text-xs">Request Leave</span>
-              </button>
-
-              {/* Staff info - organic card feel */}
-              <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-slate-50/80 border border-slate-100">
-                {/* Avatar - hand-drawn style */}
-                <div className="relative">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                    <span className="text-[11px] font-medium text-slate-600">
-                      {getStaffInitials()}
-                    </span>
-                  </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-white" />
-                </div>
-
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-slate-700 leading-tight">
-                    {user?.name?.split(" ")[0] || "Staff"}
-                  </span>
-                  <span className="text-[9px] font-mono text-slate-400">
-                    {user?.role?.toUpperCase()}
-                  </span>
-                </div>
-
-                {/* Hand-drawn separator */}
-                <div className="w-px h-4 bg-slate-200" />
-
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors group"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  <span className="text-[11px]">Exit</span>
-                </button>
-              </div>
-
-              {/* Mobile menu button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </button>
+            <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono">
+              <span className="text-neutral-500 uppercase tracking-wider">
+                ID:
+              </span>
+              <span className="font-bold px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900/60 text-neutral-300">
+                {user?.staffId || "N/A"}
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* Decorative bottom line - handmade touch */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200/50 to-transparent" />
+          {/* Section 02: High-Density Text Navigation Menu */}
+          <div className="hidden md:flex items-center h-full gap-1">
+            {NAV_REGISTRY.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/staff" && pathname?.startsWith(item.href));
+
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`h-16 px-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider border-b-2 transition-all focus:outline-none ${
+                    isActive
+                      ? "border-emerald-500 text-white bg-neutral-900/40"
+                      : "border-transparent text-neutral-400 hover:text-white hover:bg-neutral-900/20"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Section 03: Direct Exit Button Gateway */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleLogout}
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 border border-neutral-800 bg-neutral-900/40 hover:bg-rose-500/10 text-neutral-400 hover:text-rose-400 rounded text-xs font-mono font-bold uppercase tracking-wider transition-all focus:outline-none"
+              title="Terminate Session"
+            >
+              <LogOut className="h-3.5 w-3.5 stroke-[2.5]" />
+              <span>Exit</span>
+            </button>
+
+            {/* Mobile Responsive Menu Switch */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-1.5 border border-neutral-800 hover:bg-neutral-900 text-neutral-400 rounded transition-colors focus:outline-none"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-4 w-4" />
+              ) : (
+                <Menu className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
-      <div
-        className={`
-          fixed inset-0 z-40 md:hidden
-          transition-all duration-300 ease-out
-          ${isMobileMenuOpen ? "visible" : "invisible"}
-        `}
-      >
-        {/* Backdrop */}
-        <div
-          className={`
-            absolute inset-0 bg-slate-900/20 backdrop-blur-sm
-            transition-opacity duration-300
-            ${isMobileMenuOpen ? "opacity-100" : "opacity-0"}
-          `}
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
+      {/* Mobile Context Overlay Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            className="absolute inset-0 bg-[#0F0F11]/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
 
-        {/* Menu Panel */}
-        <div
-          className={`
-            absolute top-16 left-0 right-0 mx-4
-            bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl
-            border border-slate-100 overflow-hidden
-            transition-all duration-300 ease-out
-            ${
-              isMobileMenuOpen
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 -translate-y-4"
-            }
-          `}
-        >
-          <div className="p-2">
-            {navItems.map((item) => {
+          <div className="absolute top-16 left-0 right-0 border-b border-neutral-900 p-4 bg-[#0F0F11] flex flex-col gap-1 animate-in fade-in slide-in-from-top-2 duration-150">
+            {NAV_REGISTRY.map((item) => {
+              const Icon = item.icon;
               const isActive =
                 pathname === item.href ||
                 (item.href !== "/staff" && pathname?.startsWith(item.href));
@@ -293,96 +148,37 @@ export const StaffNavbar = () => {
                   key={item.name}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`
-                    flex items-center justify-between px-4 py-3 rounded-xl
-                    transition-all duration-150
-                    ${
-                      isActive
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-600 hover:bg-slate-50"
-                    }
-                  `}
+                  className={`flex items-center gap-3 px-4 py-2.5 border rounded text-xs font-bold uppercase tracking-wider transition-colors ${
+                    isActive
+                      ? "bg-neutral-900 border-neutral-800 text-white"
+                      : "border-transparent text-neutral-400 hover:bg-neutral-900/40"
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`
-                      w-8 h-8 rounded-full flex items-center justify-center
-                      ${isActive ? "bg-white" : "bg-transparent"}
-                    `}
-                    >
-                      {item.icon}
-                    </div>
-                    <span className="text-sm font-medium">{item.name}</span>
-                  </div>
-                  {isActive && (
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
-                  )}
+                  <Icon className="h-4 w-4 shrink-0 stroke-[2.5]" />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}
 
-            {/* Mobile Leave Request Button */}
-            <button
-              onClick={() => {
-                openLeaveModal();
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-150"
-            >
-              <FileText className="h-4 w-4" />
-              <span className="text-sm font-medium">Request Leave</span>
-            </button>
+            <div className="h-px my-1.5 bg-neutral-900" />
 
-            {/* Mobile logout */}
-            <div className="border-t border-slate-100 my-2" />
+            {/* Mobile Sign-Out Row */}
             <button
               onClick={() => {
                 handleLogout();
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
+              className="flex items-center gap-3 px-4 py-2.5 border border-transparent rounded text-xs font-bold uppercase tracking-wider text-rose-400 hover:bg-rose-500/10 text-left transition-colors focus:outline-none"
             >
-              <div className="flex items-center gap-3">
-                <LogOut className="h-4 w-4" />
-                <span className="text-sm font-medium">Logout</span>
-              </div>
+              <LogOut className="h-4 w-4 shrink-0 stroke-[2.5]" />
+              <span>Exit Workspace</span>
             </button>
-
-            {/* Staff info footer */}
-            <div className="mt-3 pt-3 border-t border-slate-100 px-4 pb-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center">
-                    <span className="text-[10px] font-medium text-slate-500">
-                      {getStaffInitials()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-slate-700">
-                      {user?.name || "Staff User"}
-                    </p>
-                    <p className="text-[9px] font-mono text-slate-400">
-                      {user?.staffId || "STAFF"}
-                    </p>
-                  </div>
-                </div>
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              </div>
-            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Leave Request Modal */}
-      <LeaveRequestModal
-        isOpen={isLeaveModalOpen}
-        onClose={closeLeaveModal}
-        onSubmit={submitLeaveRequest}
-        isSubmitting={isLeaveSubmitting}
-      />
-
-      {/* Spacer to prevent content from going under navbar */}
-      <div className="h-16 lg:h-20" />
+      {/* Primary Layout Structural Blueprint Spacing Guard */}
+      <div className="h-16" />
     </>
   );
 };

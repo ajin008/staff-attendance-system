@@ -99,6 +99,16 @@ export const deleteDepartment = async (
   return res.data;
 };
 
+export const toggleDepartmentStatus = async (
+  departmentId: number,
+  isActive: boolean
+): Promise<{ message: string; data: Department }> => {
+  const res = await api.patch(ENDPOINT.TOGGLE_DEPARTMENT(departmentId), {
+    isActive,
+  });
+  return res.data;
+};
+
 export const updateDepartment = async (
   departmentId: number,
   data: Partial<CreateDepartmentPayload>

@@ -21,91 +21,89 @@ export default function AdminLeavesPage() {
   } = useAdminLeaves();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
       <AdminNavbar />
-      <div className="max-w-400 mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => router.back()}
-            className="group flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-            <span>back to dashboard</span>
-          </button>
 
-          {/* View All History Button */}
+      {/* Main Content Stage Canvas */}
+      <main className="w-full max-w-[1600px] mx-auto px-6 py-8 flex-1">
+        {/* Navigation Breadcrumb Line & History Link */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="group flex items-center gap-1.5 text-xs font-mono font-bold text-slate-400 hover:text-slate-900 uppercase tracking-wider transition-colors focus:outline-none"
+            >
+              <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform stroke-[2.5]" />
+              <span>Back</span>
+            </button>
+            <span className="text-slate-300 font-mono text-xs">/</span>
+            <span className="text-xs font-mono font-medium text-slate-400 uppercase tracking-wider">
+              Leave Ledger
+            </span>
+          </div>
+
           <button
             onClick={() => router.push("/admin/leaves/history")}
-            className="group flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200"
+            className="group flex items-center gap-2 px-3 py-1.5 rounded bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 text-xs font-mono font-bold uppercase tracking-wider shadow-2xs transition-all focus:outline-none"
           >
-            <History className="h-4 w-4" />
-            <span>view all history</span>
+            <History className="h-3.5 w-3.5 stroke-[2]" />
+            <span>View History Ledger</span>
           </button>
         </div>
 
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-1 h-6 bg-amber-400 rounded-full" />
-            <span className="text-[11px] font-mono text-amber-500 tracking-wider">
-              LEAVE MANAGEMENT
-            </span>
-          </div>
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-light tracking-tight text-slate-800">
-                Pending Requests
+        {/* Section Header Action Control Panel Block */}
+        <div className="border border-slate-200 rounded-lg p-5 bg-white shadow-2xs mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Administrative Workspace
+              </span>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                Pending Leave Requests
               </h1>
-              <p className="text-sm text-slate-400 mt-2">
-                Review and manage employee leave requests
-              </p>
             </div>
+
             {pendingCount > 0 && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-100">
-                <CalendarClock className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-medium text-amber-700">
-                  {pendingCount} pending{" "}
-                  {pendingCount === 1 ? "request" : "requests"}
+              <div className="flex items-center gap-2 self-start sm:self-center px-2.5 py-1 rounded border border-amber-200 bg-amber-50 text-amber-700 text-xs font-mono font-bold uppercase tracking-wider">
+                <CalendarClock className="h-3.5 w-3.5 text-amber-600 stroke-[2]" />
+                <span>
+                  {pendingCount} Pending{" "}
+                  {pendingCount === 1 ? "Record" : "Records"}
                 </span>
               </div>
             )}
           </div>
         </div>
 
+        {/* Fallback Exception Alert Indicator */}
         {error && (
-          <div className="bg-rose-50 rounded-xl p-6 border border-rose-100 text-center mb-6">
-            <p className="text-sm text-rose-600">{error}</p>
+          <div className="bg-rose-50 border border-rose-200 rounded-lg p-5 mb-6 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="space-y-0.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-500 block">
+                System Exception Raised
+              </span>
+              <p className="text-xs text-rose-700 font-medium">{error}</p>
+            </div>
             <button
               onClick={refreshLeaves}
-              className="mt-3 text-xs text-rose-500 hover:text-rose-700 underline"
+              className="text-xs font-bold uppercase tracking-wider bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded transition-colors focus:outline-none"
             >
-              try again
+              Re-Sync Matrix
             </button>
           </div>
         )}
 
-        <LeaveRequestsTable
-          leaves={leaves}
-          isLoading={isLoading}
-          processingId={processingId}
-          onApprove={approveLeave}
-          onReject={rejectLeave}
-        />
-
-        <div className="fixed bottom-8 right-8 opacity-30 pointer-events-none">
-          <svg className="w-32 h-32" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="40"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="0.5"
-              strokeDasharray="4 6"
-              className="text-slate-400"
-            />
-          </svg>
+        {/* Core Administrative Ledger Grid Block */}
+        <div className="bg-white border border-slate-200 rounded-lg p-1.5 shadow-2xs">
+          <LeaveRequestsTable
+            leaves={leaves}
+            isLoading={isLoading}
+            processingId={processingId}
+            onApprove={approveLeave}
+            onReject={rejectLeave}
+          />
         </div>
-      </div>
+      </main>
     </div>
   );
 }

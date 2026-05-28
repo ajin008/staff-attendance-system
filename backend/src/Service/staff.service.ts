@@ -46,6 +46,9 @@ import {
   cancelLeaveRequest,
 } from "../Repository/leave.repository";
 
+import { findStaffProfile } from "../Repository/staff.repository";
+import { checkOutStaffAllocation } from "../Repository/floor.repository";
+
 export const createStaffService = async (
   input: CreateStaffInput
 ): Promise<{ message: string; staffId: string }> => {
@@ -451,6 +454,8 @@ export const checkOutStaffService = async ({
     attendanceStatus: isHalfDay ? "half_day" : "present",
   });
 
+  await checkOutStaffAllocation(userId);
+
   return {
     message: "Check-out successful",
 
@@ -570,5 +575,75 @@ export const getTodayAttendanceService = async (userId: number) => {
         name: attendance.branch.name,
       },
     },
+  };
+};
+
+export const getStaffProfileService = async ({
+  userId,
+  organizationId,
+}: {
+  userId: number;
+
+  organizationId: number;
+}) => {
+  const user = await findStaffProfile({
+    userId,
+    organizationId,
+  });
+
+  if (!user) {
+    throw new AppError("Staff not found", 404);
+  }
+
+  return {
+    id: user.id,
+
+    staffId: user.staffId,
+
+    name: user.name,
+
+    email: user.email,
+
+    phone: user.phone,
+
+    role: user.role,
+
+    joinedOn: user.joinedOn,
+
+    salary: user.salary,
+
+    shiftStart: user.shiftStart || user.department?.shiftStart,
+
+    shiftEnd: user.shiftEnd || user.department?.shiftEnd,
+
+    overtimeEnabled: user.overtimeEnabled ?? user.department?.overtimeEnabled,
+
+    overtimeHourlyRate:
+      user.overtimeHourlyRate ?? user.department?.overtimeHourlyRate,
+
+    overtimeGraceMins:
+      user.overtimeGraceMins ?? user.department?.overtimeGraceMins,
+
+    department: user.department
+      ? {
+          id: user.department.id,
+
+          name: user.department.name,
+        }
+      : null,
+
+    branch: user.branch
+      ? {
+          id: user.branch.id,
+
+          name: user.branch.name,
+
+          latitude: user.branch.latitude,
+
+          longitude: user.branch.longitude,
+
+          allowedRadius: user.branch.allowedRadius,
+        }
+      : null,
   };
 };

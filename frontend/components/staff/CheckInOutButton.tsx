@@ -42,7 +42,6 @@ export const CheckInOutButton = ({ className = "" }: CheckInOutButtonProps) => {
     });
   };
 
-  // Format late minutes to readable format (e.g., "3 hours 27 minutes")
   const formatLateMinutes = (minutes?: number) => {
     if (!minutes || minutes <= 0) return null;
 
@@ -50,154 +49,150 @@ export const CheckInOutButton = ({ className = "" }: CheckInOutButtonProps) => {
     const mins = minutes % 60;
 
     if (hours > 0 && mins > 0) {
-      return `${hours} hour${hours > 1 ? "s" : ""} ${mins} minute${
-        mins > 1 ? "s" : ""
-      }`;
+      return `${hours}h ${mins}m`;
     } else if (hours > 0) {
-      return `${hours} hour${hours > 1 ? "s" : ""}`;
+      return `${hours}h`;
     } else {
-      return `${mins} minute${mins > 1 ? "s" : ""}`;
+      return `${mins}m`;
     }
   };
 
-  // Show loading state while fetching initial data
+  // State A: Loading Profile Metadata
   if (isInitialLoading) {
     return (
-      <div
-        className={`bg-white rounded-2xl border border-slate-100 p-6 ${className}`}
-      >
-        <div className="flex items-center justify-center gap-3 py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
-          <span className="text-sm text-slate-500">
-            Loading attendance status...
+      <div className={`p-5 bg-white ${className}`}>
+        <div className="flex items-center justify-center gap-2.5 py-8">
+          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+          <span className="text-xs font-medium text-slate-500">
+            Syncing registry status...
           </span>
         </div>
       </div>
     );
   }
 
-  // If already checked out
+  // State B: Shift Completed
   if (isCheckedOut && currentAttendance?.checkOutTime) {
     return (
-      <div
-        className={`bg-white rounded-2xl border border-slate-100 p-6 ${className}`}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-            <CheckCircle className="h-5 w-5 text-slate-400" />
+      <div className={`p-5 bg-white ${className}`}>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3.5 mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
+              <CheckCircle className="h-3.5 w-3.5 stroke-[2]" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Shift Allocation
+              </span>
+              <p className="text-xs font-bold text-slate-800">
+                Completed Cycle
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-              Today&lsquo;s Shift
-            </p>
-            <p className="text-sm font-medium text-slate-600">Completed</p>
-          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+            Archived
+          </span>
         </div>
 
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between items-center py-2 border-b border-slate-50">
-            <span className="text-slate-400">Check In</span>
-            <span className="font-mono text-slate-600">
+        <div className="space-y-2.5 text-xs">
+          <div className="flex justify-between items-center py-1.5 border-b border-slate-100 font-medium">
+            <span className="text-slate-400 text-[11px]">Check-In Mark</span>
+            <span className="font-mono text-slate-700">
               {formatTime(currentAttendance?.checkInTime)}
             </span>
           </div>
-          <div className="flex justify-between items-center py-2 border-b border-slate-50">
-            <span className="text-slate-400">Check Out</span>
-            <span className="font-mono text-slate-600">
+          <div className="flex justify-between items-center py-1.5 border-b border-slate-100 font-medium">
+            <span className="text-slate-400 text-[11px]">Check-Out Mark</span>
+            <span className="font-mono text-slate-700">
               {formatTime(currentAttendance?.checkOutTime)}
             </span>
           </div>
 
           {currentAttendance?.shiftStart && currentAttendance?.shiftEnd && (
-            <div className="flex justify-between items-center py-2 border-b border-slate-50">
-              <span className="text-slate-400">Shift</span>
-              <span className="text-slate-600">
+            <div className="flex justify-between items-center py-1.5 border-b border-slate-100 font-medium">
+              <span className="text-slate-400 text-[11px]">Assigned Range</span>
+              <span className="text-slate-600 font-mono text-[11px]">
                 {currentAttendance.shiftStart} - {currentAttendance.shiftEnd}
               </span>
             </div>
           )}
 
           {currentAttendance?.branch && (
-            <div className="flex justify-between items-center py-2">
-              <span className="text-slate-400">Branch</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-xs">
-                <Building2 className="h-3 w-3" />
+            <div className="flex justify-between items-center pt-1 font-medium">
+              <span className="text-slate-400 text-[11px]">Validated Node</span>
+              <span className="inline-flex items-center gap-1.5 text-slate-700">
+                <Building2 className="h-3.5 w-3.5 text-slate-300" />
                 {currentAttendance.branch.name}
               </span>
             </div>
           )}
         </div>
-
-        <div className="mt-4 pt-3 border-t border-slate-100">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-[10px] font-mono text-slate-400">
-              Shift complete
-            </span>
-          </div>
-        </div>
       </div>
     );
   }
 
-  // If checked in (waiting for check out)
+  // State C: Active Shift (Checked In)
   if (isCheckedIn && currentAttendance?.checkInTime) {
     const lateText = formatLateMinutes(currentAttendance?.lateMinutes);
 
     return (
       <>
-        <div
-          className={`bg-white rounded-2xl border border-slate-100 p-6 ${className}`}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-emerald-600" />
+        <div className={`p-5 bg-white ${className}`}>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3.5 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded bg-emerald-50/60 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                <Clock className="h-3.5 w-3.5 stroke-[2]" />
               </div>
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Terminal Gateway
+                </span>
+                <p className="text-xs font-bold text-emerald-600">
+                  Active Duty
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-                Currently Working
-              </p>
-              <p className="text-sm font-medium text-emerald-600">
-                Active Shift
-              </p>
-            </div>
+            <span className="inline-flex items-center animate-pulse h-2 w-2 rounded-full bg-emerald-500" />
           </div>
 
-          <div className="space-y-2 mb-5">
-            <div className="flex justify-between items-center py-2 border-b border-slate-50">
-              <span className="text-slate-400 text-sm">Checked in at</span>
-              <span className="font-mono text-sm text-slate-600">
+          <div className="space-y-2.5 text-xs mb-4">
+            <div className="flex justify-between items-center py-1.5 border-b border-slate-100 font-medium">
+              <span className="text-slate-400 text-[11px]">Clocked-In</span>
+              <span className="font-mono text-slate-700">
                 {formatTime(currentAttendance?.checkInTime)}
               </span>
             </div>
 
             {currentAttendance?.isLate && lateText && (
-              <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                <span className="text-slate-400 text-sm">Status</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-xs">
-                  <AlertCircle className="h-3 w-3" />
-                  Late by {lateText}
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-100 font-medium">
+                <span className="text-slate-400 text-[11px]">
+                  Compliance Status
+                </span>
+                <span className="inline-flex items-center gap-1 font-bold text-amber-600 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide">
+                  <AlertCircle className="h-3 w-3 stroke-[2.5]" />
+                  Late +{lateText}
                 </span>
               </div>
             )}
 
             {currentAttendance?.shiftStart && currentAttendance?.shiftEnd && (
-              <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                <span className="text-slate-400 text-sm">Shift</span>
-                <span className="text-sm text-slate-600">
+              <div className="flex justify-between items-center py-1.5 border-b border-slate-100 font-medium">
+                <span className="text-slate-400 text-[11px]">
+                  Configured window
+                </span>
+                <span className="text-slate-600 font-mono text-[11px]">
                   {currentAttendance.shiftStart} - {currentAttendance.shiftEnd}
                 </span>
               </div>
             )}
 
             {currentAttendance?.branch && (
-              <div className="flex justify-between items-center py-2">
-                <span className="text-slate-400 text-sm">Branch</span>
-                <span className="inline-flex items-center gap-1 text-sm text-slate-600">
-                  <Building2 className="h-3 w-3" />
+              <div className="flex justify-between items-center pt-1 font-medium">
+                <span className="text-slate-400 text-[11px]">
+                  Authorized Zone
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-slate-700">
+                  <Building2 className="h-3.5 w-3.5 text-slate-300" />
                   {currentAttendance.branch.name}
                 </span>
               </div>
@@ -207,21 +202,20 @@ export const CheckInOutButton = ({ className = "" }: CheckInOutButtonProps) => {
           <button
             onClick={openCheckOutModal}
             disabled={isLoading || isLocating}
-            className="w-full py-3 rounded-xl text-sm font-medium
-                       bg-slate-900 hover:bg-slate-800 text-white
-                       transition-all duration-200
-                       flex items-center justify-center gap-2
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 text-xs font-bold uppercase tracking-wider
+                       bg-[#0F0F11] hover:bg-black text-white rounded transition-colors 
+                       flex items-center justify-center gap-2 focus:outline-none shadow-xs
+                       disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
           >
             {isLoading || isLocating ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Processing...
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
+                <span>Processing Matrix...</span>
               </>
             ) : (
               <>
-                <LogOut className="h-4 w-4" />
-                Check Out
+                <LogOut className="h-3.5 w-3.5 stroke-[2.5]" />
+                <span>Terminate Duty Shift</span>
               </>
             )}
           </button>
@@ -239,56 +233,54 @@ export const CheckInOutButton = ({ className = "" }: CheckInOutButtonProps) => {
     );
   }
 
-  // Default state (not checked in)
+  // State D: Inactive / Not Checked In yet
   return (
-    <div
-      className={`bg-white rounded-2xl border border-slate-100 p-6 ${className}`}
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">
-          <Clock className="h-5 w-5 text-slate-400" />
+    <div className={`p-5 bg-white ${className}`}>
+      <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3.5 mb-4">
+        <div className="w-7 h-7 rounded bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
+          <Clock className="h-3.5 w-3.5 stroke-[2]" />
         </div>
         <div>
-          <p className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-            Shift Status
-          </p>
-          <p className="text-sm font-medium text-slate-600">Not started</p>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+            System State
+          </span>
+          <p className="text-xs font-bold text-slate-800">Awaiting Log</p>
         </div>
       </div>
 
-      <p className="text-xs text-slate-400 mb-5 font-mono">
-        Ready to start your workday?
+      <p className="text-[11px] text-slate-500 mb-4 leading-relaxed font-medium">
+        Ready to start your work hours? Ensure your physical device matches your
+        designated office coordinates before verification.
       </p>
 
       <button
         onClick={checkIn}
         disabled={isLoading || isLocating}
-        className="w-full py-3 rounded-xl text-sm font-medium
-                   bg-emerald-500 hover:bg-emerald-600 text-white
-                   transition-all duration-200
-                   flex items-center justify-center gap-2
-                   disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-2 text-xs font-bold uppercase tracking-wider
+                   bg-emerald-600 hover:bg-emerald-700 text-white rounded transition-colors 
+                   flex items-center justify-center gap-2 focus:outline-none shadow-xs
+                   disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
       >
         {isLocating ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Getting location...
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <span>Parsing Geofence...</span>
           </>
         ) : isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Processing...
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <span>Validating...</span>
           </>
         ) : (
           <>
-            <MapPin className="h-4 w-4" />
-            Check In with Location
+            <MapPin className="h-3.5 w-3.5 stroke-[2.5]" />
+            <span>Evaluate Geofence & Check In</span>
           </>
         )}
       </button>
 
-      <p className="text-[10px] text-slate-300 text-center mt-4 font-mono">
-        Location access required for verification
+      <p className="text-[10px] font-medium text-slate-400 text-center mt-2.5">
+        * GPS tracking authorization protocol mandatory.
       </p>
     </div>
   );

@@ -98,6 +98,7 @@ export interface Department {
   overtimeGraceMins: number;
   overtimeHourlyRate?: number;
   defaultSalary: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }

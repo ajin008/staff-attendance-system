@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import {
   checkInStaffService,
   checkOutStaffService,
+  getStaffProfileService,
   getTodayAttendanceService,
 } from "../Service/staff.service";
 
@@ -60,5 +61,26 @@ export const getTodayAttendanceController = asyncHandler(
     const result = await getTodayAttendanceService(userId);
 
     res.status(200).json(result);
+  }
+);
+
+export const getStaffProfileController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("getStaffProfileController triggering");
+
+    const userId = req.user!.userId;
+
+    const organizationId = req.user!.organizationId;
+
+    const result = await getStaffProfileService({
+      userId,
+      organizationId,
+    });
+
+    res.status(200).json({
+      message: "Staff profile fetched successfully",
+
+      data: result,
+    });
   }
 );

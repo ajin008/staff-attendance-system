@@ -2,6 +2,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { FolderPlus } from "lucide-react";
 import Modal from "../ui/Modal";
 import type { CreateDepartmentPayload } from "@/src/types";
 
@@ -12,7 +13,6 @@ interface DepartmentModalProps {
   isSubmitting: boolean;
 }
 
-// Predefined department options
 const DEPARTMENT_OPTIONS = [
   { id: "default-dept", value: "", label: "Select department" },
   { id: "sales", value: "Sales", label: "Sales" },
@@ -34,9 +34,8 @@ const DEPARTMENT_OPTIONS = [
   { id: "others-dept", value: "others", label: "Others (Custom)" },
 ];
 
-// Predefined salary options
 const SALARY_OPTIONS = [
-  { id: "default-salary", value: 0, label: "Select salary", isDefault: true },
+  { id: "default-salary", value: 0, label: "Select salary" },
   { id: "salary-10k", value: 10000, label: "₹10,000" },
   { id: "salary-15k", value: 15000, label: "₹15,000" },
   { id: "salary-20k", value: 20000, label: "₹20,000" },
@@ -49,10 +48,9 @@ const SALARY_OPTIONS = [
   { id: "salary-100k", value: 100000, label: "₹1,00,000" },
   { id: "salary-150k", value: 150000, label: "₹1,50,000" },
   { id: "salary-200k", value: 200000, label: "₹2,00,000" },
-  { id: "others-salary", value: -1, label: "Others (Custom)", isCustom: true },
+  { id: "others-salary", value: -1, label: "Others (Custom)" },
 ];
 
-// Weekly off days options
 const WEEKLY_OFF_OPTIONS = [
   { id: "monday", label: "Monday", value: "monday" },
   { id: "tuesday", label: "Tuesday", value: "tuesday" },
@@ -144,6 +142,13 @@ export default function DepartmentModal({
     onClose();
   };
 
+  const selectDropdownStyles = {
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`,
+    backgroundPosition: "right 14px center",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "16px",
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -151,37 +156,28 @@ export default function DepartmentModal({
       title="Create Department"
       size="lg"
     >
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-5">
-        {/* Department Name - Dropdown */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Department Name <span className="text-red-400">*</span>
+      <form
+        onSubmit={handleSubmit(onFormSubmit)}
+        className="space-y-5 antialiased"
+      >
+        {/* Department Name Dropdown */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+            Department Name <span className="text-rose-500 font-normal">*</span>
           </label>
           <select
             {...register("departmentSelect", {
               required: "Please select a department",
-              validate: (value) => {
-                if (!value || value === "") return "Please select a department";
-                return true;
-              },
+              validate: (value) =>
+                !value || value === "" ? "Please select a department" : true,
             })}
             onChange={handleDepartmentChange}
-            className={`
-              w-full px-4 py-2.5 rounded-lg border bg-white transition-all appearance-none
-              ${
-                errors.departmentSelect
-                  ? "border-red-300 focus:border-red-400"
-                  : "border-slate-200 focus:border-slate-300"
-              }
-              focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-              cursor-pointer
-            `}
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-              backgroundPosition: "right 1rem center",
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "1.25rem",
-            }}
+            className={`w-full px-3.5 py-2 rounded-md border text-xs font-medium transition-colors bg-white focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none cursor-pointer ${
+              errors.departmentSelect
+                ? "border-rose-300 text-rose-900"
+                : "border-slate-200 text-slate-900"
+            }`}
+            style={selectDropdownStyles}
           >
             {DEPARTMENT_OPTIONS.map((dept) => (
               <option key={dept.id} value={dept.value}>
@@ -190,17 +186,18 @@ export default function DepartmentModal({
             ))}
           </select>
           {errors.departmentSelect && (
-            <p className="text-xs text-red-400 mt-1">
+            <p className="text-[11px] text-rose-500 font-medium mt-0.5">
               {errors.departmentSelect.message}
             </p>
           )}
         </div>
 
-        {/* Custom Department Name - Only shows when "Others" is selected */}
+        {/* Custom Department Name */}
         {departmentSelect === "others" && (
-          <div className="animate-in fade-in duration-200">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Custom Department Name <span className="text-red-400">*</span>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+              Custom Department Name{" "}
+              <span className="text-rose-500 font-normal">*</span>
             </label>
             <input
               type="text"
@@ -214,53 +211,46 @@ export default function DepartmentModal({
                   message: "Name must be at least 2 characters",
                 },
               })}
-              className={`
-                w-full px-4 py-2.5 rounded-lg border bg-white transition-all
-                ${
-                  errors.name
-                    ? "border-red-300 focus:border-red-400"
-                    : "border-slate-200 focus:border-slate-300"
-                }
-                focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-              `}
+              className={`w-full px-3.5 py-2 rounded-md border text-xs font-medium transition-colors bg-white placeholder:text-slate-300 focus:outline-none focus:border-slate-900 focus:ring-0 ${
+                errors.name
+                  ? "border-rose-300 text-rose-900"
+                  : "border-slate-200 text-slate-900"
+              }`}
               placeholder="e.g., Research & Development"
             />
             {errors.name && (
-              <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>
+              <p className="text-[11px] text-rose-500 font-medium mt-0.5">
+                {errors.name.message}
+              </p>
             )}
           </div>
         )}
 
-        {/* Shift Times */}
+        {/* Shift Timings Row */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Shift Start <span className="text-red-400">*</span>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+              Shift Start <span className="text-rose-500 font-normal">*</span>
             </label>
             <input
               type="time"
               {...register("shiftStart", {
                 required: "Shift start time is required",
               })}
-              className={`
-                w-full px-4 py-2.5 rounded-lg border transition-all
-                ${
-                  errors.shiftStart
-                    ? "border-red-300 focus:border-red-400"
-                    : "border-slate-200 focus:border-slate-300"
-                }
-                focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-              `}
+              className={`w-full px-3.5 py-2 rounded-md border text-xs font-mono font-bold text-slate-900 transition-colors bg-white focus:outline-none focus:border-slate-900 focus:ring-0 ${
+                errors.shiftStart ? "border-rose-300" : "border-slate-200"
+              }`}
             />
             {errors.shiftStart && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-[11px] text-rose-500 font-medium mt-0.5">
                 {errors.shiftStart.message}
               </p>
             )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Shift End <span className="text-red-400">*</span>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+              Shift End <span className="text-rose-500 font-normal">*</span>
             </label>
             <input
               type="time"
@@ -274,18 +264,12 @@ export default function DepartmentModal({
                   return true;
                 },
               })}
-              className={`
-                w-full px-4 py-2.5 rounded-lg border transition-all
-                ${
-                  errors.shiftEnd
-                    ? "border-red-300 focus:border-red-400"
-                    : "border-slate-200 focus:border-slate-300"
-                }
-                focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-              `}
+              className={`w-full px-3.5 py-2 rounded-md border text-xs font-mono font-bold text-slate-900 transition-colors bg-white focus:outline-none focus:border-slate-900 focus:ring-0 ${
+                errors.shiftEnd ? "border-rose-300" : "border-slate-200"
+              }`}
             />
             {errors.shiftEnd && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-[11px] text-rose-500 font-medium mt-0.5">
                 {errors.shiftEnd.message}
               </p>
             )}
@@ -293,206 +277,190 @@ export default function DepartmentModal({
         </div>
 
         {/* Weekly Off Days Selection */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Weekly Off Days
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+            Weekly Off Days{" "}
+            <span className="text-slate-400 font-normal font-mono">
+              [ Optional ]
+            </span>
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {WEEKLY_OFF_OPTIONS.map((day) => (
-              <button
-                key={day.id}
-                type="button"
-                onClick={() => handleWeeklyOffToggle(day.value)}
-                className={`
-                  px-3 py-2 text-sm rounded-lg border transition-all
-                  ${
-                    weeklyOffDays.includes(day.value)
-                      ? "bg-emerald-50 border-emerald-500 text-emerald-700"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
-                  }
-                `}
-              >
-                {day.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-1.5">
+            {WEEKLY_OFF_OPTIONS.map((day) => {
+              const isSelected = weeklyOffDays.includes(day.value);
+              return (
+                <button
+                  key={day.id}
+                  type="button"
+                  onClick={() => handleWeeklyOffToggle(day.value)}
+                  className={`px-3 py-1.5 text-xs font-mono font-bold rounded-sm border transition-all uppercase tracking-tight ${
+                    isSelected
+                      ? "bg-slate-900 border-slate-950 text-white"
+                      : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+                  }`}
+                >
+                  {day.label}
+                </button>
+              );
+            })}
           </div>
-          <p className="text-xs text-slate-400 mt-2">
-            Select days when this department is off (optional)
-          </p>
         </div>
 
-        {/* Salary - Dropdown */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Default Salary (₹/month) <span className="text-red-400">*</span>
+        {/* Default Salary Dropdown */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+            Default Base Salary{" "}
+            <span className="text-rose-500 font-normal">*</span>
           </label>
           <select
             {...register("salarySelect", {
-              required: "Please select a salary",
-              validate: (value) => {
-                if (value === undefined || value === 0)
-                  return "Please select a salary";
-                return true;
-              },
+              required: "Please select a salary specification",
+              validate: (value) =>
+                value === undefined || value === 0
+                  ? "Please select a salary valuation"
+                  : true,
             })}
             onChange={handleSalaryChange}
-            className={`
-              w-full px-4 py-2.5 rounded-lg border bg-white transition-all appearance-none
-              ${
-                errors.salarySelect
-                  ? "border-red-300 focus:border-red-400"
-                  : "border-slate-200 focus:border-slate-300"
-              }
-              focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-              cursor-pointer
-            `}
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-              backgroundPosition: "right 1rem center",
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "1.25rem",
-            }}
+            className={`w-full px-3.5 py-2 rounded-md border text-xs font-medium transition-colors bg-white focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none cursor-pointer ${
+              errors.salarySelect
+                ? "border-rose-300 text-rose-900"
+                : "border-slate-200 text-slate-900"
+            }`}
+            style={selectDropdownStyles}
           >
             {SALARY_OPTIONS.map((salary) => (
               <option key={salary.id} value={salary.value}>
-                {salary.label}
+                {salary.label === "Select salary"
+                  ? "Select base scale alignment"
+                  : salary.label}
               </option>
             ))}
           </select>
           {errors.salarySelect && (
-            <p className="text-xs text-red-400 mt-1">
+            <p className="text-[11px] text-rose-500 font-medium mt-0.5">
               {errors.salarySelect.message}
             </p>
           )}
         </div>
 
-        {/* Custom Salary Input - Only shows when "Others (Custom)" is selected */}
+        {/* Custom Salary Input Box */}
         {salarySelect === -1 && (
-          <div className="animate-in fade-in duration-200">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Custom Salary Amount <span className="text-red-400">*</span>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+              Custom Valuation Metrics{" "}
+              <span className="text-rose-500 font-normal">*</span>
             </label>
             <input
               type="number"
               step="1000"
               {...register("defaultSalary", {
                 required:
-                  salarySelect === -1 ? "Please enter salary amount" : false,
-                min: { value: 1, message: "Salary must be at least ₹1" },
-                validate: (value) => {
-                  if (value <= 0) return "Salary must be positive";
-                  return true;
-                },
+                  salarySelect === -1
+                    ? "Please input absolute valuation metrics"
+                    : false,
+                min: { value: 1, message: "Metrics value must be at least 1" },
+                validate: (value) =>
+                  value <= 0 ? "Metrics value must be positive" : true,
               })}
-              className={`
-                w-full px-4 py-2.5 rounded-lg border bg-white transition-all
-                ${
-                  errors.defaultSalary
-                    ? "border-red-300 focus:border-red-400"
-                    : "border-slate-200 focus:border-slate-300"
-                }
-                focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-              `}
-              placeholder="Enter custom salary"
+              className={`w-full px-3.5 py-2 rounded-md border text-xs font-mono font-bold text-slate-900 transition-colors bg-white focus:outline-none focus:border-slate-900 focus:ring-0 ${
+                errors.defaultSalary ? "border-rose-300" : "border-slate-200"
+              }`}
+              placeholder="Enter salary valuation scale"
             />
             {errors.defaultSalary && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-[11px] text-rose-500 font-medium mt-0.5">
                 {errors.defaultSalary.message}
               </p>
             )}
           </div>
         )}
 
-        {/* Overtime Section */}
-        <div className="space-y-3">
+        {/* Overtime Configuration Panel Wireframe */}
+        <div className="p-4 rounded-md border border-slate-200/70 bg-slate-50 space-y-4">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-slate-700">
-              Enable Overtime
-            </label>
+            <div className="space-y-0.5">
+              <label className="text-xs font-bold text-slate-900 uppercase tracking-tight block">
+                Enable Overtime Logging
+              </label>
+              <p className="text-[11px] text-slate-400 font-normal">
+                Trigger parameter processing algorithms for overtime allocation
+                indices.
+              </p>
+            </div>
             <button
               type="button"
               onClick={handleToggleOvertime}
-              className={`
-                relative inline-flex h-6 w-11 items-center rounded-full 
-                transition-colors duration-200 focus:outline-none focus:ring-2 
-                focus:ring-slate-200 focus:ring-offset-2
-                ${overtimeEnabled ? "bg-slate-900" : "bg-slate-200"}
-              `}
+              className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-150 ${
+                overtimeEnabled ? "bg-slate-900" : "bg-slate-200"
+              }`}
             >
               <span
-                className={`
-                  inline-block h-5 w-5 transform rounded-full bg-white 
-                  shadow-sm transition-transform duration-200
-                  ${overtimeEnabled ? "translate-x-6" : "translate-x-0.5"}
-                `}
+                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform duration-150 ${
+                  overtimeEnabled ? "translate-x-4.5" : "translate-x-0.5"
+                }`}
               />
             </button>
           </div>
 
           {overtimeEnabled && (
-            <div className="space-y-3 animate-in fade-in duration-200">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Grace Minutes <span className="text-red-400">*</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-200/60">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+                  Grace Minutes Boundary{" "}
+                  <span className="text-rose-500 font-normal">*</span>
                 </label>
                 <input
                   type="number"
                   {...register("overtimeGraceMins", {
                     required: overtimeEnabled
-                      ? "Grace minutes is required"
+                      ? "Grace minutes variable is required"
                       : false,
                     min: { value: 0, message: "Must be 0 or more" },
                     valueAsNumber: true,
                   })}
-                  className={`
-                    w-full px-4 py-2.5 rounded-lg border transition-all
-                    ${
-                      errors.overtimeGraceMins
-                        ? "border-red-300 focus:border-red-400"
-                        : "border-slate-200 focus:border-slate-300"
-                    }
-                    focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-                  `}
-                  placeholder="e.g., 15"
+                  className={`w-full px-3.5 py-2 rounded-md border text-xs font-mono font-bold text-slate-900 transition-colors bg-white focus:outline-none focus:border-slate-900 focus:ring-0 ${
+                    errors.overtimeGraceMins
+                      ? "border-rose-300"
+                      : "border-slate-200"
+                  }`}
+                  placeholder="15"
                 />
-                <p className="text-xs text-slate-400 mt-1">
-                  Minutes after shift end before overtime applies
+                <p className="text-[10px] text-slate-400 font-normal leading-normal">
+                  Threshold minute intervals preceding shift closure bounds.
                 </p>
                 {errors.overtimeGraceMins && (
-                  <p className="text-xs text-red-400 mt-1">
+                  <p className="text-[11px] text-rose-500 font-medium mt-0.5">
                     {errors.overtimeGraceMins.message}
                   </p>
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Overtime Hourly Rate (₹/hour){" "}
-                  <span className="text-red-400">*</span>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-800 uppercase tracking-tight block">
+                  Hourly Allocation Rate{" "}
+                  <span className="text-rose-500 font-normal">*</span>
                 </label>
                 <input
                   type="number"
                   step="10"
                   {...register("overtimeHourlyRate", {
                     required: overtimeEnabled
-                      ? "Overtime hourly rate is required"
+                      ? "Hourly matrix rate calculation variable required"
                       : false,
-                    min: { value: 1, message: "Rate must be at least ₹1" },
+                    min: {
+                      value: 1,
+                      message: "Variable scale must be at least 1",
+                    },
                     valueAsNumber: true,
                   })}
-                  className={`
-                    w-full px-4 py-2.5 rounded-lg border transition-all
-                    ${
-                      errors.overtimeHourlyRate
-                        ? "border-red-300 focus:border-red-400"
-                        : "border-slate-200 focus:border-slate-300"
-                    }
-                    focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm
-                  `}
-                  placeholder="e.g., 500"
+                  className={`w-full px-3.5 py-2 rounded-md border text-xs font-mono font-bold text-slate-900 transition-colors bg-white focus:outline-none focus:border-slate-900 focus:ring-0 ${
+                    errors.overtimeHourlyRate
+                      ? "border-rose-300"
+                      : "border-slate-200"
+                  }`}
+                  placeholder="500"
                 />
                 {errors.overtimeHourlyRate && (
-                  <p className="text-xs text-red-400 mt-1">
+                  <p className="text-[11px] text-rose-500 font-medium mt-0.5">
                     {errors.overtimeHourlyRate.message}
                   </p>
                 )}
@@ -501,21 +469,28 @@ export default function DepartmentModal({
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t border-slate-100 mt-6">
+        {/* Global Action Footer Layout Buttons */}
+        <div className="flex items-center gap-3 pt-3 border-t border-slate-100 mt-6">
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-700 hover:bg-slate-50 border border-slate-200 transition-colors"
+            className="flex-1 px-4 py-2 border border-slate-200 rounded-md text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 transition-all focus:outline-none"
           >
-            Cancel
+            Cancel Allocation
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 border border-slate-950 rounded-md text-xs font-bold uppercase tracking-wider text-white hover:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-all focus:outline-none"
           >
-            {isSubmitting ? "Creating..." : "Create Department"}
+            {isSubmitting ? (
+              <div className="w-3.5 h-3.5 border-2 border-slate-400 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <FolderPlus className="h-3.5 w-3.5" />
+                <span>Create Sector Node</span>
+              </>
+            )}
           </button>
         </div>
       </form>
