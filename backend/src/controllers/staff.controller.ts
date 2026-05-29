@@ -5,6 +5,7 @@ import {
   checkOutStaffService,
   getStaffProfileService,
   getTodayAttendanceService,
+  toggleStaffStatusService,
 } from "../Service/staff.service";
 
 export const checkInStaffController = asyncHandler(
@@ -82,5 +83,23 @@ export const getStaffProfileController = asyncHandler(
 
       data: result,
     });
+  }
+);
+
+export const toggleStaffStatusController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const organizationId = req.user!.organizationId;
+
+    const staffId = req.params.staffId as string;
+
+    const { isActive } = req.body;
+
+    const result = await toggleStaffStatusService({
+      organizationId,
+      staffId,
+      isActive,
+    });
+
+    res.status(200).json(result);
   }
 );

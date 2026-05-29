@@ -12,6 +12,7 @@ import { createPayroll } from "../Repository/payroll.repository";
 import { generatePayslipPdf } from "../utils/generatePayslipPdf";
 
 import { findOrganizationById } from "../Repository/organization.repository";
+import { calculateWorkingDays } from "../utils/calculateWorkingDays";
 
 export const getPayrollService = async ({
   organizationId,
@@ -128,7 +129,11 @@ export const getPayrollService = async ({
       const overtimeAmount = Number((overtimeHours * overtimeRate).toFixed(2));
 
       // WORKING DAYS
-      const workingDays = 26;
+      const workingDays = calculateWorkingDays({
+        month: selectedMonth,
+        year: selectedYear,
+        weeklyOffDays: user.department?.weeklyOffDays || [],
+      });
 
       // DAILY SALARY
       const dailySalary = baseSalary / workingDays;

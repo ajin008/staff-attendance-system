@@ -210,3 +210,23 @@ export const findStaffProfile = async ({
     },
   });
 };
+
+export const updateStaffStatus = async (
+  organizationId: number,
+  staffId: string,
+  isActive: boolean
+) => {
+  return prisma.user.updateMany({
+    where: {
+      organizationId,
+
+      staffId,
+
+      role: "staff",
+    },
+
+    data: {
+      isActive,
+    },
+  });
+};

@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import {
   Eye,
   Edit2,
-  Trash2,
+  UserX,
+  UserCheck,
   ChevronLeft,
   ChevronRight,
   Search,
@@ -29,7 +30,7 @@ interface StaffTableProps {
   totalStaff: number;
   onView: (staff: Staff) => void;
   onEdit: (staff: Staff) => void;
-  onDelete: (staff: Staff) => void;
+  onStatusToggle: (staff: Staff) => void;
   onSearch: (term: string) => void;
   onPageChange: (page: number) => void;
 }
@@ -44,7 +45,7 @@ export default function StaffTable({
   totalStaff,
   onView,
   onEdit,
-  onDelete,
+  onStatusToggle,
   onSearch,
   onPageChange,
 }: StaffTableProps) {
@@ -113,6 +114,7 @@ export default function StaffTable({
                     "Sector Node",
                     "Registry Link",
                     "Contact Vector",
+                    "Status",
                     "Execution Operations",
                   ].map((h) => (
                     <th
@@ -130,7 +132,7 @@ export default function StaffTable({
                     key={i}
                     className="border-b border-slate-100 animate-pulse"
                   >
-                    {[1, 2, 3, 4, 5, 6, 7].map((j) => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((j) => (
                       <td key={j} className="px-5 py-4">
                         <div className="h-3.5 bg-slate-100 rounded-sm w-24"></div>
                       </td>
@@ -203,7 +205,7 @@ export default function StaffTable({
             <p className="flex items-center gap-1.5">
               <Users className="h-3 w-3" />
               <span>
-                {staff.length} {totalStaff} Node Entities Allocated
+                {staff.length} of {totalStaff} Node Entities Allocated
               </span>
             </p>
           )}
@@ -235,6 +237,9 @@ export default function StaffTable({
                   Contact Vector
                 </th>
                 <th className="px-5 py-3 text-center text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-5 py-3 text-center text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
                   Execution Operations
                 </th>
               </tr>
@@ -242,7 +247,7 @@ export default function StaffTable({
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-600">
               {staff.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center">
+                  <td colSpan={8} className="px-5 py-12 text-center">
                     <div className="space-y-1.5">
                       <p className="text-xs text-slate-400 font-medium">
                         No system tracking arrays matched parameters
@@ -262,13 +267,20 @@ export default function StaffTable({
                 staff.map((member) => (
                   <tr
                     key={member.id}
-                    className="border-b border-slate-100 hover:bg-slate-50/40 transition-colors"
+                    className={`border-b border-slate-100 hover:bg-slate-50/40 transition-colors ${
+                      !member.isActive ? "bg-slate-50/30" : ""
+                    }`}
                   >
                     <td className="px-5 py-3.5 font-mono text-slate-900 font-bold">
                       {member.staffId}
                     </td>
                     <td className="px-5 py-3.5 text-slate-900 font-bold uppercase tracking-tight">
                       {member.name}
+                      {!member.isActive && (
+                        <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-100 text-amber-700 uppercase">
+                          Resigned
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5 text-slate-500 font-mono">
                       {member.email}
@@ -290,6 +302,27 @@ export default function StaffTable({
                     <td className="px-5 py-3.5 font-mono text-slate-500">
                       {member.phone || "—"}
                     </td>
+                    <td className="px-5 py-3.5 text-center">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-mono font-bold uppercase ${
+                          member.isActive
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-amber-50 text-amber-700 border border-amber-200"
+                        }`}
+                      >
+                        {member.isActive ? (
+                          <>
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Active
+                          </>
+                        ) : (
+                          <>
+                            <UserX className="h-2.5 w-2.5" />
+                            Resigned
+                          </>
+                        )}
+                      </span>
+                    </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-center gap-1.5">
                         {/* Process Logging Parameters Tracker Hook */}
@@ -299,8 +332,9 @@ export default function StaffTable({
                               `/admin/staff/${member.staffId}/attendance`
                             )
                           }
-                          className="flex items-center gap-1 px-2 py-1 rounded-sm text-[10px] font-mono font-bold uppercase tracking-tight bg-slate-900 text-white border border-slate-950 transition-colors"
+                          className="flex items-center gap-1 px-2 py-1 rounded-sm text-[10px] font-mono font-bold uppercase tracking-tight bg-slate-900 text-white border border-slate-950 transition-colors hover:bg-slate-800"
                           title="Verify Log Records Matrix"
+                          disabled={!member.isActive}
                         >
                           <Clock className="h-3 w-3" />
                           <span>logs</span>
@@ -324,13 +358,25 @@ export default function StaffTable({
                           <Edit2 className="h-3.5 w-3.5" />
                         </button>
 
-                        {/* Terminate Block Node */}
+                        {/* Status Toggle - Resign/Activate */}
                         <button
-                          onClick={() => onDelete(member)}
-                          className="p-1.5 border border-slate-200 rounded-md text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition-all"
-                          title="Purge System Registry Element"
+                          onClick={() => onStatusToggle(member)}
+                          className={`p-1.5 border rounded-md transition-all ${
+                            member.isActive
+                              ? "border-amber-200 text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+                              : "border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                          }`}
+                          title={
+                            member.isActive
+                              ? "Mark as Resigned"
+                              : "Activate Employee"
+                          }
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          {member.isActive ? (
+                            <UserX className="h-3.5 w-3.5" />
+                          ) : (
+                            <UserCheck className="h-3.5 w-3.5" />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -353,7 +399,7 @@ export default function StaffTable({
               <span>Prev Matrix</span>
             </button>
             <span className="text-[11px] font-bold text-slate-500">
-              [ Page {currentPage} {totalPages} ]
+              [ Page {currentPage} of {totalPages} ]
             </span>
             <button
               onClick={() => onPageChange(currentPage + 1)}

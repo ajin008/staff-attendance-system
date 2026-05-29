@@ -62,4 +62,9 @@ export const ENDPOINT = {
   GET_MY_PROFILE: "/staff/profile",
   GET_MY_ATTENDANCE: "/staff/attendance/history",
   GET_MY_FLOOR_ALLOCATION: "/staff/my-allocation",
+
+  // staff status toggle
+  TOGGLE_STAFF_STATUS: (staffId: string) => `/admin/staff/${staffId}/status`,
+  GET_ACTIVE_STAFF: "/admin/staff/active",
+  GET_INACTIVE_STAFF: "/admin/staff/inactive",
 };

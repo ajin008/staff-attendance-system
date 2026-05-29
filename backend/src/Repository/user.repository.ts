@@ -43,13 +43,18 @@ export const findAllStaffByOrganization = async (
   organizationId: number,
   skip: number,
   limit: number,
-  search: string
+  search: string,
+  isActive?: boolean
 ) => {
   return prisma.user.findMany({
     where: {
       organizationId,
 
       role: "staff",
+
+      ...(isActive !== undefined && {
+        isActive,
+      }),
 
       ...(search && {
         OR: [
@@ -89,6 +94,7 @@ export const findAllStaffByOrganization = async (
       phone: true,
 
       role: true,
+      isActive: true,
 
       joinedOn: true,
 
@@ -149,13 +155,17 @@ export const findAllStaffByOrganization = async (
 
 export const countStaffByOrganization = async (
   organizationId: number,
-  search: string
+  search: string,
+  isActive?: boolean
 ) => {
   return prisma.user.count({
     where: {
       organizationId,
 
       role: "staff",
+      ...(isActive !== undefined && {
+        isActive,
+      }),
 
       ...(search && {
         OR: [

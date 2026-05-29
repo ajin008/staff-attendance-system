@@ -5,34 +5,36 @@ import AdminNavbar from "@/components/admin/AdminNavbar";
 import StaffTable from "@/components/admin/StaffTable";
 import ViewStaffModal from "@/components/admin/ViewStaffModal";
 import EditStaffModal from "@/components/admin/EditStaffModal";
-import DeleteStaffModal from "@/components/admin/DeleteStaffModal";
+import StatusToggleModal from "@/components/staff/StatusToggleModal";
 import { useStaffManagement } from "@/src/hooks/useStaffManagement";
 
 export default function StaffPage() {
   const {
     staff,
     departments,
-    branches, // ADD THIS
+    branches,
     isLoading,
     searchTerm,
     currentPage,
     totalPages,
     totalStaff,
+    statusFilter,
     isViewModalOpen,
     isEditModalOpen,
-    isDeleteModalOpen,
+    isStatusModalOpen,
     selectedStaff,
     isSubmitting,
     setCurrentPage,
+    setStatusFilter,
     handleView,
     handleEdit,
-    handleDelete,
-    confirmDelete,
+    handleStatusToggle,
+    confirmStatusToggle,
     confirmUpdate,
     handleSearch,
     closeViewModal,
     closeEditModal,
-    closeDeleteModal,
+    closeStatusModal,
   } = useStaffManagement();
 
   return (
@@ -52,6 +54,40 @@ export default function StaffPage() {
           </p>
         </div>
 
+        {/* Status Filter Tabs */}
+        <div className="mb-6 flex gap-2 border-b border-slate-200">
+          <button
+            onClick={() => setStatusFilter("all")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              statusFilter === "all"
+                ? "text-slate-900 border-b-2 border-slate-900"
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setStatusFilter("active")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              statusFilter === "active"
+                ? "text-slate-900 border-b-2 border-slate-900"
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setStatusFilter("resigned")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              statusFilter === "resigned"
+                ? "text-slate-900 border-b-2 border-slate-900"
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            Resigned
+          </button>
+        </div>
+
         <StaffTable
           staff={staff}
           departments={departments}
@@ -62,7 +98,7 @@ export default function StaffPage() {
           totalStaff={totalStaff}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onStatusToggle={handleStatusToggle}
           onSearch={handleSearch}
           onPageChange={setCurrentPage}
         />
@@ -81,17 +117,17 @@ export default function StaffPage() {
         onClose={closeEditModal}
         staff={selectedStaff}
         departments={departments}
-        branches={branches} // ADD THIS
+        branches={branches}
         isSubmitting={isSubmitting}
         onSubmit={confirmUpdate}
       />
 
-      <DeleteStaffModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
+      <StatusToggleModal
+        isOpen={isStatusModalOpen}
+        onClose={closeStatusModal}
         staff={selectedStaff}
         isSubmitting={isSubmitting}
-        onConfirm={confirmDelete}
+        onConfirm={confirmStatusToggle}
       />
     </div>
   );

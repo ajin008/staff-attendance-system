@@ -21,6 +21,7 @@ import {
   deleteStaffByStaffId,
   findStaffByStaffId,
   updateStaffByStaffId,
+  updateStaffStatus,
 } from "../Repository/staff.repository";
 
 import bcrypt from "bcryptjs";
@@ -122,7 +123,8 @@ export const getAllStaffService = async (
   organizationId: number,
   page: number,
   limit: number,
-  search: string
+  search: string,
+  isActive?: boolean
 ) => {
   const skip = (page - 1) * limit;
 
@@ -130,10 +132,15 @@ export const getAllStaffService = async (
     organizationId,
     skip,
     limit,
-    search
+    search,
+    isActive
   );
 
-  const totalStaff = await countStaffByOrganization(organizationId, search);
+  const totalStaff = await countStaffByOrganization(
+    organizationId,
+    search,
+    isActive
+  );
 
   return {
     staffs,
@@ -232,7 +239,7 @@ export const checkInStaffService = async ({
   }
 
   const approvedLeave = await findApprovedLeaveForToday(userId);
-  console.log("Approved leave for today:", approvedLeave);
+  // console.log("Approved leave for today:", approvedLeave);
 
   // AUTO CANCEL LEAVE
   if (approvedLeave) {
@@ -270,7 +277,7 @@ export const checkInStaffService = async ({
     })
     .toLowerCase();
 
-  console.log("Today:", today);
+  // console.log("Today:", today);
 
   // WEEKLY OFF CHECK
   const isWeeklyOff = user.department.weeklyOffDays.includes(today);
@@ -284,9 +291,9 @@ export const checkInStaffService = async ({
 
   const effectiveShiftEnd = user.shiftEnd || user.department.shiftEnd;
 
-  console.log("Effective Shift Start:", effectiveShiftStart);
+  // console.log("Effective Shift Start:", effectiveShiftStart);
 
-  console.log("Effective Shift End:", effectiveShiftEnd);
+  // console.log("Effective Shift End:", effectiveShiftEnd);
 
   // CURRENT TIME IN MINUTES
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -645,5 +652,29 @@ export const getStaffProfileService = async ({
           allowedRadius: user.branch.allowedRadius,
         }
       : null,
+  };
+};
+
+export const toggleStaffStatusService = async ({
+  organizationId,
+  staffId,
+  isActive,
+}: {
+  organizationId: number;
+
+  staffId: string;
+
+  isActive: boolean;
+}) => {
+  const staff = await findStaffByStaffId(organizationId, staffId);
+
+  if (!staff) {
+    throw new AppError("Staff not found", 404);
+  }
+
+  await updateStaffStatus(organizationId, staffId, isActive);
+
+  return {
+    message: `Staff ${isActive ? "activated" : "deactivated"} successfully`,
   };
 };

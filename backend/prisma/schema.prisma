@@ -52,6 +52,8 @@ model User {
 
   branchId Int?
 
+  
+
   branch Branch? @relation(fields: [branchId], references: [id])
 
   staffId String? @unique
@@ -80,6 +82,8 @@ model User {
   overtimeHourlyRate Float?
 
   overtimeGraceMins Int?
+
+  isActive Boolean @default(true)
 
   // RELATIONS
   attendances Attendance[]

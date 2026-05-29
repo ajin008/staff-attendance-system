@@ -7,6 +7,7 @@ export interface User {
   department?: StaffDepartment;
 
   staffId?: string;
+  isActive?: boolean;
 
   name: string;
   email: string;
@@ -156,6 +157,7 @@ export interface Staff {
     shiftStart?: string;
     shiftEnd?: string;
   };
+  isActive?: boolean;
   departmentId?: number;
   role?: string;
   createdAt?: string;

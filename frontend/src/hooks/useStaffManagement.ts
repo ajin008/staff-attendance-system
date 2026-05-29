@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 // hooks/useStaffManagement.ts
 "use client";
 
@@ -7,7 +6,7 @@ import { useDebounce } from "use-debounce";
 import { toast } from "sonner";
 import {
   getAllStaff,
-  deleteStaff,
+  toggleStaffStatus,
   updateStaff,
 } from "@/src/services/staff.service";
 import { getAllDepartments } from "@/src/services/department.service";
@@ -19,25 +18,28 @@ import { triggerDashboardRefresh } from "../utils/events";
 export function useStaffManagement() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]); // ADD THIS
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalStaff, setTotalStaff] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "resigned"
+  >("all");
 
   // Modal states
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset page when search term changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, statusFilter]);
 
   const fetchStaff = useCallback(async () => {
     setIsLoading(true);
@@ -45,7 +47,8 @@ export function useStaffManagement() {
       const data: GetAllStaffResponse = await getAllStaff(
         currentPage,
         10,
-        debouncedSearchTerm
+        debouncedSearchTerm,
+        statusFilter === "all" ? undefined : statusFilter === "active"
       );
       setStaff(data.staffs || []);
       setTotalPages(data.pagination?.totalPages || 0);
@@ -55,7 +58,7 @@ export function useStaffManagement() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, debouncedSearchTerm]);
+  }, [currentPage, debouncedSearchTerm, statusFilter]);
 
   const fetchDepartments = useCallback(async () => {
     try {
@@ -66,7 +69,6 @@ export function useStaffManagement() {
     }
   }, []);
 
-  // ADD THIS - Fetch branches
   const fetchBranches = useCallback(async () => {
     try {
       const data = await getAllBranches();
@@ -79,7 +81,7 @@ export function useStaffManagement() {
   useEffect(() => {
     fetchStaff();
     fetchDepartments();
-    fetchBranches(); // ADD THIS
+    fetchBranches();
   }, [fetchStaff, fetchDepartments, fetchBranches]);
 
   const handleView = (staffMember: Staff) => {
@@ -92,20 +94,23 @@ export function useStaffManagement() {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (staffMember: Staff) => {
+  const handleStatusToggle = (staffMember: Staff) => {
     setSelectedStaff(staffMember);
-    setIsDeleteModalOpen(true);
+    setIsStatusModalOpen(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmStatusToggle = async () => {
     if (!selectedStaff) return;
 
     setIsSubmitting(true);
+    const newStatus = !selectedStaff.isActive;
+    const actionText = newStatus ? "activate" : "resign";
+
     try {
-      await deleteStaff(selectedStaff.staffId);
-      toast.success("Staff deleted successfully");
+      await toggleStaffStatus(selectedStaff.staffId, newStatus);
+      toast.success(`Staff ${actionText}d successfully`);
       triggerDashboardRefresh();
-      setIsDeleteModalOpen(false);
+      setIsStatusModalOpen(false);
       setSelectedStaff(null);
       fetchStaff();
     } catch (error) {
@@ -120,7 +125,6 @@ export function useStaffManagement() {
 
     setIsSubmitting(true);
     try {
-      // Create a clean update object with only the fields we want to update
       const updateData: {
         name?: string;
         email?: string;
@@ -137,7 +141,6 @@ export function useStaffManagement() {
       if (data.departmentId !== undefined)
         updateData.departmentId = data.departmentId;
 
-      // If branch is an object, extract just the name as string
       if (data.branch !== undefined) {
         if (
           data.branch &&
@@ -176,20 +179,22 @@ export function useStaffManagement() {
     currentPage,
     totalPages,
     totalStaff,
+    statusFilter,
     isViewModalOpen,
     isEditModalOpen,
-    isDeleteModalOpen,
+    isStatusModalOpen,
     selectedStaff,
     isSubmitting,
     setCurrentPage,
+    setStatusFilter,
     handleView,
     handleEdit,
-    handleDelete,
-    confirmDelete,
+    handleStatusToggle,
+    confirmStatusToggle,
     confirmUpdate,
     handleSearch,
     closeViewModal: () => setIsViewModalOpen(false),
     closeEditModal: () => setIsEditModalOpen(false),
-    closeDeleteModal: () => setIsDeleteModalOpen(false),
+    closeStatusModal: () => setIsStatusModalOpen(false),
   };
 }

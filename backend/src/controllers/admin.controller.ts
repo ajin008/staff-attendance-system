@@ -33,11 +33,17 @@ export const getAllStaffController = asyncHandler(
 
     const search = (req.query.search as string) || "";
 
+    const isActive =
+      req.query.isActive !== undefined
+        ? req.query.isActive === "true"
+        : undefined;
+
     const result = await getAllStaffService(
       organizationId,
       page,
       limit,
-      search
+      search,
+      isActive
     );
 
     res.status(200).json(result);

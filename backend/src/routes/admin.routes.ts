@@ -22,7 +22,10 @@ import {
   deleteBranchController,
   getAllBranchesController,
 } from "../controllers/branch.controller";
-import { getTodayAttendanceController } from "../controllers/staff.controller";
+import {
+  getTodayAttendanceController,
+  toggleStaffStatusController,
+} from "../controllers/staff.controller";
 import {
   createFloorController,
   deleteFloorController,
@@ -197,4 +200,10 @@ router.delete(
   deleteBranchController
 );
 
+router.patch(
+  "/staff/:staffId/status",
+  protect,
+  adminOnly,
+  toggleStaffStatusController
+);
 export default router;
