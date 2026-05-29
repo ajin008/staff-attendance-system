@@ -3,12 +3,9 @@ import { asyncHandler } from "../middleware/asyncHandler";
 import ENV from "../config/rootVariables";
 import {
   // createStaffService,
-  deleteStaffService,
-  getAllStaffService,
   loginService,
   registerService,
   // seedAdminService,
-  updateStaffService,
 } from "../Service/auth.service";
 import { registerPayload } from "../utils/types";
 import { createStaffService } from "../Service/staff.service";
@@ -100,35 +97,35 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
   res.status(201).json(result);
 });
 
-export const getAllStaff = asyncHandler(async (req: Request, res: Response) => {
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
-  const search = (req.query.search as string) || "";
+// export const getAllStaff = asyncHandler(async (req: Request, res: Response) => {
+//   const page = parseInt(req.query.page as string) || 1;
+//   const limit = parseInt(req.query.limit as string) || 10;
+//   const search = (req.query.search as string) || "";
 
-  const result = await getAllStaffService(page, limit, search);
-  res.status(200).json(result);
-});
+//   const result = await getAllStaffService(page, limit, search);
+//   res.status(200).json(result);
+// });
 
-export const deleteStaff = asyncHandler(async (req: Request, res: Response) => {
-  const staffId = req.params.staffId as string;
+// export const deleteStaff = asyncHandler(async (req: Request, res: Response) => {
+//   const staffId = req.params.staffId as string;
 
-  await deleteStaffService(staffId);
+//   await deleteStaffService(staffId);
 
-  res.status(200).json({ message: "Staff deleted successfully" });
-});
+//   res.status(200).json({ message: "Staff deleted successfully" });
+// });
 
-export const updateStaff = asyncHandler(async (req: Request, res: Response) => {
-  console.log("update staff service is not triggering");
-  const staffId = req.params.staffId as string;
-  const { name, email, password, phone } = req.body;
-  const result = await updateStaffService(staffId, {
-    name,
-    email,
-    password,
-    phone,
-  });
-  res.status(200).json({ message: "Staff updated", user: result });
-});
+// export const updateStaff = asyncHandler(async (req: Request, res: Response) => {
+//   console.log("update staff service is not triggering");
+//   const staffId = req.params.staffId as string;
+//   const { name, email, password, phone } = req.body;
+//   const result = await updateStaffService(staffId, {
+//     name,
+//     email,
+//     password,
+//     phone,
+//   });
+//   res.status(200).json({ message: "Staff updated", user: result });
+// });
 
 // postgres sql
 

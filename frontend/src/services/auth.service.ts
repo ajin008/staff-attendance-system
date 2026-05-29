@@ -40,7 +40,7 @@ export const updateStaff = async (
     phone: string;
   }>
 ) => {
-  console.log("update staff data", data);
+  // console.log("update staff data", data);
   const res = await api.patch(ENDPOINT.UPDATE_STAFF(staffId), data);
   return res.data;
 };
