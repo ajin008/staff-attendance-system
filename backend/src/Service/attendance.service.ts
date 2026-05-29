@@ -5,10 +5,18 @@ import AppError from "../utils/AppError";
 import {
   countStaffAttendance,
   findAllAttendanceSummary,
+  findPendingAutoCheckouts,
   findStaffAttendance,
+  updateAttendanceCheckOut,
 } from "../Repository/attendance.repository";
 
 import { findStaffByStaffId } from "../Repository/staff.repository";
+import {
+  calculateEarlyExitMinutes,
+  calculateShiftMinutes,
+  calculateWorkedMinutes,
+} from "../utils/time";
+import { checkOutStaffAllocation } from "../Repository/floor.repository";
 
 export const getStaffAttendanceService = async ({
   organizationId,
@@ -230,4 +238,87 @@ export const getMyAttendanceService = async ({
       totalPages: Math.ceil(total / limit),
     },
   };
+};
+
+// cron job to auto checkout staff who forgot to checkout by the end of the day
+
+export const autoCheckOutStaffService = async () => {
+  console.log("Running auto checkout...");
+
+  const attendances = await findPendingAutoCheckouts();
+
+  for (const attendance of attendances) {
+    // SHIFT END
+    const shiftEnd = attendance.shiftEnd || "17:00";
+
+    // TODAY DATE
+    const attendanceDate = new Date(attendance.createdAt);
+
+    // SHIFT END DATE
+    const autoCheckoutTime = new Date(attendanceDate);
+
+    const [shiftHour, shiftMinute] = shiftEnd.split(":").map(Number);
+
+    autoCheckoutTime.setHours(
+      shiftHour + 3, // 3 HOUR GAP
+      shiftMinute,
+      0,
+      0
+    );
+
+    // CURRENT TIME
+    const now = new Date();
+
+    // NOT YET AUTO CHECKOUT TIME
+    if (now < autoCheckoutTime) {
+      continue;
+    }
+
+    // WORK MINUTES
+    const totalWorkMinutes = calculateWorkedMinutes(
+      attendance.checkInTime!,
+      autoCheckoutTime
+    );
+
+    // SHIFT MINUTES
+    const shiftMinutes = calculateShiftMinutes(
+      attendance.shiftStart!,
+      attendance.shiftEnd!
+    );
+
+    // HALF DAY
+    const isHalfDay = totalWorkMinutes < shiftMinutes / 2;
+
+    // EARLY EXIT
+    const earlyExitMinutes = calculateEarlyExitMinutes(
+      attendance.shiftEnd!,
+      autoCheckoutTime
+    );
+
+    // UPDATE ATTENDANCE
+    await updateAttendanceCheckOut(attendance.id, {
+      checkOutTime: autoCheckoutTime,
+
+      totalWorkMinutes,
+
+      overtimeMinutes: 0,
+
+      isOvertime: false,
+
+      earlyExitMinutes,
+
+      isEarlyExit: earlyExitMinutes > 0,
+
+      isHalfDay,
+
+      isAutoCheckout: true,
+
+      attendanceStatus: isHalfDay ? "half_day" : "present",
+    });
+
+    // REMOVE FLOOR ALLOCATION
+    await checkOutStaffAllocation(attendance.userId);
+
+    console.log(`Auto checkout completed for user ${attendance.userId}`);
+  }
 };

@@ -179,6 +179,8 @@ model Attendance {
   checkOutLatitude  Float?
   checkOutLongitude Float?
 
+  isAutoCheckout Boolean @default(false)
+
   // SHIFT SNAPSHOT
   shiftStart String?
   shiftEnd   String?

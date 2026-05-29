@@ -185,3 +185,32 @@ export const checkOutStaffAllocation = async (userId: number) => {
     },
   });
 };
+
+export const findActiveStaffAllocation = async ({
+  userId,
+  organizationId,
+}: {
+  userId: number;
+
+  organizationId: number;
+}) => {
+  return prisma.staffAllocation.findFirst({
+    where: {
+      userId,
+
+      organizationId,
+
+      isActive: true,
+    },
+
+    include: {
+      branch: true,
+
+      floor: true,
+    },
+
+    orderBy: {
+      assignedAt: "desc",
+    },
+  });
+};

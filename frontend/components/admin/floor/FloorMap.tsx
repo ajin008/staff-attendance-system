@@ -1,4 +1,4 @@
-// components/admin/FloorMap.tsx
+// components/admin/floor/FloorMap.tsx
 "use client";
 
 import { useState } from "react";
@@ -10,7 +10,6 @@ import {
   Users,
   Building2,
   ChevronRight,
-  Layers,
 } from "lucide-react";
 import { useFloors } from "@/src/hooks/floor/useFloors";
 import { useFloorUIStore } from "@/src/stores/floorStore";
@@ -76,6 +75,15 @@ export default function FloorMap() {
     router.push(`/admin/floor/${floorId}`);
   };
 
+  const getFormattedDate = () => {
+    return new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -109,178 +117,205 @@ export default function FloorMap() {
   }
 
   return (
-    <div className="space-y-6 mt-6 antialiased">
-      {/* Header Alignment Block */}
-      <div className="flex items-end justify-between border-b border-slate-100 pb-5">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono font-medium text-slate-400 tracking-wider uppercase">
-              Spatial Overview
+    <div className="space-y-6 antialiased">
+      {/* Hero Header Block - Full width like admin dashboard */}
+      <div className="w-full bg-[#0F0F11] text-white pt-10 pb-16 border-b border-neutral-900">
+        <div className="w-full max-w-[1600px] mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          {/* Left Column: Context Metadata */}
+          <div className="space-y-2 flex-1">
+            <div className="flex items-center gap-2 text-xs font-mono font-medium text-neutral-500 uppercase tracking-wider">
+              <span>Spatial Overview</span>
+              <span className="text-neutral-700">/</span>
+              <span className="text-neutral-300">Floor Management</span>
+            </div>
+
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mt-1">
+              Floor Registry
+            </h1>
+
+            <p className="text-xs md:text-sm text-neutral-400 font-normal leading-relaxed max-w-xl">
+              Monitor capacity metrics, assign operational resources, and track
+              active location layout structures across your facility.
+            </p>
+          </div>
+
+          {/* Right Column: Operational Date Badge */}
+          <div className="sm:text-right self-end sm:self-start pt-1">
+            <span className="text-xs font-mono font-medium tracking-wider text-neutral-400 bg-neutral-900/60 border border-neutral-800/80 px-3 py-1.5 rounded-md inline-block whitespace-nowrap">
+              {getFormattedDate()}
             </span>
           </div>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Floor Registry
-          </h2>
-          <p className="text-xs text-slate-400 max-w-md leading-relaxed font-normal">
-            Monitor capacity, assign operational resources, and track active
-            location layout structures.
-          </p>
         </div>
-
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium text-white bg-[#0F0F11] hover:bg-slate-800 transition-all duration-200 shadow-xs"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          <span>Add Floor</span>
-        </button>
       </div>
 
-      {/* Grid Content Layout Render Matrix */}
-      {floors.length === 0 ? (
-        <div className="relative py-16 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-          <Building2 className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-          <p className="text-slate-900 font-semibold text-sm">
-            No floors established yet
-          </p>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Get started by allocating your first physical floor segment layout.
-          </p>
+      {/* Main Content Area - Floor Grid */}
+      <div className="w-full max-w-[1600px] mx-auto px-6 pb-16">
+        {/* Section Header */}
+        <div className="flex items-end justify-between border-b border-slate-100 pb-5 mb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-medium text-slate-400 tracking-wider uppercase">
+                Floor Directory
+              </span>
+            </div>
+            <h2 className="text-xl font-semibold tracking-tight text-slate-900">
+              All Floor Segments
+            </h2>
+            <p className="text-xs text-slate-400 max-w-md leading-relaxed font-normal">
+              View and manage individual floor layouts and capacity allocations.
+            </p>
+          </div>
+
           <button
             onClick={openAddModal}
-            className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-900 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium text-white bg-[#0F0F11] hover:bg-slate-800 transition-all duration-200 shadow-xs"
           >
-            Create First Floor
+            <Plus className="h-3.5 w-3.5" />
+            <span>Add Floor</span>
           </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {floors.map((floor) => {
-            const currentStaff = floor.currentStaffCount || 0;
-            const capacity = floor.maxCapacity || 1;
-            const occupancyPercent = Math.min(
-              Math.max((currentStaff / capacity) * 100, 0),
-              100
-            );
 
-            // Standard SVG Circle Arc Configurations for exact radius math
-            const radius = 14;
-            const circumference = 2 * Math.PI * radius;
-            const strokeDashoffset =
-              circumference - (occupancyPercent / 100) * circumference;
+        {/* Grid Content */}
+        {floors.length === 0 ? (
+          <div className="relative py-16 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+            <Building2 className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-slate-900 font-semibold text-sm">
+              No floors established yet
+            </p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Get started by allocating your first physical floor segment
+              layout.
+            </p>
+            <button
+              onClick={openAddModal}
+              className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-900 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors"
+            >
+              Create First Floor
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {floors.map((floor) => {
+              const currentStaff = floor.currentStaffCount || 0;
+              const capacity = floor.maxCapacity || 1;
+              const occupancyPercent = Math.min(
+                Math.max((currentStaff / capacity) * 100, 0),
+                100
+              );
 
-            return (
-              <div
-                key={floor.id}
-                onClick={() => handleCardClick(floor.id)}
-                className="group relative bg-white rounded-xl border border-slate-200/60 shadow-xs transition-all duration-200 hover:shadow-md hover:border-slate-300 cursor-pointer overflow-hidden flex flex-col justify-between"
-              >
-                <div className="p-5">
-                  {/* Top Line Card Header Context */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-0.5">
-                      <h3 className="font-bold text-slate-900 text-base tracking-tight group-hover:text-slate-900 transition-colors">
-                        {floor.name}
-                      </h3>
-                      {floor.branch && (
-                        <span className="inline-block text-[11px] font-medium text-slate-400">
-                          {floor.branch.name}
-                        </span>
-                      )}
+              const radius = 14;
+              const circumference = 2 * Math.PI * radius;
+              const strokeDashoffset =
+                circumference - (occupancyPercent / 100) * circumference;
+
+              return (
+                <div
+                  key={floor.id}
+                  onClick={() => handleCardClick(floor.id)}
+                  className="group relative bg-white rounded-xl border border-slate-200/60 shadow-xs transition-all duration-200 hover:shadow-md hover:border-slate-300 cursor-pointer overflow-hidden flex flex-col justify-between"
+                >
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-0.5">
+                        <h3 className="font-bold text-slate-900 text-base tracking-tight">
+                          {floor.name}
+                        </h3>
+                        {floor.branch && (
+                          <span className="inline-block text-[11px] font-medium text-slate-400">
+                            {floor.branch.name}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(floor);
+                          }}
+                          className="p-1.5 rounded-md text-slate-400 hover:text-slate-900 hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
+                          title="Edit floor parameters"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDeleteModal(floor);
+                          }}
+                          className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100/50 transition-all"
+                          title="Remove floor node"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Action Panel Utilities Drawer */}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEditModal(floor);
-                        }}
-                        className="p-1.5 rounded-md text-slate-400 hover:text-slate-900 hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
-                        title="Edit floor parameters"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openDeleteModal(floor);
-                        }}
-                        className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100/50 transition-all"
-                        title="Remove floor node"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                    <div className="mt-6 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Users className="h-4 w-4 text-slate-400 shrink-0" />
+                        <span className="text-xs font-medium">
+                          <span className="font-bold text-slate-900">
+                            {currentStaff}
+                          </span>
+                          <span className="text-slate-400">
+                            {" "}
+                            / {capacity} Staff
+                          </span>
+                        </span>
+                      </div>
+
+                      <div className="relative w-8 h-8 shrink-0">
+                        <svg
+                          className="w-full h-full -rotate-90"
+                          viewBox="0 0 32 32"
+                        >
+                          <circle
+                            cx="16"
+                            cy="16"
+                            r={radius}
+                            fill="none"
+                            stroke="#f1f5f9"
+                            strokeWidth="3"
+                          />
+                          <circle
+                            cx="16"
+                            cy="16"
+                            r={radius}
+                            fill="none"
+                            stroke={
+                              occupancyPercent >= 100 ? "#f43f5e" : "#0f0f11"
+                            }
+                            strokeWidth="3"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            className="transition-all duration-300"
+                          />
+                        </svg>
+                        {occupancyPercent >= 100 && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Quantitative Resource Allocation Matrix */}
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Users className="h-4 w-4 text-slate-400 shrink-0" />
-                      <span className="text-xs font-medium">
-                        <span className="font-bold text-slate-900">
-                          {currentStaff}
-                        </span>
-                        <span className="text-slate-400">
-                          {" "}
-                          / {capacity} Staff Assigned
-                        </span>
-                      </span>
-                    </div>
-
-                    {/* Circle Indicator Graph Display Component */}
-                    <div className="relative w-8 h-8 shrink-0">
-                      <svg
-                        className="w-full h-full -rotate-90"
-                        viewBox="0 0 32 32"
-                      >
-                        <circle
-                          cx="16"
-                          cy="16"
-                          r={radius}
-                          fill="none"
-                          stroke="#f1f5f9"
-                          strokeWidth="3"
-                        />
-                        <circle
-                          cx="16"
-                          cy="16"
-                          r={radius}
-                          fill="none"
-                          stroke={
-                            occupancyPercent >= 100 ? "#f43f5e" : "#0f0f11"
-                          }
-                          strokeWidth="3"
-                          strokeDasharray={circumference}
-                          strokeDashoffset={strokeDashoffset}
-                          strokeLinecap="round"
-                          className="transition-all duration-300"
-                        />
-                      </svg>
-                      {occupancyPercent >= 100 && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                        </div>
-                      )}
-                    </div>
+                  <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end">
+                    <span className="text-[10px] font-mono font-medium text-slate-400 flex items-center gap-1 group-hover:text-slate-900 transition-colors">
+                      View Details
+                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                    </span>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
-                {/* Bottom Interactive Navigation Ribbon Action */}
-                <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end group-hover:bg-slate-50 transition-colors">
-                  <span className="text-[10px] font-mono font-medium text-slate-400 flex items-center gap-1 group-hover:text-slate-900 transition-colors">
-                    View Details
-                    <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Modals Mounting Segment */}
+      {/* Modals */}
       <AddFloorModal
         isOpen={isAddModalOpen}
         onClose={closeAddModal}

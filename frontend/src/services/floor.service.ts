@@ -191,3 +191,35 @@ export const removeStaffFromFloor = async (
   );
   return response.data;
 };
+
+export interface FloorAllocation {
+  id: number;
+  assignedAt: string;
+  branch: {
+    id: number;
+    name: string;
+  };
+  floor: {
+    id: number;
+    name: string;
+    code: string;
+    maxCapacity: number;
+  };
+}
+
+export interface StaffAllocationResponse {
+  message: string;
+  data: {
+    assigned: boolean;
+    allocation: FloorAllocation | null;
+  };
+}
+
+export const getMyFloorAllocation =
+  async (): Promise<StaffAllocationResponse> => {
+    console.log("Fetching my floor allocation...");
+    const response = await api.get<StaffAllocationResponse>(
+      ENDPOINT.GET_MY_FLOOR_ALLOCATION
+    );
+    return response.data;
+  };

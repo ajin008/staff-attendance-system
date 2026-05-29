@@ -180,9 +180,6 @@ export default function AttendanceStaffTable({
                     Branch
                   </th>
                 )}
-                <th className="px-6 py-4 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -245,7 +242,7 @@ export default function AttendanceStaffTable({
                     </td>
                   )}
 
-                  <td className="px-6 py-4">
+                  {/* <td className="px-6 py-4">
                     <div className="flex items-center justify-center">
                       <button
                         onClick={() =>
@@ -257,7 +254,7 @@ export default function AttendanceStaffTable({
                         <Eye className="h-4 w-4" />
                       </button>
                     </div>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

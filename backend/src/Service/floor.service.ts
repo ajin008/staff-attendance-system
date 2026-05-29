@@ -30,6 +30,8 @@ import {
   deactivateStaffAllocation,
 } from "./../Repository/staff.repository";
 
+import { findActiveStaffAllocation } from "../Repository/floor.repository";
+
 interface UpdateFloorInput {
   organizationId: number;
 
@@ -291,5 +293,54 @@ export const removeStaffFromFloorService = async ({
 
   return {
     message: "Staff removed from floor successfully",
+  };
+};
+
+export const getMyFloorAllocationService = async ({
+  userId,
+  organizationId,
+}: {
+  userId: number;
+
+  organizationId: number;
+}) => {
+  const allocation = await findActiveStaffAllocation({
+    userId,
+    organizationId,
+  });
+
+  // NOT ASSIGNED
+  if (!allocation) {
+    return {
+      assigned: false,
+
+      allocation: null,
+    };
+  }
+
+  return {
+    assigned: true,
+
+    allocation: {
+      id: allocation.id,
+
+      assignedAt: allocation.assignedAt,
+
+      branch: {
+        id: allocation.branch.id,
+
+        name: allocation.branch.name,
+      },
+
+      floor: {
+        id: allocation.floor.id,
+
+        name: allocation.floor.name,
+
+        code: allocation.floor.code,
+
+        maxCapacity: allocation.floor.maxCapacity,
+      },
+    },
   };
 };

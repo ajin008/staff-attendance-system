@@ -20,7 +20,7 @@ export default function AdminNavbar() {
       await logoutUser();
       logout();
       toast.success("Logged out successfully");
-      window.location.href = "/login";
+      router.replace("/login");
     } catch (err) {
       toast.error(getErrorMessage(err));
       setIsLoggingOut(false);

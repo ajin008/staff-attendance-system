@@ -1,8 +1,10 @@
-// app/staff/page.tsx
+// app/staff/page.tsx (updated with FloorAllocationCard)
+
 "use client";
 
 import { StaffNavbar } from "@/components/staff/StaffNavbar";
 import { CheckInOutButton } from "@/components/staff/CheckInOutButton";
+import FloorAllocationCard from "@/components/staff/FloorAllocationCard";
 import { useAuth } from "@/src/context/AuthContext";
 
 export default function StaffDashboardPage() {
@@ -21,7 +23,7 @@ export default function StaffDashboardPage() {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
       <StaffNavbar />
 
-      {/* Hero Header Block Inherited From Admin Dashboard UI */}
+      {/* Hero Header Block */}
       <div className="w-full bg-[#0F0F11] text-white pt-10 pb-24 border-b border-neutral-900">
         <div className="w-full max-w-[1600px] mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="space-y-2 flex-1">
@@ -31,7 +33,7 @@ export default function StaffDashboardPage() {
               <span className="text-neutral-300">Staff Workspace</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mt-1">
-              Welcome back, {user?.name || "Employee"}
+              Welcome back, {user?.name?.split(" ")[0] || "Employee"}
             </h1>
             <p className="text-xs md:text-sm text-neutral-400 font-normal leading-relaxed max-w-xl">
               Access your personal terminal gateway to register real-time shift
@@ -53,8 +55,13 @@ export default function StaffDashboardPage() {
         {/* Attendance Action Workspace Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Column 1: Core Action Control Portal */}
-          <div className="lg:col-span-1 bg-white border border-slate-200 rounded-lg p-1.5 shadow-xs">
-            <CheckInOutButton />
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white border border-slate-200 rounded-lg p-1.5 shadow-xs">
+              <CheckInOutButton />
+            </div>
+
+            {/* Floor Allocation Card */}
+            <FloorAllocationCard />
           </div>
 
           {/* Column 2 & 3: Informational Compliance Guidelines Card */}

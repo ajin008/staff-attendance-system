@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import {
   assignStaffToFloorService,
   getFloorStaffService,
+  getMyFloorAllocationService,
   removeStaffFromFloorService,
 } from "../Service/floor.service";
 
@@ -175,5 +176,26 @@ export const removeStaffFromFloorController = asyncHandler(
     });
 
     res.status(200).json(result);
+  }
+);
+
+export const getMyFloorAllocationController = asyncHandler(
+  async (req: Request, res: Response) => {
+    console.log("getMyFloorAllocationController triggering");
+
+    const userId = req.user!.userId;
+
+    const organizationId = req.user!.organizationId;
+
+    const result = await getMyFloorAllocationService({
+      userId,
+      organizationId,
+    });
+
+    res.status(200).json({
+      message: "Floor allocation fetched successfully",
+
+      data: result,
+    });
   }
 );

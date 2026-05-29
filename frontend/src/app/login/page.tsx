@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // app/login/page.tsx
 "use client";
 
@@ -38,12 +39,13 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && user && !isRedirecting) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsRedirecting(true);
+
       const targetPath = user.role === "admin" ? "/admin" : "/staff";
-      window.location.href = targetPath;
+
+      router.replace(targetPath);
     }
-  }, [user, isLoading, isRedirecting]);
+  }, [user, isLoading, isRedirecting, router]);
 
   const onSubmit = async (data: LoginForm) => {
     if (isRedirecting) return;
@@ -55,7 +57,8 @@ export default function LoginPage() {
       setIsRedirecting(true);
       setTimeout(() => {
         const targetPath = res.user.role === "admin" ? "/admin" : "/staff";
-        window.location.href = targetPath;
+
+        router.replace(targetPath);
       }, 50);
     } catch (err) {
       toast.error(getErrorMessage(err));

@@ -61,4 +61,5 @@ export const ENDPOINT = {
   // profile staff
   GET_MY_PROFILE: "/staff/profile",
   GET_MY_ATTENDANCE: "/staff/attendance/history",
+  GET_MY_FLOOR_ALLOCATION: "/staff/my-allocation",
 };

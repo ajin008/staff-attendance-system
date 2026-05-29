@@ -45,7 +45,7 @@ export default function AdminPage() {
         <CardinalNav activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
-      {/* Hero Header Block */}
+      {/* Hero Header Block - ONLY for dashboard */}
       {activeTab === "dashboard" && (
         <div className="w-full bg-[#0F0F11] text-white pt-10 pb-24 border-b border-neutral-900">
           <div className="w-full max-w-[1600px] mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -86,14 +86,15 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Main Content Stage Canvas */}
-      <div
-        className={`w-full max-w-[1600px] mx-auto px-6 pb-16 flex-1 ${
-          activeTab === "dashboard" ? "-mt-12" : "pt-8"
-        }`}
-      >
-        {renderContent()}
-      </div>
+      {/* Main Content - Different handling for dashboard vs other tabs */}
+      {activeTab === "dashboard" ? (
+        <div className="w-full max-w-[1600px] mx-auto px-6 pb-16 flex-1 -mt-12">
+          {renderContent()}
+        </div>
+      ) : (
+        // For non-dashboard tabs (like floor map), render without the container constraints
+        <div className="flex-1">{renderContent()}</div>
+      )}
     </div>
   );
 }

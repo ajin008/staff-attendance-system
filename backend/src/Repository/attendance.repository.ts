@@ -141,3 +141,19 @@ export const findAllAttendanceSummary = async ({
     },
   });
 };
+
+export const findPendingAutoCheckouts = async () => {
+  return prisma.attendance.findMany({
+    where: {
+      checkOutTime: null,
+    },
+
+    include: {
+      user: {
+        include: {
+          department: true,
+        },
+      },
+    },
+  });
+};
