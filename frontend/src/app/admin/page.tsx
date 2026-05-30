@@ -8,6 +8,7 @@ import FloorMap from "@/components/admin/floor/FloorMap";
 import PayrollPage from "./paryole/page";
 import DashboardClient from "@/components/admin/admin-dashbaord/DashboardClient";
 import { useAuth } from "@/src/context/AuthContext";
+import NotificationsPage from "./notifications/page";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -30,6 +31,8 @@ export default function AdminPage() {
         return <FloorMap />;
       case "payroll":
         return <PayrollPage />;
+      case "notifications":
+        return <NotificationsPage />;
       default:
         return <DashboardClient />;
     }

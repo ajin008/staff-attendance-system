@@ -55,6 +55,7 @@ export const findDepartmentByOrganizationId = async (
     },
   });
 };
+
 export const findDepartmentById = async (
   organizationId: number,
   departmentId: number

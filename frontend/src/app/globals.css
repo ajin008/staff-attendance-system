@@ -99,3 +99,18 @@ input[type="search"]::-webkit-search-results-decoration {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+/* Custom Toast Styles - Minimal */
+.custom-toast {
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  font-family: "Satoshi", sans-serif !important;
+}
+
+/* Optional: Add left border colors for different types */
+.custom-toast-dark {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  color: white !important;
+}

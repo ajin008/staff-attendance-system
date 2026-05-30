@@ -14,6 +14,16 @@ interface EditDepartmentModalProps {
   onSubmit: (data: Partial<Department>) => void;
 }
 
+const WEEKDAYS = [
+  { value: "monday", label: "Monday" },
+  { value: "tuesday", label: "Tuesday" },
+  { value: "wednesday", label: "Wednesday" },
+  { value: "thursday", label: "Thursday" },
+  { value: "friday", label: "Friday" },
+  { value: "saturday", label: "Saturday" },
+  { value: "sunday", label: "Sunday" },
+];
+
 export default function EditDepartmentModal({
   isOpen,
   onClose,
@@ -37,10 +47,12 @@ export default function EditDepartmentModal({
       overtimeEnabled: false,
       overtimeGraceMins: 15,
       overtimeHourlyRate: undefined,
+      weeklyOffDays: [],
     },
   });
 
   const overtimeEnabled = watch("overtimeEnabled");
+  const weeklyOffDays = watch("weeklyOffDays") || [];
 
   useEffect(() => {
     if (department && isOpen) {
@@ -52,12 +64,21 @@ export default function EditDepartmentModal({
         overtimeEnabled: department.overtimeEnabled,
         overtimeGraceMins: department.overtimeGraceMins,
         overtimeHourlyRate: department.overtimeHourlyRate || undefined,
+        weeklyOffDays: department.weeklyOffDays || [],
       });
     }
   }, [department, isOpen, reset]);
 
   const handleToggleOvertime = () => {
     setValue("overtimeEnabled", !overtimeEnabled);
+  };
+
+  const handleDayToggle = (day: string) => {
+    const currentDays = weeklyOffDays;
+    const updatedDays = currentDays.includes(day)
+      ? currentDays.filter((d) => d !== day)
+      : [...currentDays, day];
+    setValue("weeklyOffDays", updatedDays);
   };
 
   const onFormSubmit = (data: Partial<Department>) => {
@@ -67,51 +88,54 @@ export default function EditDepartmentModal({
   if (!department) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Department" size="md">
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Department" size="lg">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-5">
+        {/* Department Name */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Department Name{" "}
-            <span>Rs {department.defaultSalary.toLocaleString()}</span>
+          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+            Department Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             {...register("name", { required: "Department name is required" })}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 text-sm"
+            placeholder="e.g., Engineering, HR, Sales"
           />
           {errors.name && (
-            <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>
+            <p className="text-xs text-rose-500 mt-1">{errors.name.message}</p>
           )}
         </div>
 
+        {/* Shift Timing Row */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Shift Start <span className="text-red-400">*</span>
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+              Shift Start <span className="text-red-500">*</span>
             </label>
             <input
               type="time"
               {...register("shiftStart", {
                 required: "Shift start is required",
               })}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 text-sm"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Shift End <span className="text-red-400">*</span>
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+              Shift End <span className="text-red-500">*</span>
             </label>
             <input
               type="time"
               {...register("shiftEnd", { required: "Shift end is required" })}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 text-sm"
             />
           </div>
         </div>
 
+        {/* Default Salary */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Default Salary (₹/month) <span className="text-red-400">*</span>
+          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+            Default Salary (₹/month) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -121,20 +145,47 @@ export default function EditDepartmentModal({
               min: { value: 1, message: "Salary must be at least ₹1" },
               valueAsNumber: true,
             })}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 text-sm"
+            placeholder="e.g., 50000"
           />
           {errors.defaultSalary && (
-            <p className="text-xs text-red-400 mt-1">
+            <p className="text-xs text-rose-500 mt-1">
               {errors.defaultSalary.message}
             </p>
           )}
         </div>
 
-        {/* Overtime Toggle */}
+        {/* Weekly Off Days Selection */}
         <div className="space-y-3">
+          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+            Weekly Off Days
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {WEEKDAYS.map((day) => (
+              <button
+                key={day.value}
+                type="button"
+                onClick={() => handleDayToggle(day.value)}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  weeklyOffDays.includes(day.value)
+                    ? "bg-slate-900 text-white border border-slate-900"
+                    : "bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                {day.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Select days when employees are off work
+          </p>
+        </div>
+
+        {/* Overtime Toggle Section */}
+        <div className="space-y-3 pt-2 border-t border-slate-100">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-slate-700">
+              <label className="text-sm font-semibold text-slate-700">
                 Enable Overtime
               </label>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -164,8 +215,8 @@ export default function EditDepartmentModal({
           {overtimeEnabled && (
             <div className="space-y-3 animate-in fade-in duration-200">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Grace Minutes <span className="text-red-400">*</span>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  Grace Minutes <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -176,14 +227,14 @@ export default function EditDepartmentModal({
                     min: { value: 0, message: "Must be 0 or more" },
                     valueAsNumber: true,
                   })}
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 text-sm"
                   placeholder="e.g., 15"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                   Overtime Hourly Rate (₹/hour){" "}
-                  <span className="text-red-400">*</span>
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -195,7 +246,7 @@ export default function EditDepartmentModal({
                     min: { value: 1, message: "Rate must be at least ₹1" },
                     valueAsNumber: true,
                   })}
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100 text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 text-sm"
                   placeholder="e.g., 500"
                 />
               </div>
@@ -203,6 +254,7 @@ export default function EditDepartmentModal({
           )}
         </div>
 
+        {/* Action Buttons */}
         <div className="flex gap-3 pt-4">
           <button
             type="button"

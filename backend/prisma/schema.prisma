@@ -34,6 +34,8 @@ model Organization {
 
   payrolls Payroll[]
 
+  notifications Notification[]
+
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
@@ -62,7 +64,7 @@ model User {
 
   email String @unique
 
-  phone String?
+  phone String? @unique
 
   password String
 
@@ -93,6 +95,14 @@ model User {
   leaveRequests LeaveRequest[]
 
   payrolls Payroll[]
+
+
+  receivedNotifications Notification[] @relation("TargetNotifications")
+
+  createdNotifications Notification[] @relation("CreatedNotifications")
+
+  notificationReads NotificationRead[]
+
 
   createdAt DateTime @default(now())
 
@@ -334,4 +344,65 @@ model Payroll {
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
+}
+
+
+model Notification {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+
+  title String
+
+  message String
+
+  type NotificationType
+
+  targetUserId Int?
+
+  createdById Int
+
+  createdAt DateTime @default(now())
+
+  expiresAt DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  targetUser User? @relation("TargetNotifications", fields: [targetUserId], references: [id])
+
+  createdBy User @relation("CreatedNotifications", fields: [createdById], references: [id])
+
+  reads NotificationRead[]
+
+  @@index([organizationId])
+
+  @@index([targetUserId])
+
+  @@index([expiresAt])
+}
+
+enum NotificationType {
+  ALL
+  PERSONAL
+}
+
+
+model NotificationRead {
+  id Int @id @default(autoincrement())
+
+  notificationId Int
+
+  userId Int
+
+  readAt DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+
+  @@index([notificationId])
+
+  @@unique([notificationId, userId])
 }

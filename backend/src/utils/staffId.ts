@@ -1,25 +1,26 @@
-import { findUserByStaffId } from "../Repository/user.repository";
+import { findOrganizationById } from "../Repository/organization.repository";
+import { countOrganizationStaff } from "../Repository/user.repository";
 
-const generateRandom = (): string => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "ST-";
+export const generateStaffId = async (
+  organizationId: number,
+  joinedOn: Date
+): Promise<string> => {
+  const organization = await findOrganizationById(organizationId);
 
-  for (let i = 0; i < 5; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  if (!organization) {
+    throw new Error("Organization not found");
   }
 
-  return result;
-};
+  const prefix = organization.companyName
+    .replace(/[^A-Za-z]/g, "")
+    .substring(0, 3)
+    .toUpperCase();
 
-export const generateStaffId = async (): Promise<string> => {
-  let staffId = generateRandom();
+  const staffCount = await countOrganizationStaff(organizationId);
 
-  let exists = await findUserByStaffId(staffId);
+  const sequence = String(staffCount + 1).padStart(4, "0");
 
-  while (exists) {
-    staffId = generateRandom();
-    exists = await findUserByStaffId(staffId);
-  }
+  const year = joinedOn.getFullYear().toString().slice(-2);
 
-  return staffId;
+  return `${prefix}-${year}${sequence}`;
 };

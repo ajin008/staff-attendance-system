@@ -7,6 +7,7 @@ import {
   createUser,
   findUserByEmail,
   findUserById,
+  findUserByPhone,
 } from "../Repository/user.repository";
 
 import { generateStaffId } from "../utils/staffId";
@@ -59,7 +60,14 @@ export const createStaffService = async (
     throw new AppError("Email already exists", 400);
   }
 
-  const staffId = await generateStaffId();
+  const existingPhone = await findUserByPhone(input.phone);
+
+  if (existingPhone) {
+    throw new AppError("Phone number already exists", 400);
+  }
+
+  const staffId = await generateStaffId(input.organizationId, input.joinedOn);
+  console.log("Generated Staff ID:", staffId);
 
   const hashedPassword = await bcrypt.hash(input.password, 12);
 

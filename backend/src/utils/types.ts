@@ -54,7 +54,7 @@ export interface CreateStaffInput {
 
   email: string;
 
-  phone?: string;
+  phone: string;
 
   password: string;
 

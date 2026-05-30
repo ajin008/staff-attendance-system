@@ -109,14 +109,24 @@ export const toggleDepartmentStatus = async (
   return res.data;
 };
 
-export const updateDepartment = async (
-  departmentId: number,
-  data: Partial<CreateDepartmentPayload>
-): Promise<{ message: string }> => {
-  const res = await api.patch(ENDPOINT.UPDATE_DEPARTMENT(departmentId), data);
-  return res.data;
-};
+export interface UpdateDepartmentData {
+  name?: string;
+  shiftStart?: string;
+  shiftEnd?: string;
+  defaultSalary?: number;
+  overtimeEnabled?: boolean;
+  overtimeGraceMins?: number;
+  overtimeHourlyRate?: number;
+  weeklyOffDays?: string[]; // Add this
+}
 
+export const updateDepartment = async (
+  id: number,
+  data: UpdateDepartmentData
+): Promise<Department> => {
+  const response = await api.patch(ENDPOINT.UPDATE_DEPARTMENT(id), data);
+  return response.data;
+};
 export const getDepartmentById = async (
   departmentId: number
 ): Promise<Department> => {

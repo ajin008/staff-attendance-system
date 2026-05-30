@@ -35,7 +35,7 @@ export const protect = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // console.log("Checking authentication...");
+    console.log("Checking authentication...");
     const token = req.cookies.token;
     // console.log("Token from cookies:", token);
 

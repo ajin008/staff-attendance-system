@@ -81,7 +81,7 @@ export const createDepartmentService = async (
 
     overtimeHourlyRate,
 
-    defaultSalary,
+    defaultSalary: parseFloat(String(defaultSalary)),
   });
 
   return department;

@@ -16,6 +16,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { toast } from "sonner";
+import NotificationBell from "./NotificationBell";
 
 interface NavItem {
   name: string;
@@ -102,8 +103,12 @@ export const StaffNavbar = () => {
             })}
           </div>
 
-          {/* Section 03: Direct Exit Button Gateway */}
+          {/* Section 03: Direct Exit Button Gateway & Notifications */}
           <div className="flex items-center gap-3">
+            {/* Notification Bell */}
+            <NotificationBell />
+
+            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="hidden sm:flex items-center gap-2 px-3 py-1.5 border border-neutral-800 bg-neutral-900/40 hover:bg-rose-500/10 text-neutral-400 hover:text-rose-400 rounded text-xs font-mono font-bold uppercase tracking-wider transition-all focus:outline-none"

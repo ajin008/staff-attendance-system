@@ -67,4 +67,27 @@ export const ENDPOINT = {
   TOGGLE_STAFF_STATUS: (staffId: string) => `/admin/staff/${staffId}/status`,
   GET_ACTIVE_STAFF: "/admin/staff/active",
   GET_INACTIVE_STAFF: "/admin/staff/inactive",
+
+  // notifications
+  SEND_ALL_STAFF_NOTIFICATION: "/admin/notifications/send-all",
+  SEND_PERSONAL_NOTIFICATION: "/admin/notifications/send-personal",
+  GET_MY_NOTIFICATIONS: "/staff/notifications",
+  SEARCH_STAFF: "/admin/staff/search",
+  GET_NOTIFICATIONS: "/admin/notifications",
+
+  // Staff Notification endpoints
+  STAFF_NOTIFICATIONS: "/staff/notifications",
+  MARK_STAFF_NOTIFICATION_READ: (id: number) =>
+    `/staff/notifications/${id}/read`,
+  MARK_ALL_STAFF_NOTIFICATIONS_READ: "/staff/notifications/read-all",
+  STAFF_NOTIFICATIONS_UNREAD_COUNT: "/staff/notifications/unread-count",
+
+  // Admin Notification endpoints
+  ADMIN_NOTIFICATIONS: "/admin/notifications",
+  NOTIFICATION_MONTHS: "/admin/notifications/months",
+  MARK_ADMIN_NOTIFICATION_READ: (id: number) =>
+    `/admin/notifications/${id}/read`,
+  MARK_ALL_ADMIN_NOTIFICATIONS_READ: "/admin/notifications/read-all",
+  NOTIFICATION_READ_RECEIPTS: (id: number) =>
+    `/admin/notifications/${id}/receipts`,
 };

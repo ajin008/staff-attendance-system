@@ -18,6 +18,14 @@ export const findUserByEmail = async (email: string) => {
   });
 };
 
+export const findUserByPhone = async (phone: string) => {
+  return prisma.user.findFirst({
+    where: {
+      phone,
+    },
+  });
+};
+
 export const findUserByStaffId = async (staffId: string) => {
   return prisma.user.findFirst({
     where: {
@@ -191,6 +199,15 @@ export const countStaffByOrganization = async (
           },
         ],
       }),
+    },
+  });
+};
+
+export const countOrganizationStaff = async (organizationId: number) => {
+  return prisma.user.count({
+    where: {
+      organizationId,
+      role: "staff",
     },
   });
 };

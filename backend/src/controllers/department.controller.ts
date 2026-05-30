@@ -36,6 +36,7 @@ export const fetchDepartmentController = asyncHandler(
     const search = (req.query.search as string) || "";
 
     const result = await fetchDepartment(organizationId, page, limit, search);
+    console.log(result.departments[0]);
 
     res.status(200).json(result);
   }

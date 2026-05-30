@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff, UserPlus, Info, AlertTriangle, X } from "lucide-react";
+import { Eye, EyeOff, UserPlus, Info, AlertTriangle } from "lucide-react";
 import Modal from "../ui/Modal";
 import type { CreateStaffInput, Department } from "@/src/types";
 import type { Branch } from "@/src/services/branch.service";
@@ -33,6 +33,7 @@ export default function StaffModal({
     useState<Department | null>(null);
   const [overrideWorkConfig, setOverrideWorkConfig] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [phoneError, setPhoneError] = useState<string>("");
 
   const {
     register,
@@ -64,6 +65,25 @@ export default function StaffModal({
   const overtimeEnabled = watch("overtimeEnabled");
   const selectedDepartmentId = watch("departmentId");
   const selectedBranchId = watch("branchId");
+
+  // Validate phone number (only 10 digits)
+  const validatePhoneNumber = (phone: string): boolean => {
+    if (!phone) return true; // Phone is optional
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ""); // Remove non-digits
+    if (value.length > 10) value = value.slice(0, 10); // Limit to 10 digits
+    setValue("phone", value);
+
+    if (value && !/^\d{10}$/.test(value)) {
+      setPhoneError("Phone number must be exactly 10 digits");
+    } else {
+      setPhoneError("");
+    }
+  };
 
   useEffect(() => {
     if (selectedDepartmentId) {
@@ -112,8 +132,18 @@ export default function StaffModal({
   };
 
   const onFormSubmit = async (data: CreateStaffInput) => {
+    // Clean phone number - remove any non-digits and ensure only 10 digits
+    let cleanPhone = data.phone || "";
+    if (cleanPhone) {
+      cleanPhone = cleanPhone.replace(/\D/g, "");
+      if (cleanPhone.length > 10) {
+        cleanPhone = cleanPhone.slice(0, 10);
+      }
+    }
+
     const formattedData: CreateStaffInput = {
       ...data,
+      phone: cleanPhone, // Send only clean 10-digit number
       joinedOn: data.joinedOn || new Date(),
       departmentId: Number(data.departmentId),
       branchId: data.branchId ? Number(data.branchId) : undefined,
@@ -144,6 +174,7 @@ export default function StaffModal({
     setOverrideWorkConfig(false);
     setSelectedDeptDetails(null);
     setShowPassword(false);
+    setPhoneError("");
   };
 
   const handleClose = () => {
@@ -151,10 +182,24 @@ export default function StaffModal({
     setOverrideWorkConfig(false);
     setSelectedDeptDetails(null);
     setShowPassword(false);
+    setPhoneError("");
     onClose();
   };
 
   const hasNoDepartments = !isLoadingDepartments && departments.length === 0;
+
+  // Check if branch is selected (branchId is required)
+  const isBranchSelected = selectedBranchId && selectedBranchId !== undefined;
+  const isDepartmentSelected =
+    selectedDepartmentId && selectedDepartmentId !== undefined;
+
+  // Check if form is valid for submission
+  const isFormValid =
+    !isSubmitting &&
+    !hasNoDepartments &&
+    isDepartmentSelected &&
+    isBranchSelected &&
+    !phoneError;
 
   const selectDropdownStyles = {
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`,
@@ -237,33 +282,61 @@ export default function StaffModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-700 tracking-tight block">
-                Phone Number
+                Phone Number <span className="text-slate-400">(10 digits)</span>
               </label>
               <input
                 type="tel"
-                {...register("phone")}
-                className="w-full px-3.5 py-2 rounded-md border border-slate-200 text-sm font-medium transition-all bg-white placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 text-slate-900"
-                placeholder="+91 00000 00000"
+                value={watch("phone") || ""}
+                onChange={handlePhoneChange}
+                onKeyPress={(e) => {
+                  // Only allow digits
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+                maxLength={10}
+                className={`w-full px-3.5 py-2 rounded-md border text-sm font-medium transition-all bg-white placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 text-slate-900 ${
+                  phoneError ? "border-rose-300" : "border-slate-200"
+                }`}
+                placeholder="9876543210"
               />
+              {phoneError && (
+                <p className="text-[11px] text-rose-500 font-medium">
+                  {phoneError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-700 tracking-tight block">
-                Office Assignment Branch
+                Office Assignment Branch{" "}
+                <span className="text-slate-400">*</span>
               </label>
               <select
-                {...register("branchId", { valueAsNumber: true })}
-                className="w-full px-3.5 py-2 rounded-md border border-slate-200 text-sm font-medium transition-all bg-white focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none text-slate-900 cursor-pointer disabled:bg-slate-50"
+                {...register("branchId", {
+                  required: "Branch selection is required",
+                  valueAsNumber: true,
+                })}
+                className={`w-full px-3.5 py-2 rounded-md border text-sm font-medium transition-all bg-white focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none text-slate-900 cursor-pointer disabled:bg-slate-50 ${
+                  errors.branchId
+                    ? "border-rose-300 text-rose-900"
+                    : "border-slate-200 text-slate-900"
+                }`}
                 disabled={isLoadingBranches}
                 style={selectDropdownStyles}
               >
-                <option value="">Optional placement allocation</option>
+                <option value="">Select branch...</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name}
                   </option>
                 ))}
               </select>
+              {errors.branchId && (
+                <p className="text-[11px] text-rose-500 font-medium">
+                  {errors.branchId.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -275,7 +348,7 @@ export default function StaffModal({
             </label>
             <select
               {...register("departmentId", {
-                required: "Department choice mandated",
+                required: "Department selection is required",
                 valueAsNumber: true,
               })}
               className={`w-full px-3.5 py-2 rounded-md border text-sm font-medium transition-all bg-white focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none cursor-pointer disabled:bg-slate-50 ${
@@ -286,7 +359,7 @@ export default function StaffModal({
               disabled={isLoadingDepartments || hasNoDepartments}
               style={selectDropdownStyles}
             >
-              <option value="">Assign functional unit node...</option>
+              <option value="">Select department...</option>
               {departments.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}
@@ -341,7 +414,7 @@ export default function StaffModal({
           {/* Joined Initialization Calendar Date Selector */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-700 tracking-tight block">
-              Official Engagement Date <span className="text-slate-400">*</span>
+              Official joined Date <span className="text-slate-400">*</span>
             </label>
             <input
               type="date"
@@ -590,6 +663,19 @@ export default function StaffModal({
           </div>
         )}
 
+        {/* Validation Summary - Show what's missing */}
+        {(!isDepartmentSelected || !isBranchSelected) && (
+          <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
+            <p className="text-[11px] font-medium text-amber-800">
+              Please complete the following required fields:
+            </p>
+            <ul className="text-[10px] text-amber-700 mt-1 space-y-0.5 list-disc list-inside">
+              {!isDepartmentSelected && <li>Department selection required</li>}
+              {!isBranchSelected && <li>Branch assignment required</li>}
+            </ul>
+          </div>
+        )}
+
         {/* Global Modal CTA Controls Row Layout footer */}
         <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
           <button
@@ -601,7 +687,7 @@ export default function StaffModal({
           </button>
           <button
             type="submit"
-            disabled={isSubmitting || hasNoDepartments || !selectedDepartmentId}
+            disabled={!isFormValid}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-xs font-medium text-white bg-[#0F0F11] hover:bg-slate-800 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
           >
             {isSubmitting ? (

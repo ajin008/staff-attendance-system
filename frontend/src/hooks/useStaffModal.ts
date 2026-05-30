@@ -111,7 +111,6 @@ export function useStaffModal({ onStatsChange }: UseStaffModalProps = {}) {
         const errorMsg = getErrorMessage(err);
         setError(errorMsg);
         toast.error(errorMsg);
-        throw err;
       } finally {
         setIsSubmitting(false);
       }

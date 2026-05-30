@@ -52,6 +52,14 @@ import {
 } from "../controllers/profile.controller";
 
 import { createBranchController } from "../controllers/branch.controller";
+import {
+  getAdminNotificationsController,
+  getNotificationMonthsController,
+  getNotificationReadReceiptsController,
+  searchStaffController,
+  sendAllStaffNotificationController,
+  sendPersonalNotificationController,
+} from "../controllers/notification.controller";
 
 const router = Router();
 
@@ -206,4 +214,40 @@ router.patch(
   adminOnly,
   toggleStaffStatusController
 );
+
+router.post(
+  "/notifications/send-all",
+  protect,
+  adminOnly,
+  sendAllStaffNotificationController
+);
+
+router.get("/staff/search", protect, adminOnly, searchStaffController);
+router.post(
+  "/notifications/send-personal",
+  protect,
+  adminOnly,
+  sendPersonalNotificationController
+);
+
+router.get(
+  "/notifications",
+  protect,
+  adminOnly,
+  getAdminNotificationsController
+);
+
+router.get(
+  "/notifications/months",
+  protect,
+  adminOnly,
+  getNotificationMonthsController
+);
+router.get(
+  "/notifications/:id/receipts",
+  protect,
+  adminOnly,
+  getNotificationReadReceiptsController
+);
+
 export default router;

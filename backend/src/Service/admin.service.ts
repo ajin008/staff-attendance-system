@@ -14,10 +14,7 @@ import {
   countPendingLeavesByOrganization,
   findPendingLeavesByOrganization,
 } from "../Repository/leave.repository";
-import {
-  findStaffByStaffId,
-  updateStaffStatus,
-} from "../Repository/staff.repository";
+
 
 export const getTodayAttendanceDataService = async (organizationId: number) => {
   const [presentStaff, lateStaff, absentStaff] = await Promise.all([
@@ -74,26 +71,4 @@ export const adminStatusService = async (
   };
 };
 
-export const toggleStaffStatusService = async ({
-  organizationId,
-  staffId,
-  isActive,
-}: {
-  organizationId: number;
 
-  staffId: string;
-
-  isActive: boolean;
-}) => {
-  const staff = await findStaffByStaffId(organizationId, staffId);
-
-  if (!staff) {
-    throw new AppError("Staff not found", 404);
-  }
-
-  await updateStaffStatus(organizationId, staffId, isActive);
-
-  return {
-    message: `Staff ${isActive ? "activated" : "deactivated"} successfully`,
-  };
-};
