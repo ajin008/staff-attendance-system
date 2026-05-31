@@ -212,28 +212,42 @@ export default function FloorMap() {
                 <div
                   key={floor.id}
                   onClick={() => handleCardClick(floor.id)}
-                  className="group relative bg-white rounded-xl border border-slate-200/60 shadow-xs transition-all duration-200 hover:shadow-md hover:border-slate-300 cursor-pointer overflow-hidden flex flex-col justify-between"
+                  className="group relative bg-gradient-to-br from-white to-slate-50/50 rounded-xl border border-slate-200/80 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-slate-300 hover:-translate-y-0.5 cursor-pointer overflow-hidden"
                 >
+                  {/* Decorative top bar */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-900 to-slate-700" />
+
                   <div className="p-5">
+                    {/* Header Section */}
                     <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-0.5">
-                        <h3 className="font-bold text-slate-900 text-base tracking-tight">
-                          {floor.name}
-                        </h3>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          {/* Icon with background */}
+                          <div className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-slate-900 transition-colors duration-200">
+                            <Building2 className="h-3.5 w-3.5 text-slate-600 group-hover:text-white transition-colors" />
+                          </div>
+                          <h3 className="font-bold text-slate-900 text-base tracking-tight group-hover:text-slate-800">
+                            {floor.name}
+                          </h3>
+                        </div>
                         {floor.branch && (
-                          <span className="inline-block text-[11px] font-medium text-slate-400">
-                            {floor.branch.name}
-                          </span>
+                          <div className="flex items-center gap-1.5 ml-7">
+                            <div className="w-1 h-1 rounded-full bg-slate-300" />
+                            <span className="text-[11px] font-medium text-slate-500">
+                              {floor.branch.name}
+                            </span>
+                          </div>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             openEditModal(floor);
                           }}
-                          className="p-1.5 rounded-md text-slate-400 hover:text-slate-900 hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all"
                           title="Edit floor parameters"
                         >
                           <Edit2 className="h-3.5 w-3.5" />
@@ -243,7 +257,7 @@ export default function FloorMap() {
                             e.stopPropagation();
                             openDeleteModal(floor);
                           }}
-                          className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100/50 transition-all"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
                           title="Remove floor node"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -251,62 +265,79 @@ export default function FloorMap() {
                       </div>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <Users className="h-4 w-4 text-slate-400 shrink-0" />
-                        <span className="text-xs font-medium">
-                          <span className="font-bold text-slate-900">
-                            {currentStaff}
+                    {/* Stats Section */}
+                    <div className="mt-5">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-slate-400" />
+                          <span className="text-xs font-medium text-slate-500">
+                            Occupancy
                           </span>
-                          <span className="text-slate-400">
-                            {" "}
-                            / {capacity} Staff
-                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-slate-900">
+                          {currentStaff} / {capacity}
                         </span>
                       </div>
 
-                      <div className="relative w-8 h-8 shrink-0">
-                        <svg
-                          className="w-full h-full -rotate-90"
-                          viewBox="0 0 32 32"
+                      {/* Progress Bar */}
+                      <div className="relative h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className={`absolute left-0 top-0 h-full rounded-full transition-all duration-500 ${
+                            occupancyPercent >= 90
+                              ? "bg-rose-500"
+                              : occupancyPercent >= 70
+                              ? "bg-amber-500"
+                              : "bg-emerald-500"
+                          }`}
+                          style={{ width: `${occupancyPercent}%` }}
+                        />
+                      </div>
+
+                      {/* Percentage indicator */}
+                      <div className="flex justify-end mt-1.5">
+                        <span
+                          className={`text-[10px] font-mono font-medium ${
+                            occupancyPercent >= 90
+                              ? "text-rose-500"
+                              : occupancyPercent >= 70
+                              ? "text-amber-500"
+                              : "text-emerald-500"
+                          }`}
                         >
-                          <circle
-                            cx="16"
-                            cy="16"
-                            r={radius}
-                            fill="none"
-                            stroke="#f1f5f9"
-                            strokeWidth="3"
-                          />
-                          <circle
-                            cx="16"
-                            cy="16"
-                            r={radius}
-                            fill="none"
-                            stroke={
-                              occupancyPercent >= 100 ? "#f43f5e" : "#0f0f11"
-                            }
-                            strokeWidth="3"
-                            strokeDasharray={circumference}
-                            strokeDashoffset={strokeDashoffset}
-                            strokeLinecap="round"
-                            className="transition-all duration-300"
-                          />
-                        </svg>
-                        {occupancyPercent >= 100 && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                          </div>
-                        )}
+                          {Math.round(occupancyPercent)}% filled
+                        </span>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end">
-                    <span className="text-[10px] font-mono font-medium text-slate-400 flex items-center gap-1 group-hover:text-slate-900 transition-colors">
-                      View Details
-                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
+                    {/* Additional Info Row */}
+                    <div className="mt-4 pt-3 border-t border-slate-100">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400">
+                        <div className="flex items-center gap-1">
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              occupancyPercent >= 90
+                                ? "bg-rose-500"
+                                : occupancyPercent >= 70
+                                ? "bg-amber-500"
+                                : "bg-emerald-500"
+                            }`}
+                          />
+                          <span>
+                            {occupancyPercent >= 90
+                              ? "Near Capacity"
+                              : occupancyPercent >= 70
+                              ? "Moderate Load"
+                              : "Available Space"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                          <span className="group-hover:text-slate-700 transition-colors">
+                            Details
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
