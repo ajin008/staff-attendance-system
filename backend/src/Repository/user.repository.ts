@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import prisma from "../utils/prisma";
+import prisma from "../utils/prisma.js";
 
 export const createUser = async (
   tx: Prisma.TransactionClient,

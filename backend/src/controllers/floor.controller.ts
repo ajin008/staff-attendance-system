@@ -1,22 +1,22 @@
-import { asyncHandler } from "../middleware/asyncHandler";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import { Request, Response } from "express";
 import {
   assignStaffToFloorService,
   getFloorStaffService,
   getMyFloorAllocationService,
   removeStaffFromFloorService,
-} from "../Service/floor.service";
+} from "../Service/floor.service.js";
 
 import {
   createFloorService,
   getAvailableStaffService,
-} from "../Service/floor.service";
-import { getAllFloorsService } from "../Service/floor.service";
+} from "../Service/floor.service.js";
+import { getAllFloorsService } from "../Service/floor.service.js";
 
 import {
   updateFloorService,
   deleteFloorService,
-} from "../Service/floor.service";
+} from "../Service/floor.service.js";
 
 export const createFloorController = asyncHandler(
   async (req: Request, res: Response) => {

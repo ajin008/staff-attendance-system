@@ -1,6 +1,6 @@
 // Repository/floor.repository.ts
 
-import prisma from "../utils/prisma";
+import prisma from "../utils/prisma.js";
 
 export const createFloorRepository = async ({
   organizationId,

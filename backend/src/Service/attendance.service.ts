@@ -1,6 +1,6 @@
 // Service/attendance.service.ts
 
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 
 import {
   countStaffAttendance,
@@ -9,15 +9,15 @@ import {
   findPendingAutoCheckouts,
   findStaffAttendance,
   updateAttendanceCheckOut,
-} from "../Repository/attendance.repository";
+} from "../Repository/attendance.repository.js";
 
-import { findStaffByStaffId } from "../Repository/staff.repository";
+import { findStaffByStaffId } from "../Repository/staff.repository.js";
 import {
   calculateEarlyExitMinutes,
   calculateShiftMinutes,
   calculateWorkedMinutes,
-} from "../utils/time";
-import { checkOutStaffAllocation } from "../Repository/floor.repository";
+} from "../utils/time.js";
+import { checkOutStaffAllocation } from "../Repository/floor.repository.js";
 
 export const getStaffAttendanceService = async ({
   organizationId,

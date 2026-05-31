@@ -22,10 +22,10 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "jsonwebtoken": "^9.0.3",
+    "luxon": "^3.7.2",
     "node-cron": "^4.2.1",
     "pdfkit": "^0.18.0",
-    "pg": "^8.21.0",
-    "prisma": "^7.8.0"
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -33,9 +33,11 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/luxon": "^3.7.1",
     "@types/node": "^25.9.1",
     "@types/pdfkit": "^0.17.6",
     "nodemon": "^3.1.14",
+    "prisma": "^7.8.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }

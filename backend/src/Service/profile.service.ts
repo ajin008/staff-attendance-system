@@ -1,16 +1,16 @@
-import { createBranch } from "./../Repository/branch.repository";
-import AppError from "../utils/AppError";
+import { createBranch } from "./../Repository/branch.repository.js";
+import AppError from "../utils/AppError.js";
 
 import bcrypt from "bcryptjs";
 
 import {
   findOrganizationProfile,
   findAdminProfile,
-} from "../Repository/profile.repository";
+} from "../Repository/profile.repository.js";
 
-import { updateOrganizationProfile } from "../Repository/organization.repository";
-import { updateAdminProfile } from "../Repository/admin.repository";
-import { updateBranchById } from "../Repository/branch.repository";
+import { updateOrganizationProfile } from "../Repository/organization.repository.js";
+import { updateAdminProfile } from "../Repository/admin.repository.js";
+import { updateBranchById } from "../Repository/branch.repository.js";
 
 export const getProfileDetailsService = async ({
   organizationId,

@@ -1,36 +1,36 @@
 // Service/floor.service.ts
 
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 
-import { findBranchById } from "../Repository/branch.repository";
+import { findBranchById } from "../Repository/branch.repository.js";
 import {
   findAllFloorsByOrganization,
   findFloorStaff,
-} from "../Repository/floor.repository";
+} from "../Repository/floor.repository.js";
 
 import {
   createFloorRepository,
   findFloorByNameAndBranch,
-} from "../Repository/floor.repository";
+} from "../Repository/floor.repository.js";
 
 import {
   findFloorById,
   updateFloorRepository,
   softDeleteFloorRepository,
-} from "../Repository/floor.repository";
+} from "../Repository/floor.repository.js";
 import {
   createStaffAllocation,
   findActiveAllocationByUserId,
   findAvailableStaffByBranch,
-} from "../Repository/staff.repository";
-import { findUserById } from "../Repository/user.repository";
+} from "../Repository/staff.repository.js";
+import { findUserById } from "../Repository/user.repository.js";
 
 import {
   findActiveAllocationByFloorAndUser,
   deactivateStaffAllocation,
-} from "./../Repository/staff.repository";
+} from "./../Repository/staff.repository.js";
 
-import { findActiveStaffAllocation } from "../Repository/floor.repository";
+import { findActiveStaffAllocation } from "../Repository/floor.repository.js";
 
 interface UpdateFloorInput {
   organizationId: number;

@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import { asyncHandler } from "../middleware/asyncHandler";
-import ENV from "../config/rootVariables";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import ENV from "../config/rootVariables.js";
 import {
   // createStaffService,
   loginService,
   registerService,
   // seedAdminService,
-} from "../Service/auth.service";
-import { registerPayload } from "../utils/types";
-import { createStaffService } from "../Service/staff.service";
+} from "../Service/auth.service.js";
+import { registerPayload } from "../utils/types.js";
+import { createStaffService } from "../Service/staff.service.js";
 
 const setCookies = (res: Response, token: string, role: string) => {
   res.cookie("token", token, {
@@ -106,7 +106,6 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
   res.status(201).json(result);
 });
 
-// export const getAllStaff = asyncHandler(async (req: Request, res: Response) => {
 //   const page = parseInt(req.query.page as string) || 1;
 //   const limit = parseInt(req.query.limit as string) || 10;
 //   const search = (req.query.search as string) || "";
@@ -144,6 +143,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   console.log("payload:", payload);
   const { token, user } = await registerService(payload);
 
-  setCookies(res, token);
+  setCookies(res, token, user.role);
   res.status(201).json({ message: "organization created", user });
 });

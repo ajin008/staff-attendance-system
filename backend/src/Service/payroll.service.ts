@@ -5,14 +5,14 @@ import {
   findAttendanceByDateRange,
   findPayrollStaff,
   updatePayrollPdf,
-} from "../Repository/payroll.repository";
-import AppError from "../utils/AppError";
+} from "../Repository/payroll.repository.js";
+import AppError from "../utils/AppError.js";
 
-import { createPayroll } from "../Repository/payroll.repository";
-import { generatePayslipPdf } from "../utils/generatePayslipPdf";
+import { createPayroll } from "../Repository/payroll.repository.js";
+import { generatePayslipPdf } from "../utils/generatePayslipPdf.js";
 
-import { findOrganizationById } from "../Repository/organization.repository";
-import { calculateWorkingDays } from "../utils/calculateWorkingDays";
+import { findOrganizationById } from "../Repository/organization.repository.js";
+import { calculateWorkingDays } from "../utils/calculateWorkingDays.js";
 
 export const getPayrollService = async ({
   organizationId,

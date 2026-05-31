@@ -1,20 +1,19 @@
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 import {
   countDepartmentByOrganization,
   countStaffByOrganization,
-} from "../Repository/admin.repository";
+} from "../Repository/admin.repository.js";
 
 import {
   findTodayPresentStaff,
   findTodayLateStaff,
   findAbsentStaff,
-} from "../Repository/admin.repository";
+} from "../Repository/admin.repository.js";
 
 import {
   countPendingLeavesByOrganization,
   findPendingLeavesByOrganization,
-} from "../Repository/leave.repository";
-
+} from "../Repository/leave.repository.js";
 
 export const getTodayAttendanceDataService = async (organizationId: number) => {
   const [presentStaff, lateStaff, absentStaff] = await Promise.all([
@@ -70,5 +69,3 @@ export const adminStatusService = async (
     pendingLeaveRequests,
   };
 };
-
-

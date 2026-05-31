@@ -1,4 +1,4 @@
-import prisma from "../utils/prisma";
+import prisma from "../utils/prisma.js";
 
 export const countStaffByOrganization = async (organizationId: number) => {
   return prisma.user.count({

@@ -1,4 +1,4 @@
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 import {
   countUnreadNotifications,
   createManyNotificationReads,
@@ -12,7 +12,7 @@ import {
   getNotificationMonthsRepository,
   getNotificationReadReceiptsRepository,
   searchStaffRepository,
-} from "../Repository/notification.repository";
+} from "../Repository/notification.repository.js";
 
 interface CreateNotificationInput {
   organizationId: number;

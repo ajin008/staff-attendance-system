@@ -1,17 +1,17 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { generateStaffId } from "../utils/staffId";
+import { generateStaffId } from "../utils/staffId.js";
 
-import AppError from "../utils/AppError";
-import generateToken from "../utils/generateToken";
-import { LoginResult, registerPayload } from "../utils/types";
-import { findUserByEmail } from "../Repository/user.repository";
-import prisma from "../utils/prisma";
-import { createOrganization } from "../Repository/organization.repository";
-import { createUser } from "../Repository/user.repository";
-import { findUserByStaffId } from "../Repository/user.repository";
+import AppError from "../utils/AppError.js";
+import generateToken from "../utils/generateToken.js";
+import { LoginResult, registerPayload } from "../utils/types.js";
+import { findUserByEmail } from "../Repository/user.repository.js";
+import prisma from "../utils/prisma.js";
+import { createOrganization } from "../Repository/organization.repository.js";
+import { createUser } from "../Repository/user.repository.js";
+import { findUserByStaffId } from "../Repository/user.repository.js";
 import { Prisma } from "@prisma/client";
-import { createBranches } from "../Repository/branch.repository";
+import { createBranches } from "../Repository/branch.repository.js";
 
 interface CreateStaffInput {
   name: string;

@@ -1,5 +1,5 @@
-import { getISTDate } from "../utils/getISTDate";
-import prisma from "../utils/prisma";
+import { getISTDate } from "../utils/getISTDate.js";
+import prisma from "../utils/prisma.js";
 
 export const createLeaveRequest = async (data: {
   userId: number;

@@ -2,13 +2,13 @@
 
 import { Request, Response } from "express";
 
-import { asyncHandler } from "../middleware/asyncHandler";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 import {
   getLateAttendanceService,
   getMyAttendanceService,
   getStaffAttendanceService,
-} from "../Service/attendance.service";
+} from "../Service/attendance.service.js";
 
 export const getStaffAttendanceController = asyncHandler(
   async (req: Request, res: Response) => {

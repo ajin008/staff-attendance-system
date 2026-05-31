@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { adminOnly, protect } from "../middleware/protect";
+import { adminOnly, protect } from "../middleware/protect.js";
 import {
   createDepartment,
   deleteDepartmentController,
@@ -7,8 +7,8 @@ import {
   getDepartmentByIdController,
   toggleDepartmentStatusController,
   updateDepartmentController,
-} from "../controllers/department.controller";
-import { createStaff } from "../controllers/auth.controller";
+} from "../controllers/department.controller.js";
+import { createStaff } from "../controllers/auth.controller.js";
 import {
   getAllStaffController,
   getStatusController,
@@ -16,15 +16,15 @@ import {
   updateStaffController,
   deleteStaffController,
   getTodayAttendanceDataController,
-} from "../controllers/admin.controller";
+} from "../controllers/admin.controller.js";
 import {
   deleteBranchController,
   getAllBranchesController,
-} from "../controllers/branch.controller";
+} from "../controllers/branch.controller.js";
 import {
   getTodayAttendanceController,
   toggleStaffStatusController,
-} from "../controllers/staff.controller";
+} from "../controllers/staff.controller.js";
 import {
   createFloorController,
   deleteFloorController,
@@ -32,26 +32,26 @@ import {
   getAvailableStaffController,
   getFloorStaffController,
   updateFloorController,
-} from "../controllers/floor.controller";
-import { assignStaffToFloorController } from "../controllers/floor.controller";
-import { removeStaffFromFloorController } from "../controllers/floor.controller";
+} from "../controllers/floor.controller.js";
+import { assignStaffToFloorController } from "../controllers/floor.controller.js";
+import { removeStaffFromFloorController } from "../controllers/floor.controller.js";
 import {
   getAllLeavesController,
   updateLeaveStatusController,
-} from "../controllers/leave.controller";
+} from "../controllers/leave.controller.js";
 import {
   getLateAttendanceController,
   getStaffAttendanceController,
-} from "../controllers/attendance.controller";
+} from "../controllers/attendance.controller.js";
 import {
   generatePayslipController,
   getPayrollController,
-} from "../controllers/payrole.controller";
+} from "../controllers/payrole.controller.js";
 import {
   getProfileDetailsController,
   updateProfileDetailsController,
-} from "../controllers/profile.controller";
-import { createBranchController } from "../controllers/branch.controller";
+} from "../controllers/profile.controller.js";
+import { createBranchController } from "../controllers/branch.controller.js";
 import {
   getAdminNotificationsController,
   getNotificationMonthsController,
@@ -59,14 +59,14 @@ import {
   searchStaffController,
   sendAllStaffNotificationController,
   sendPersonalNotificationController,
-} from "../controllers/notification.controller";
+} from "../controllers/notification.controller.js";
 import {
   readRateLimit,
   writeRateLimit,
   heavyRateLimit,
   searchRateLimit,
   notificationRateLimit,
-} from "../utils/rateLimiting";
+} from "../utils/rateLimiting.js";
 
 const router = Router();
 

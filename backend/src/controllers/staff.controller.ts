@@ -1,4 +1,4 @@
-import { asyncHandler } from "../middleware/asyncHandler";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import { Request, Response } from "express";
 import {
   checkInStaffService,
@@ -6,7 +6,7 @@ import {
   getStaffProfileService,
   getTodayAttendanceService,
   toggleStaffStatusService,
-} from "../Service/staff.service";
+} from "../Service/staff.service.js";
 
 export const checkInStaffController = asyncHandler(
   async (req: Request, res: Response) => {

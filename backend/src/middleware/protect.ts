@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import ENV from "../config/rootVariables";
-import { findUserById } from "../Repository/user.repository";
+import ENV from "../config/rootVariables.js";
+import { findUserById } from "../Repository/user.repository.js";
 
 declare global {
   namespace Express {

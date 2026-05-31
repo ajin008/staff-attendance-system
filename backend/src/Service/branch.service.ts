@@ -1,15 +1,15 @@
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 
-import { findBranchesByOrganizationId } from "../Repository/branch.repository";
+import { findBranchesByOrganizationId } from "../Repository/branch.repository.js";
 import {
   findBranchByName,
   createBranch,
-} from "../Repository/branch.repository";
+} from "../Repository/branch.repository.js";
 
 import {
   findBranchBy_Id,
   deleteBranchById,
-} from "../Repository/branch.repository";
+} from "../Repository/branch.repository.js";
 
 export const getAllBranchesService = async (organizationId: number) => {
   return await findBranchesByOrganizationId(organizationId);

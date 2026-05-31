@@ -1,12 +1,9 @@
 import cron from "node-cron";
-
-import { autoCheckOutStaffService } from "../Service/attendance.service";
+import { autoCheckOutStaffService } from "./autoCheckOut.js";
 
 export const startAutoCheckoutCron = () => {
-  // EVERY 15 MINUTES
-  cron.schedule("*/15 * * * *", async () => {
+  cron.schedule("*/3 * * * *", async () => {
     console.log("Auto checkout cron running...");
-
     try {
       await autoCheckOutStaffService();
     } catch (error) {

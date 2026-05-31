@@ -6,405 +6,234 @@ datasource db {
   provider = "postgresql"
 }
 
+model Organization {
+  id               Int               @id @default(autoincrement())
+  companyName      String
+  industry         String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  attendances      Attendance[]
+  branches         Branch[]
+  departments      Department[]
+  floors           Floor[]
+  leaveRequests    LeaveRequest[]
+  notifications    Notification[]
+  payrolls         Payroll[]
+  staffAllocations StaffAllocation[]
+  users            User[]
+}
+
+model User {
+  id                    Int                @id @default(autoincrement())
+  organizationId        Int
+  departmentId          Int?
+  branchId              Int?
+  staffId               String?            @unique
+  name                  String
+  email                 String             @unique
+  phone                 String?
+  password              String
+  role                  Role               @default(staff)
+  joinedOn              DateTime
+  shiftStart            String?
+  shiftEnd              String?
+  salary                Float?
+  overtimeEnabled       Boolean?
+  overtimeHourlyRate    Float?
+  overtimeGraceMins     Int?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  isActive              Boolean            @default(true)
+  attendances           Attendance[]
+  leaveRequests         LeaveRequest[]
+  createdNotifications  Notification[]     @relation("CreatedNotifications")
+  receivedNotifications Notification[]     @relation("TargetNotifications")
+  notificationReads     NotificationRead[]
+  payrolls              Payroll[]
+  staffAllocations      StaffAllocation[]
+  branch                Branch?            @relation(fields: [branchId], references: [id])
+  department            Department?        @relation(fields: [departmentId], references: [id])
+  organization          Organization       @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, phone])
+}
+
+model Department {
+  id                 Int          @id @default(autoincrement())
+  organizationId     Int
+  name               String
+  shiftStart         String
+  shiftEnd           String
+  overtimeEnabled    Boolean      @default(false)
+  overtimeGraceMins  Int          @default(15)
+  overtimeHourlyRate Float?
+  defaultSalary      Float
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  weeklyOffDays      String[]
+  isActive           Boolean      @default(true)
+  organization       Organization @relation(fields: [organizationId], references: [id])
+  users              User[]
+}
+
+model Branch {
+  id               Int               @id @default(autoincrement())
+  organizationId   Int
+  name             String
+  latitude         Float
+  longitude        Float
+  allowedRadius    Float             @default(100)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  attendances      Attendance[]
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  floors           Floor[]
+  staffAllocations StaffAllocation[]
+  users            User[]
+}
+
+model Attendance {
+  id                Int          @id @default(autoincrement())
+  userId            Int
+  organizationId    Int
+  branchId          Int
+  checkInTime       DateTime?
+  checkOutTime      DateTime?
+  checkInLatitude   Float?
+  checkInLongitude  Float?
+  checkOutLatitude  Float?
+  checkOutLongitude Float?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  attendanceStatus  String       @default("present")
+  earlyExitMinutes  Int          @default(0)
+  isEarlyExit       Boolean      @default(false)
+  isHalfDay         Boolean      @default(false)
+  isLate            Boolean      @default(false)
+  isOvertime        Boolean      @default(false)
+  lateMinutes       Int          @default(0)
+  overtimeMinutes   Int          @default(0)
+  shiftEnd          String?
+  shiftStart        String?
+  totalWorkMinutes  Int          @default(0)
+  isAutoCheckout    Boolean      @default(false)
+  branch            Branch       @relation(fields: [branchId], references: [id])
+  organization      Organization @relation(fields: [organizationId], references: [id])
+  user              User         @relation(fields: [userId], references: [id])
+}
+
+model StaffAllocation {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  organizationId Int
+  branchId       Int
+  assignedBy     Int
+  assignedAt     DateTime     @default(now())
+  checkedOutAt   DateTime?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  floorId        Int
+  branch         Branch       @relation(fields: [branchId], references: [id])
+  floor          Floor        @relation(fields: [floorId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+}
+
+model Floor {
+  id               Int               @id @default(autoincrement())
+  organizationId   Int
+  branchId         Int
+  name             String
+  code             String?
+  maxCapacity      Int
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  branch           Branch            @relation(fields: [branchId], references: [id])
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  staffAllocations StaffAllocation[]
+}
+
+model LeaveRequest {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  organizationId Int
+  leaveType      String
+  reason         String?
+  startDate      String
+  endDate        String
+  totalDays      Int
+  status         String       @default("pending")
+  approvedBy     Int?
+  approvedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+}
+
+model Payroll {
+  id               Int          @id @default(autoincrement())
+  userId           Int
+  organizationId   Int
+  payrollStartDate DateTime
+  payrollEndDate   DateTime
+  basicSalary      Float
+  presentDays      Int
+  absentDays       Int
+  halfDays         Int
+  overtimeMinutes  Int
+  deductions       Float
+  overtimePay      Float
+  netSalary        Float
+  pdfUrl           String?
+  generatedAt      DateTime     @default(now())
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  user             User         @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id             Int                @id @default(autoincrement())
+  organizationId Int
+  title          String
+  message        String
+  type           NotificationType
+  targetUserId   Int?
+  createdById    Int
+  createdAt      DateTime           @default(now())
+  expiresAt      DateTime?
+  createdBy      User               @relation("CreatedNotifications", fields: [createdById], references: [id])
+  organization   Organization       @relation(fields: [organizationId], references: [id])
+  targetUser     User?              @relation("TargetNotifications", fields: [targetUserId], references: [id])
+  reads          NotificationRead[]
+
+  @@index([organizationId])
+  @@index([targetUserId])
+  @@index([expiresAt])
+}
+
+model NotificationRead {
+  id             Int          @id @default(autoincrement())
+  notificationId Int
+  userId         Int
+  readAt         DateTime     @default(now())
+  notification   Notification @relation(fields: [notificationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@unique([notificationId, userId])
+  @@index([userId])
+  @@index([notificationId])
+}
+
 enum Role {
   admin
   staff
 }
 
-model Organization {
-  id Int @id @default(autoincrement())
-
-  companyName String
-
-  industry String
-
-  users User[]
-
-  departments Department[]
-
-  branches Branch[]
-
-  floors Floor[]
-
-  attendances Attendance[]
-
-  staffAllocations StaffAllocation[]
-
-  leaveRequests LeaveRequest[]
-
-  payrolls Payroll[]
-
-  notifications Notification[]
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model User {
-  id Int @id @default(autoincrement())
-
-  organizationId Int
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  departmentId Int?
-
-  department Department? @relation(fields: [departmentId], references: [id])
-
-  branchId Int?
-
-  
-
-  branch Branch? @relation(fields: [branchId], references: [id])
-
-  staffId String? @unique
-
-  name String
-
-  email String @unique
-
-  phone String? 
-
-  @@unique([organizationId, phone])
-
-  password String
-
-  role Role @default(staff)
-
-  joinedOn DateTime
-
-  // OPTIONAL OVERRIDES
-  shiftStart String?
-
-  shiftEnd String?
-
-  salary Float?
-
-  overtimeEnabled Boolean?
-
-  overtimeHourlyRate Float?
-
-  overtimeGraceMins Int?
-
-  isActive Boolean @default(true)
-
-  // RELATIONS
-  attendances Attendance[]
-
-  staffAllocations StaffAllocation[]
-
-  leaveRequests LeaveRequest[]
-
-  payrolls Payroll[]
-
-
-  receivedNotifications Notification[] @relation("TargetNotifications")
-
-  createdNotifications Notification[] @relation("CreatedNotifications")
-
-  notificationReads NotificationRead[]
-
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model Department {
-  id Int @id @default(autoincrement())
-
-  organizationId Int
-
-  name String
-
-  // DEFAULT RULES
-  shiftStart String
-
-  isActive Boolean @default(true)
-
-  shiftEnd String
-
-  weeklyOffDays String[]
-
-  overtimeEnabled Boolean @default(false)
-
-  overtimeGraceMins Int @default(15)
-
-  overtimeHourlyRate Float?
-
-  defaultSalary Float
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  users User[]
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model Branch {
-  id Int @id @default(autoincrement())
-
-  organizationId Int
-
-  name String
-
-  latitude Float
-
-  longitude Float
-
-  allowedRadius Float @default(100)
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  users User[]
-
-  attendances Attendance[]
-
-  staffAllocations StaffAllocation[]
-
-  floors Floor[] // ADD THIS
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model Attendance {
-  id Int @id @default(autoincrement())
-
-  // RELATIONS
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  branchId Int
-  branch   Branch @relation(fields: [branchId], references: [id])
-
-  // CHECK-IN / CHECK-OUT
-  checkInTime  DateTime?
-  checkOutTime DateTime?
-
-  checkInLatitude  Float?
-  checkInLongitude Float?
-
-  checkOutLatitude  Float?
-  checkOutLongitude Float?
-
-  isAutoCheckout Boolean @default(false)
-
-  // SHIFT SNAPSHOT
-  shiftStart String?
-  shiftEnd   String?
-
-  // WORK METRICS
-  totalWorkMinutes Int @default(0)
-
-  lateMinutes Int @default(0)
-
-  earlyExitMinutes Int @default(0)
-
-  overtimeMinutes Int @default(0)
-
-  // ATTENDANCE STATUS
-  attendanceStatus String @default("present")
-
-  // FLAGS
-  isLate Boolean @default(false)
-
-  isOvertime Boolean @default(false)
-
-  isEarlyExit Boolean @default(false)
-
-  isHalfDay Boolean @default(false)
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model StaffAllocation {
-  id Int @id @default(autoincrement())
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  branchId Int
-  branch   Branch @relation(fields: [branchId], references: [id])
-
-  floorId Int
-  floor   Floor @relation(fields: [floorId], references: [id])
-
-  assignedBy Int
-
-  assignedAt DateTime @default(now())
-
-  checkedOutAt DateTime?
-
-  isActive Boolean @default(true)
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model Floor {
-  id Int @id @default(autoincrement())
-
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  branchId Int
-  branch   Branch @relation(fields: [branchId], references: [id])
-
-  name String
-
-  code String?
-
-  maxCapacity Int
-
-  isActive Boolean @default(true)
-
-  staffAllocations StaffAllocation[]
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model LeaveRequest {
-  id Int @id @default(autoincrement())
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  leaveType String
-
-  reason String?
-
-  startDate String
-
-  endDate String
-
-  totalDays Int
-
-  status String @default("pending")
-  // pending | approved | rejected | cancelled
-
-  approvedBy Int?
-
-  approvedAt DateTime?
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model Payroll {
-  id Int @id @default(autoincrement())
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  payrollStartDate DateTime
-
-  payrollEndDate DateTime
-
-  basicSalary Float
-
-  presentDays Int
-
-  absentDays Int
-
-  halfDays Int
-
-  overtimeMinutes Int
-
-  deductions Float
-
-  overtimePay Float
-
-  netSalary Float
-
-  pdfUrl String?
-
-  generatedAt DateTime @default(now())
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-
-model Notification {
-  id Int @id @default(autoincrement())
-
-  organizationId Int
-
-  title String
-
-  message String
-
-  type NotificationType
-
-  targetUserId Int?
-
-  createdById Int
-
-  createdAt DateTime @default(now())
-
-  expiresAt DateTime?
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  targetUser User? @relation("TargetNotifications", fields: [targetUserId], references: [id])
-
-  createdBy User @relation("CreatedNotifications", fields: [createdById], references: [id])
-
-  reads NotificationRead[]
-
-  @@index([organizationId])
-
-  @@index([targetUserId])
-
-  @@index([expiresAt])
-}
-
 enum NotificationType {
   ALL
   PERSONAL
-}
-
-
-model NotificationRead {
-  id Int @id @default(autoincrement())
-
-  notificationId Int
-
-  userId Int
-
-  readAt DateTime @default(now())
-
-  notification Notification @relation(fields: [notificationId], references: [id])
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-
-  @@index([notificationId])
-
-  @@unique([notificationId, userId])
 }

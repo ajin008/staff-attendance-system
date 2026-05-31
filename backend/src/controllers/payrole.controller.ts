@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 
-import { asyncHandler } from "../middleware/asyncHandler";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import {
   generatePayslipService,
   getPayrollService,
-} from "../Service/payroll.service";
+} from "../Service/payroll.service.js";
 
 export const getPayrollController = asyncHandler(
   async (req: Request, res: Response) => {

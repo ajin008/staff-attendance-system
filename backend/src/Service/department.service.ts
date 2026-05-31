@@ -1,16 +1,16 @@
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 
 import {
   countDepartmentByOrganization,
   createDepartment,
   updateDepartmentStatus,
-} from "../Repository/department.repository";
-import { findDepartmentByOrganizationId } from "../Repository/department.repository";
+} from "../Repository/department.repository.js";
+import { findDepartmentByOrganizationId } from "../Repository/department.repository.js";
 import {
   deleteDepartmentById,
   findDepartmentById,
   updateDepartmentById,
-} from "../Repository/department.repository";
+} from "../Repository/department.repository.js";
 
 interface CreateDepartmentPayload {
   name: string;

@@ -1,18 +1,18 @@
 // Service/leave.service.ts
 
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 
 import {
   createLeaveRequest,
   findLeavesByUserId,
-} from "../Repository/leave.repository";
+} from "../Repository/leave.repository.js";
 
 import {
   findLeaveById,
   updateLeaveStatus,
-} from "../Repository/leave.repository";
+} from "../Repository/leave.repository.js";
 
-import { findAllLeavesByOrganization } from "../Repository/leave.repository";
+import { findAllLeavesByOrganization } from "../Repository/leave.repository.js";
 
 export const createLeaveRequestService = async ({
   userId,

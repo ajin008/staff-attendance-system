@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import authRoutes from "./routes/auth.routes";
+import authRoutes from "./routes/auth.routes.js";
 
-import adminRouter from "./routes/admin.routes";
-import staffRouter from "./routes/staff.routes";
-import { errorHandler } from "./middleware/errorHandler";
-// import { generalRateLimit } from "./utils/rateLimiting";
+import adminRouter from "./routes/admin.routes.js";
+import staffRouter from "./routes/staff.routes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+// import { generalRateLimit } from "./utils/rateLimiting.js";
 
 const app = express();
 

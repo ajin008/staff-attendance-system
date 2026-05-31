@@ -1,4 +1,4 @@
-import prisma from "../utils/prisma";
+import prisma from "../utils/prisma.js";
 
 export const createAttendance = async (data: any) => {
   return prisma.attendance.create({

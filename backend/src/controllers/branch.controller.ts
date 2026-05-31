@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 
-import { asyncHandler } from "../middleware/asyncHandler";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 import {
   createBranchService,
   deleteBranchService,
   getAllBranchesService,
-} from "../Service/branch.service";
+} from "../Service/branch.service.js";
 
 export const getAllBranchesController = asyncHandler(
   async (req: Request, res: Response) => {

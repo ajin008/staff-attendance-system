@@ -11,6 +11,6 @@ export default defineConfig({
   },
 
   datasource: {
-    url: "postgresql://ajinkp@localhost:5432/staff_management",
+    url: "postgresql://neondb_owner:npg_U6tHAdJG9aDM@ep-soft-band-aoqwd9bc-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
   },
 });

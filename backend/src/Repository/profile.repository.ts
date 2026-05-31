@@ -1,4 +1,4 @@
-import prisma from "../utils/prisma";
+import prisma from "../utils/prisma.js";
 
 export const findOrganizationProfile = async (organizationId: number) => {
   return prisma.organization.findUnique({

@@ -2,15 +2,15 @@
 
 import { Request, Response } from "express";
 
-import { asyncHandler } from "../middleware/asyncHandler";
-import { getAllLeavesService } from "../Service/leave.service";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getAllLeavesService } from "../Service/leave.service.js";
 
 import {
   createLeaveRequestService,
   getMyLeavesService,
-} from "../Service/leave.service";
+} from "../Service/leave.service.js";
 
-import { updateLeaveStatusService } from "../Service/leave.service";
+import { updateLeaveStatusService } from "../Service/leave.service.js";
 
 export const createLeaveRequestController = asyncHandler(
   async (req: Request, res: Response) => {

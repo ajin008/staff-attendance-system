@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { asyncHandler } from "../middleware/asyncHandler";
-import { createDepartmentService } from "../Service/department.service";
-import { fetchDepartment } from "../Service/department.service";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { createDepartmentService } from "../Service/department.service.js";
+import { fetchDepartment } from "../Service/department.service.js";
 import {
   deleteDepartmentService,
   getDepartmentByIdService,
   updateDepartmentService,
   toggleDepartmentStatusService,
-} from "../Service/department.service";
+} from "../Service/department.service.js";
 
 export const createDepartment = asyncHandler(
   async (req: Request, res: Response) => {

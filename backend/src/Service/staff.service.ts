@@ -1,39 +1,39 @@
 import { Prisma } from "@prisma/client";
-import prisma from "../utils/prisma";
+import prisma from "../utils/prisma.js";
 
-import AppError from "../utils/AppError";
+import AppError from "../utils/AppError.js";
 
 import {
   createUser,
   findUserByEmail,
   findUserById,
   findUserByPhone,
-} from "../Repository/user.repository";
+} from "../Repository/user.repository.js";
 
-import { generateStaffId } from "../utils/staffId";
+import { generateStaffId } from "../utils/staffId.js";
 
-import { CreateStaffInput } from "../utils/types";
+import { CreateStaffInput } from "../utils/types.js";
 import {
   findAllStaffByOrganization,
   countStaffByOrganization,
-} from "../Repository/user.repository";
+} from "../Repository/user.repository.js";
 
 import {
   deleteStaffByStaffId,
   findStaffByStaffId,
   updateStaffByStaffId,
   updateStaffStatus,
-} from "../Repository/staff.repository";
+} from "../Repository/staff.repository.js";
 
 import bcrypt from "bcryptjs";
 import {
   createAttendance,
   findTodayAttendanceByUserId,
-} from "../Repository/attendance.repository";
+} from "../Repository/attendance.repository.js";
 
-import { calculateDistanceInMeters } from "../utils/location";
+import { calculateDistanceInMeters } from "../utils/location.js";
 
-import { updateAttendanceCheckOut } from "../Repository/attendance.repository";
+import { updateAttendanceCheckOut } from "../Repository/attendance.repository.js";
 import {
   calculateEarlyExitMinutes,
   calculateLateMinutes,
@@ -41,15 +41,15 @@ import {
   calculateShiftMinutes,
   calculateWorkedMinutes,
   parseTimeToMinutes,
-} from "../utils/time";
+} from "../utils/time.js";
 
 import {
   findApprovedLeaveForToday,
   cancelLeaveRequest,
-} from "../Repository/leave.repository";
+} from "../Repository/leave.repository.js";
 
-import { findStaffProfile } from "../Repository/staff.repository";
-import { checkOutStaffAllocation } from "../Repository/floor.repository";
+import { findStaffProfile } from "../Repository/staff.repository.js";
+import { checkOutStaffAllocation } from "../Repository/floor.repository.js";
 
 export const createStaffService = async (
   input: CreateStaffInput

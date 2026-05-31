@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { login, logout, register } from "../controllers/auth.controller";
-import { protect } from "../middleware/protect";
+import { login, logout, register } from "../controllers/auth.controller.js";
+import { protect } from "../middleware/protect.js";
 import {
   authRateLimit,
   writeRateLimit,
   readRateLimit,
-} from "../utils/rateLimiting";
+} from "../utils/rateLimiting.js";
 
 const router = Router();
 

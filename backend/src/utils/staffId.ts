@@ -1,5 +1,5 @@
-import { findOrganizationById } from "../Repository/organization.repository";
-import { countOrganizationStaff } from "../Repository/user.repository";
+import { findOrganizationById } from "../Repository/organization.repository.js";
+import { countOrganizationStaff } from "../Repository/user.repository.js";
 
 export const generateStaffId = async (
   organizationId: number,

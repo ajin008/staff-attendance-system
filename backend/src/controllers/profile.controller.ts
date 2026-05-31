@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 
-import { asyncHandler } from "../middleware/asyncHandler";
-import { getProfileDetailsService } from "../Service/profile.service";
-import { updateProfileDetailsService } from "../Service/profile.service";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getProfileDetailsService } from "../Service/profile.service.js";
+import { updateProfileDetailsService } from "../Service/profile.service.js";
 
 export const getProfileDetailsController = asyncHandler(
   async (req: Request, res: Response) => {

@@ -1,28 +1,28 @@
 import { Router } from "express";
-import { protect } from "../middleware/protect";
+import { protect } from "../middleware/protect.js";
 import {
   checkInStaffController,
   checkOutStaffController,
   getStaffProfileController,
   getTodayAttendanceController,
-} from "../controllers/staff.controller";
+} from "../controllers/staff.controller.js";
 import {
   createLeaveRequestController,
   getMyLeavesController,
-} from "../controllers/leave.controller";
-import { getMyAttendanceController } from "../controllers/attendance.controller";
-import { getMyFloorAllocationController } from "../controllers/floor.controller";
+} from "../controllers/leave.controller.js";
+import { getMyAttendanceController } from "../controllers/attendance.controller.js";
+import { getMyFloorAllocationController } from "../controllers/floor.controller.js";
 import {
   getStaffNotificationsController,
   getUnreadNotificationCountController,
   markAllNotificationsReadController,
   markNotificationReadController,
-} from "../controllers/notification.controller";
+} from "../controllers/notification.controller.js";
 import {
   readRateLimit,
   writeRateLimit,
   notificationRateLimit,
-} from "../utils/rateLimiting";
+} from "../utils/rateLimiting.js";
 
 const router = Router();
 

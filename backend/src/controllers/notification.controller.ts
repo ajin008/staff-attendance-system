@@ -1,6 +1,6 @@
-import { getNotificationReadReceiptsService } from "./../Service/notification.service";
+import { getNotificationReadReceiptsService } from "./../Service/notification.service.js";
 import { Request, Response } from "express";
-import { asyncHandler } from "../middleware/asyncHandler";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import {
   createNotificationService,
   getAdminNotificationsService,
@@ -10,7 +10,7 @@ import {
   markAllNotificationsReadService,
   markNotificationReadService,
   searchStaffService,
-} from "../Service/notification.service";
+} from "../Service/notification.service.js";
 
 export const sendAllStaffNotificationController = asyncHandler(
   async (req: Request, res: Response) => {

@@ -1,8 +1,8 @@
-import { asyncHandler } from "../middleware/asyncHandler";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 import { Request, Response } from "express";
-import { adminStatusService } from "../Service/admin.service";
-import { getAllStaffService } from "../Service/staff.service";
-import { getTodayAttendanceDataService } from "../Service/admin.service";
+import { adminStatusService } from "../Service/admin.service.js";
+import { getAllStaffService } from "../Service/staff.service.js";
+import { getTodayAttendanceDataService } from "../Service/admin.service.js";
 
 export const getStatusController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -54,7 +54,7 @@ import {
   deleteStaffService,
   getStaffByIdService,
   updateStaffService,
-} from "../Service/staff.service";
+} from "../Service/staff.service.js";
 
 export const getStaffByIdController = asyncHandler(
   async (req: Request, res: Response) => {
