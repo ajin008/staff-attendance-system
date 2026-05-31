@@ -6,7 +6,6 @@ import {
   getStaffProfileController,
   getTodayAttendanceController,
 } from "../controllers/staff.controller";
-
 import {
   createLeaveRequestController,
   getMyLeavesController,
@@ -19,31 +18,65 @@ import {
   markAllNotificationsReadController,
   markNotificationReadController,
 } from "../controllers/notification.controller";
+import {
+  readRateLimit,
+  writeRateLimit,
+  notificationRateLimit,
+} from "../utils/rateLimiting";
+
 const router = Router();
 
-router.post("/check-in", protect, checkInStaffController);
-router.post("/check-out", protect, checkOutStaffController);
-router.get("/attendance/today", protect, getTodayAttendanceController);
-router.post("/leaves/create", protect, createLeaveRequestController);
-router.get("/leaves/my-leaves", protect, getMyLeavesController);
-router.get("/profile", protect, getStaffProfileController);
-router.get("/attendance/history", protect, getMyAttendanceController);
-router.get("/my-allocation", protect, getMyFloorAllocationController);
-router.get("/notifications", protect, getStaffNotificationsController);
+router.post("/check-in", protect, writeRateLimit, checkInStaffController);
+router.post("/check-out", protect, writeRateLimit, checkOutStaffController);
+router.get(
+  "/attendance/today",
+  protect,
+  readRateLimit,
+  getTodayAttendanceController
+);
+router.post(
+  "/leaves/create",
+  protect,
+  writeRateLimit,
+  createLeaveRequestController
+);
+router.get("/leaves/my-leaves", protect, readRateLimit, getMyLeavesController);
+router.get("/profile", protect, readRateLimit, getStaffProfileController);
+router.get(
+  "/attendance/history",
+  protect,
+  readRateLimit,
+  getMyAttendanceController
+);
+router.get(
+  "/my-allocation",
+  protect,
+  readRateLimit,
+  getMyFloorAllocationController
+);
+
+router.get(
+  "/notifications",
+  protect,
+  notificationRateLimit,
+  getStaffNotificationsController
+);
 router.patch(
   "/notifications/:notificationId/read",
   protect,
+  notificationRateLimit,
   markNotificationReadController
 );
 router.patch(
   "/notifications/read-all",
   protect,
+  notificationRateLimit,
   markAllNotificationsReadController
 );
-
 router.get(
   "/notifications/unread-count",
   protect,
+  notificationRateLimit,
   getUnreadNotificationCountController
 );
 

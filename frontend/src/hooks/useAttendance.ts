@@ -1,8 +1,8 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 // src/hooks/useAttendance.ts
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import {
   checkIn,
@@ -35,6 +35,7 @@ export const useAttendance = () => {
   });
 
   const { getCurrentPosition } = useGeolocation();
+  const hasFetched = useRef(false); // Track if already fetched
 
   // Fetch today's attendance status on page load
   const fetchTodayStatus = useCallback(async () => {
@@ -146,9 +147,12 @@ export const useAttendance = () => {
     []
   );
 
-  // Fetch today's status on mount
+  // Fetch today's status on mount (only once)
   useEffect(() => {
-    fetchTodayStatus();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchTodayStatus();
+    }
   }, [fetchTodayStatus]);
 
   return {

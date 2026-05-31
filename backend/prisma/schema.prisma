@@ -64,7 +64,9 @@ model User {
 
   email String @unique
 
-  phone String? @unique
+  phone String? 
+
+  @@unique([organizationId, phone])
 
   password String
 

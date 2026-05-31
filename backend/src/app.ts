@@ -6,7 +6,7 @@ import authRoutes from "./routes/auth.routes";
 import adminRouter from "./routes/admin.routes";
 import staffRouter from "./routes/staff.routes";
 import { errorHandler } from "./middleware/errorHandler";
-import { generalRateLimit } from "./utils/rateLimiting";
+// import { generalRateLimit } from "./utils/rateLimiting";
 
 const app = express();
 

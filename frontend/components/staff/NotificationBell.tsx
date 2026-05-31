@@ -2,12 +2,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Bell, CheckCheck, Clock } from "lucide-react";
 import { useStaffNotifications } from "@/src/hooks/staff/useStaffNotifications";
 import { formatDistanceToNow } from "date-fns";
 import type { StaffNotification } from "@/src/services/notification.service";
 
 export default function NotificationBell() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const {
@@ -47,7 +49,14 @@ export default function NotificationBell() {
     if (!notification.isRead) {
       markAsRead(notification.id);
     }
-    // Optional: Navigate or show detailed view
+    setIsOpen(false);
+    // Optional: Navigate to specific notification detail page
+    // router.push(`/staff/notifications/${notification.id}`);
+  };
+
+  const handleViewAll = () => {
+    setIsOpen(false);
+    router.push("/staff/notifications");
   };
 
   return (
@@ -160,9 +169,7 @@ export default function NotificationBell() {
           {notifications.length > 0 && (
             <div className="px-4 py-2 border-t border-neutral-800 bg-neutral-900/30">
               <button
-                onClick={() => {
-                  setIsOpen(false);
-                }}
+                onClick={handleViewAll}
                 className="w-full text-center text-[10px] font-medium text-neutral-500 hover:text-neutral-300 transition-colors"
               >
                 View all notifications

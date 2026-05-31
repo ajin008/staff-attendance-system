@@ -90,4 +90,7 @@ export const ENDPOINT = {
   MARK_ALL_ADMIN_NOTIFICATIONS_READ: "/admin/notifications/read-all",
   NOTIFICATION_READ_RECEIPTS: (id: number) =>
     `/admin/notifications/${id}/receipts`,
+
+  // admin late attendance
+  LATE_ATTENDANCE: "/admin/attendance/late",
 };

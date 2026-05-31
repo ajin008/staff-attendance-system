@@ -10,8 +10,15 @@ import {
 import { registerPayload } from "../utils/types";
 import { createStaffService } from "../Service/staff.service";
 
-const setCookies = (res: Response, token: string) => {
+const setCookies = (res: Response, token: string, role: string) => {
   res.cookie("token", token, {
+    httpOnly: true,
+    secure: ENV.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.cookie("role", role, {
     httpOnly: true,
     secure: ENV.NODE_ENV === "production",
     sameSite: "strict",
@@ -30,7 +37,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   const { user, token } = await loginService(identifier, password);
 
-  setCookies(res, token);
+  setCookies(res, token, user.role);
   console.log("Login successful for user:", user);
   res.status(200).json({
     message: "Login successful",
@@ -39,7 +46,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const logout = asyncHandler(async (_req: Request, res: Response) => {
+  console.log("Logout request received");
   res.clearCookie("token");
+  res.clearCookie("role");
   res.status(200).json({ message: "Logged out successfully" });
 });
 

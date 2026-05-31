@@ -220,3 +220,20 @@ export const getMyAttendance = async (
   const response = await api.get<StaffAttendanceResponse>(url);
   return response.data;
 };
+
+// for late page.tsx
+export interface LateStaffMember {
+  id: number;
+  staffId: string;
+  name: string;
+  email: string;
+  phone: string;
+  checkInTime: string;
+  lateMinutes: number;
+}
+
+// Get late check-in staff for today only
+export const getLateCheckIns = async (): Promise<LateStaffMember[]> => {
+  const response = await api.get(ENDPOINT.LATE_ATTENDANCE);
+  return response.data;
+};

@@ -52,6 +52,7 @@ export default function LoginPage() {
 
     try {
       const res = await loginUser(data);
+      console.log("Login response:", res.user);
       login(res.user);
       toast.success(`Welcome back, ${res.user.name}!`);
       setIsRedirecting(true);

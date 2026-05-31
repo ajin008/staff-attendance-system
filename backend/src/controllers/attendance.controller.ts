@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
 
 import {
+  getLateAttendanceService,
   getMyAttendanceService,
   getStaffAttendanceService,
 } from "../Service/attendance.service";
@@ -79,5 +80,15 @@ export const getMyAttendanceController = asyncHandler(
 
       data: result,
     });
+  }
+);
+
+export const getLateAttendanceController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const organizationId = req.user!.organizationId;
+
+    const result = await getLateAttendanceService(organizationId);
+
+    res.status(200).json(result);
   }
 );

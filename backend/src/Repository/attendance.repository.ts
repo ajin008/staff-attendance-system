@@ -157,3 +157,78 @@ export const findPendingAutoCheckouts = async () => {
     },
   });
 };
+
+export const findLateAttendanceToday = async (organizationId: number) => {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const attendances = await prisma.attendance.findMany({
+    where: {
+      organizationId,
+
+      createdAt: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
+
+      checkInTime: {
+        not: null,
+      },
+    },
+
+    include: {
+      user: {
+        include: {
+          department: true,
+        },
+      },
+    },
+
+    orderBy: {
+      checkInTime: "desc",
+    },
+  });
+
+  return attendances
+    .map((attendance) => {
+      const user = attendance.user;
+
+      if (!attendance.checkInTime || !user.department?.shiftStart) {
+        return null;
+      }
+
+      const [hours, minutes] = user.department.shiftStart.split(":");
+
+      const shiftStart = new Date(attendance.checkInTime);
+
+      shiftStart.setHours(Number(hours), Number(minutes), 0, 0);
+
+      const lateMinutes = Math.floor(
+        (attendance.checkInTime.getTime() - shiftStart.getTime()) / (1000 * 60)
+      );
+
+      if (lateMinutes <= 0) {
+        return null;
+      }
+
+      return {
+        id: user.id,
+
+        staffId: user.staffId,
+
+        name: user.name,
+
+        email: user.email,
+
+        phone: user.phone,
+
+        checkInTime: attendance.checkInTime,
+
+        lateMinutes,
+      };
+    })
+    .filter(Boolean);
+};

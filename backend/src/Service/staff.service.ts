@@ -625,7 +625,7 @@ export const getStaffProfileService = async ({
 
     joinedOn: user.joinedOn,
 
-    salary: user.salary,
+    salary: user.salary ?? user.department?.defaultSalary,
 
     shiftStart: user.shiftStart || user.department?.shiftStart,
 

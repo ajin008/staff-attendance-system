@@ -34,10 +34,17 @@ export const loginService = async (
   console.log("user find out in login service:", user);
 
   if (!user) throw new AppError("invalid credentials", 401);
+
+  if (!user.isActive)
+    throw new AppError(
+      "Account is deactivated. Please contact administrator.",
+      403
+    );
+
   const isMatch = await bcrypt.compare(password, user.password);
   console.log("Password match:", isMatch);
 
-  if (!isMatch) throw new AppError("invalid credentials", 401);
+  if (!isMatch) throw new AppError("invalid password", 401);
 
   const token = generateToken(user.id, user.organizationId, user.role);
 
@@ -48,6 +55,8 @@ export const loginService = async (
       id: user.id,
 
       organizationId: user.organizationId,
+
+      companyName: user.organization.companyName,
 
       staffId: user.staffId,
 

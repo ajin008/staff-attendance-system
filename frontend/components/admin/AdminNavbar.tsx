@@ -17,10 +17,7 @@ export default function AdminNavbar() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await logoutUser();
-      logout();
-      toast.success("Logged out successfully");
-      router.replace("/login");
+      await logout();
     } catch (err) {
       toast.error(getErrorMessage(err));
       setIsLoggingOut(false);

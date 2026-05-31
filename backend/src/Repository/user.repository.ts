@@ -15,6 +15,14 @@ export const findUserByEmail = async (email: string) => {
     where: {
       email,
     },
+
+    include: {
+      organization: {
+        select: {
+          companyName: true,
+        },
+      },
+    },
   });
 };
 
@@ -30,6 +38,13 @@ export const findUserByStaffId = async (staffId: string) => {
   return prisma.user.findFirst({
     where: {
       staffId,
+    },
+    include: {
+      organization: {
+        select: {
+          companyName: true,
+        },
+      },
     },
   });
 };

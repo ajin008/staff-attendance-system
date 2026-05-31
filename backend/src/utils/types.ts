@@ -25,6 +25,8 @@ export interface AuthUser {
 
   organizationId: number;
 
+  companyName?: string;
+
   staffId: string | null;
 
   name: string;

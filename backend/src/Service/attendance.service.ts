@@ -5,6 +5,7 @@ import AppError from "../utils/AppError";
 import {
   countStaffAttendance,
   findAllAttendanceSummary,
+  findLateAttendanceToday,
   findPendingAutoCheckouts,
   findStaffAttendance,
   updateAttendanceCheckOut,
@@ -321,4 +322,8 @@ export const autoCheckOutStaffService = async () => {
 
     console.log(`Auto checkout completed for user ${attendance.userId}`);
   }
+};
+
+export const getLateAttendanceService = async (organizationId: number) => {
+  return findLateAttendanceToday(organizationId);
 };

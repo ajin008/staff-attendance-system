@@ -7,6 +7,8 @@ import {
   ReactNode,
 } from "react";
 import { User } from "../types";
+import { logoutUser } from "../services/auth.service";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +22,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const router = useRouter();
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     const parsedUser = savedUser ? JSON.parse(savedUser) : null;
@@ -30,12 +34,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (user: User) => {
     localStorage.setItem("user", JSON.stringify(user));
+
     setUser(user);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await logoutUser();
+
     localStorage.removeItem("user");
+
     setUser(null);
+
+    console.log("logout completed");
+
+    window.location.replace("/login");
   };
 
   return (

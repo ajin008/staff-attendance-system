@@ -1,8 +1,6 @@
 // components/admin/AttendanceStaffTable.tsx
 "use client";
 
-import { Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
 import type {
   PresentStaff,
   AbsentStaff,
@@ -22,7 +20,7 @@ export default function AttendanceStaffTable({
   type,
   emptyMessage,
 }: AttendanceStaffTableProps) {
-  const router = useRouter();
+  console.log("Rendering AttendanceStaffTable with staffList:", staffList);
 
   const formatTime = (timeString?: string) => {
     if (!timeString) return "—";

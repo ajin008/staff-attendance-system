@@ -40,41 +40,54 @@ export const StaffNavbar = () => {
   const handleLogout = () => {
     logout();
     toast.success("Signed out successfully");
-    router.push("/login");
+    router.replace("/login");
   };
 
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0F0F11] text-white border-b border-neutral-900 antialiased select-none">
-        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-400 mx-auto px-6 h-16 flex items-center justify-between">
+          {/* Section 01: Corporate Branding Node */}
           {/* Section 01: Corporate Branding Node */}
           <div className="flex items-center gap-5">
             <Link
               href="/staff"
-              className="flex items-center gap-2.5 focus:outline-none"
+              className="flex items-center gap-2.5 focus:outline-none group"
             >
-              <div className="p-1.5 border border-neutral-800 bg-neutral-900 text-white rounded">
-                <LayoutGrid className="h-4 w-4 stroke-[2.5]" />
+              {/* Logo Icon */}
+              <div className="p-1.5 border border-neutral-800 bg-linear-to-br from-neutral-900 to-neutral-950 group-hover:border-neutral-700 transition-all rounded">
+                <LayoutGrid className="h-4 w-4 stroke-[2.5] text-emerald-400" />
               </div>
+
+              {/* Company Info */}
               <div className="flex flex-col">
-                <span className="text-xs font-mono font-bold tracking-wider text-white uppercase">
-                  {user?.organizationId || "Pulse CRM"}
-                </span>
-                <span className="text-[10px] text-neutral-500 font-mono tracking-widest uppercase">
-                  Workspace
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold tracking-tight text-white uppercase">
+                    {user?.companyName || "Pulse"}
+                  </span>
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 uppercase tracking-wider">
+                    Staff
+                  </span>
+                </div>
+                <span className="text-[9px] text-neutral-500 font-mono tracking-wider">
+                  Secure Workspace
                 </span>
               </div>
             </Link>
 
-            <div className="hidden sm:block h-4 w-px bg-neutral-800" />
+            <div className="hidden sm:block h-5 w-px bg-linear-to-b from-transparent via-neutral-700 to-transparent" />
 
-            <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono">
-              <span className="text-neutral-500 uppercase tracking-wider">
-                ID:
-              </span>
-              <span className="font-bold px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900/60 text-neutral-300">
-                {user?.staffId || "N/A"}
-              </span>
+            {/* Staff ID Badge */}
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-neutral-900/40 border border-neutral-800">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-mono text-neutral-400">
+                  ID:
+                </span>
+                <span className="text-xs font-bold font-mono text-white tracking-wider">
+                  {user?.staffId || "——"}
+                </span>
+              </div>
             </div>
           </div>
 

@@ -13,6 +13,7 @@ export interface User {
   email: string;
   phone?: string;
   branch?: string;
+  companyName?: string;
 
   role: "admin" | "staff";
 

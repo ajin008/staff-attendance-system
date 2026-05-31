@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-// src/hooks/useStaffNotifications.ts
+// src/hooks/staff/useStaffNotifications.ts
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -11,18 +11,15 @@ import {
   getUnreadNotificationCount,
   type StaffNotification,
 } from "@/src/services/notification.service";
-import { getErrorMessage } from "@/src/utils/axios";
 
 interface UseStaffNotificationsProps {
   autoFetch?: boolean;
   onNotificationRead?: (notification: StaffNotification) => void;
-  showErrorToasts?: boolean;
 }
 
 export function useStaffNotifications({
   autoFetch = true,
   onNotificationRead,
-  showErrorToasts = false,
 }: UseStaffNotificationsProps = {}) {
   const [notifications, setNotifications] = useState<StaffNotification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,9 +27,10 @@ export function useStaffNotifications({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [markingId, setMarkingId] = useState<number | null>(null);
 
-  // Track if we've shown a new notification toast
-  const previousUnreadCount = useRef(0);
-  const hasShownToast = useRef(false);
+  // Track if this is the first load
+  const isFirstLoad = useRef(true);
+  // Track last known unread count
+  const lastUnreadCount = useRef(0);
 
   const fetchNotifications = useCallback(async () => {
     setIsLoading(true);
@@ -41,60 +39,25 @@ export function useStaffNotifications({
       const newNotifications = response.data || [];
       const newUnreadCount = response.unreadCount || 0;
 
+      // Only show toast for NEW notifications (not on first load)
+      if (!isFirstLoad.current && newUnreadCount > lastUnreadCount.current) {
+        const newCount = newUnreadCount - lastUnreadCount.current;
+        toast.info(
+          `🔔 ${newCount} new notification${newCount > 1 ? "s" : ""}`,
+          {
+            duration: 4000,
+          }
+        );
+      }
+
       setNotifications(newNotifications);
       setUnreadCount(newUnreadCount);
-
-      // Show toast for new unread notifications (only if count increased)
-      if (
-        autoFetch &&
-        previousUnreadCount.current > 0 &&
-        newUnreadCount > previousUnreadCount.current
-      ) {
-        const newCount = newUnreadCount - previousUnreadCount.current;
-        toast.info(
-          `You have ${newCount} new notification${newCount > 1 ? "s" : ""}`,
-          {
-            duration: 4000,
-          }
-        );
-      }
-
-      previousUnreadCount.current = newUnreadCount;
+      lastUnreadCount.current = newUnreadCount;
+      isFirstLoad.current = false;
     } catch (error) {
       console.error("Error fetching notifications:", error);
-      // Only show error toast if explicitly enabled
-      if (showErrorToasts) {
-        toast.error(getErrorMessage(error));
-      }
     } finally {
       setIsLoading(false);
-    }
-  }, [autoFetch, showErrorToasts]);
-
-  const fetchUnreadCount = useCallback(async () => {
-    try {
-      const response = await getUnreadNotificationCount();
-      const newUnreadCount = response.unreadCount;
-
-      // Only show toast if unread count increased and we're not in the initial load
-      if (
-        previousUnreadCount.current > 0 &&
-        newUnreadCount > previousUnreadCount.current
-      ) {
-        const newCount = newUnreadCount - previousUnreadCount.current;
-        toast.info(
-          `You have ${newCount} new notification${newCount > 1 ? "s" : ""}`,
-          {
-            duration: 4000,
-          }
-        );
-      }
-
-      setUnreadCount(newUnreadCount);
-      previousUnreadCount.current = newUnreadCount;
-    } catch (error) {
-      console.error("Error fetching unread count:", error);
-      // Silent fail - no toast for this background operation
     }
   }, []);
 
@@ -111,6 +74,7 @@ export function useStaffNotifications({
           )
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
+        lastUnreadCount.current = Math.max(0, lastUnreadCount.current - 1);
 
         const markedNotification = notifications.find(
           (n) => n.id === notificationId
@@ -120,7 +84,6 @@ export function useStaffNotifications({
         }
       } catch (error) {
         console.error("Error marking notification as read:", error);
-        // Silent fail - no toast for individual read operations
       } finally {
         setMarkingId(null);
       }
@@ -129,48 +92,37 @@ export function useStaffNotifications({
   );
 
   const markAllAsRead = useCallback(async () => {
+    if (unreadCount === 0) return;
+
     try {
       await markAllStaffNotificationsAsRead();
 
       // Update local state
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
+      lastUnreadCount.current = 0;
 
-      // Only show success toast when there were unread notifications
-      if (previousUnreadCount.current > 0) {
-        toast.success("All notifications marked as read");
-      }
-
-      previousUnreadCount.current = 0;
+      toast.success("All notifications marked as read");
     } catch (error) {
       console.error("Error marking all as read:", error);
-      // Silent fail - no toast for errors
     }
-  }, []);
+  }, [unreadCount]);
 
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
+    isFirstLoad.current = true; // Reset first load flag
     await fetchNotifications();
     setIsRefreshing(false);
   }, [fetchNotifications]);
 
-  // Auto-fetch notifications on mount
+  // Only fetch on mount, no automatic polling
   useEffect(() => {
     if (autoFetch) {
       fetchNotifications();
     }
   }, [autoFetch, fetchNotifications]);
 
-  // Poll for new notifications every 30 seconds
-  useEffect(() => {
-    if (!autoFetch) return;
-
-    const interval = setInterval(() => {
-      fetchUnreadCount();
-    }, 30000); // Check every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [autoFetch, fetchUnreadCount]);
+  // REMOVED: The automatic polling interval that was causing the glitch
 
   return {
     notifications,
@@ -181,6 +133,5 @@ export function useStaffNotifications({
     markAsRead,
     markAllAsRead,
     refresh,
-    fetchUnreadCount,
   };
 }
