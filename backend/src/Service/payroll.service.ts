@@ -374,6 +374,6 @@ export const generatePayslipService = async ({
   await updatePayrollPdf(payroll.id, pdfFileName);
   return {
     payroll,
-    url: `http://localhost:8000/uploads/payslips/${pdfFileName}`,
+    url: `${process.env.BASE_URL}/uploads/payslips/${pdfFileName}`,
   };
 };
