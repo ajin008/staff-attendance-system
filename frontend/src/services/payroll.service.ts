@@ -67,5 +67,6 @@ export const generatePayslip = async (
   payload: GeneratePayslipPayload
 ): Promise<{ message: string; url: string }> => {
   const response = await api.post(ENDPOINT.GENERATE_PAYSLIP, payload);
+  console.log("generatePayslip response:", response.data);
   return response.data;
 };
