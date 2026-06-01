@@ -50,6 +50,7 @@ import {
 
 import { findStaffProfile } from "../Repository/staff.repository.js";
 import { checkOutStaffAllocation } from "../Repository/floor.repository.js";
+import { nowUTC } from "../utils/nowUTC.js";
 import { nowIST } from "../utils/nowIST.js";
 
 export const createStaffService = async (
@@ -338,7 +339,7 @@ export const checkInStaffService = async ({
 
     checkInLongitude: longitude,
 
-    checkInTime: now,
+    checkInTime: nowUTC(),
 
     // SNAPSHOT
     shiftStart: effectiveShiftStart,
@@ -486,7 +487,7 @@ export const checkOutStaffService = async ({
 
       checkInTime: updatedAttendance.checkInTime,
 
-      checkOutTime: updatedAttendance.checkOutTime,
+      checkOutTime: nowUTC(),
 
       totalWorkMinutes: updatedAttendance.totalWorkMinutes,
 

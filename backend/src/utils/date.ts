@@ -1,11 +1,12 @@
-import { nowIST } from "./nowIST.js";
+// utils/date.ts
 
 export const todayStart = (): Date => {
-  const now = nowIST();
+  const now = new Date();
+
   return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 };
 
-export const startOfDay = (date = nowIST()): Date => {
+export const startOfDay = (date = new Date()): Date => {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
@@ -17,7 +18,7 @@ export const startOfDay = (date = nowIST()): Date => {
   );
 };
 
-export const endOfDay = (date = nowIST()): Date => {
+export const endOfDay = (date = new Date()): Date => {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
