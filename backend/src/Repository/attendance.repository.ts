@@ -1,3 +1,4 @@
+import { nowIST } from "../utils/nowIST.js";
 import prisma from "../utils/prisma.js";
 
 export const createAttendance = async (data: any) => {
@@ -159,10 +160,10 @@ export const findPendingAutoCheckouts = async () => {
 };
 
 export const findLateAttendanceToday = async (organizationId: number) => {
-  const startOfDay = new Date();
+  const startOfDay = nowIST();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const endOfDay = new Date();
+  const endOfDay = nowIST();
   endOfDay.setHours(23, 59, 59, 999);
 
   const attendances = await prisma.attendance.findMany({

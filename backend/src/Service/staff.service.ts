@@ -50,6 +50,7 @@ import {
 
 import { findStaffProfile } from "../Repository/staff.repository.js";
 import { checkOutStaffAllocation } from "../Repository/floor.repository.js";
+import { nowIST } from "../utils/nowIST.js";
 
 export const createStaffService = async (
   input: CreateStaffInput
@@ -276,7 +277,7 @@ export const checkInStaffService = async ({
   }
 
   // CURRENT TIME
-  const now = new Date();
+  const now = nowIST();
 
   // WEEKDAY
   const today = now
@@ -299,15 +300,19 @@ export const checkInStaffService = async ({
 
   const effectiveShiftEnd = user.shiftEnd || user.department.shiftEnd;
 
-  // console.log("Effective Shift Start:", effectiveShiftStart);
+  console.log("Effective Shift Start:", effectiveShiftStart);
 
-  // console.log("Effective Shift End:", effectiveShiftEnd);
+  console.log("Effective Shift End:", effectiveShiftEnd);
 
   // CURRENT TIME IN MINUTES
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   // SHIFT START MINUTES
   const shiftStartMinutes = parseTimeToMinutes(effectiveShiftStart);
+
+  console.log("CURRENT TIME IN MINUTES:", currentMinutes);
+
+  console.log("SHIFT START MINUTE:", shiftStartMinutes);
 
   // PREVENT EARLY CHECK-IN
   if (currentMinutes < shiftStartMinutes) {
@@ -421,7 +426,7 @@ export const checkOutStaffService = async ({
     throw new AppError("You are outside allowed office radius", 400);
   }
 
-  const checkOutTime = new Date();
+  const checkOutTime = nowIST();
 
   const totalWorkMinutes = calculateWorkedMinutes(
     attendance.checkInTime!,

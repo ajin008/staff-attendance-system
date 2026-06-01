@@ -13,6 +13,7 @@ import {
   getNotificationReadReceiptsRepository,
   searchStaffRepository,
 } from "../Repository/notification.repository.js";
+import { nowIST } from "../utils/nowIST.js";
 
 interface CreateNotificationInput {
   organizationId: number;
@@ -46,7 +47,7 @@ export const createNotificationService = async (
     throw new AppError("Target user is required", 400);
   }
 
-  const expiresAt = new Date();
+  const expiresAt = nowIST();
 
   expiresAt.setDate(expiresAt.getDate() + 7);
 

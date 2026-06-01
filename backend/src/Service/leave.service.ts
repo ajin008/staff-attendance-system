@@ -13,6 +13,7 @@ import {
 } from "../Repository/leave.repository.js";
 
 import { findAllLeavesByOrganization } from "../Repository/leave.repository.js";
+import { nowIST } from "../utils/nowIST.js";
 
 export const createLeaveRequestService = async ({
   userId,
@@ -134,7 +135,7 @@ export const updateLeaveStatusService = async ({
 
     approvedBy,
 
-    approvedAt: new Date(),
+    approvedAt: nowIST(),
   });
 
   return {

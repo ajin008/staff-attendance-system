@@ -12,6 +12,7 @@ import { createUser } from "../Repository/user.repository.js";
 import { findUserByStaffId } from "../Repository/user.repository.js";
 import { Prisma } from "@prisma/client";
 import { createBranches } from "../Repository/branch.repository.js";
+import { nowIST } from "../utils/nowIST.js";
 
 interface CreateStaffInput {
   name: string;
@@ -129,7 +130,7 @@ export const registerService = async (payload: registerPayload) => {
 
         role: "admin",
 
-        joinedOn: new Date(),
+        joinedOn: nowIST(),
       };
 
       const user = await createUser(tx, userData);

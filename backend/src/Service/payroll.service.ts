@@ -13,6 +13,7 @@ import { generatePayslipPdf } from "../utils/generatePayslipPdf.js";
 
 import { findOrganizationById } from "../Repository/organization.repository.js";
 import { calculateWorkingDays } from "../utils/calculateWorkingDays.js";
+import { nowIST } from "../utils/nowIST.js";
 
 export const getPayrollService = async ({
   organizationId,
@@ -37,7 +38,7 @@ export const getPayrollService = async ({
   const skip = (page - 1) * limit;
 
   // CURRENT DATE
-  const currentDate = new Date();
+  const currentDate = nowIST();
 
   const monthMap: Record<string, number> = {
     january: 0,
@@ -229,7 +230,7 @@ export const generatePayslipService = async ({
 
   staffId?: string;
 }) => {
-  const currentDate = new Date();
+  const currentDate = nowIST();
 
   // MONTH MAP
   const monthMap: Record<string, number> = {
