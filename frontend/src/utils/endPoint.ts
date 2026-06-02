@@ -50,7 +50,9 @@ export const ENDPOINT = {
 
   // Payroll endpoints
   GET_PAYROLL: "/admin/payroll",
-  GENERATE_PAYSLIP: "/admin/payroll/generate-payslip",
+  GENERATE_PAYSLIP: "/admin/payroll/process-single",
+  GET_PAYROLL_SUMMARY: "/admin/payroll/summary",
+  CHECK_PAYSLIP_GENERATED: "/admin/payroll/check-payslip",
 
   // profile endpoints
   GET_PROFILE: "/admin/profile-settings/get-profile",

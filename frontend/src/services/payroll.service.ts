@@ -6,28 +6,24 @@ export interface PayrollRecord {
   id: number;
   staffId: string;
   name: string;
-  email: string;
   department: string;
   presentDays: number;
   absentDays: number;
   overtimeHours: number;
-  overtimeAmount: number;
-  baseSalary: number;
-  deduction: number;
-  bonus: number;
-  netSalary: number;
-  status: "pending" | "processed" | "paid";
+  payslipGenerated?: boolean;
 }
 
-export interface PayrollResponse {
-  message: string;
+export interface PayrollSummary {
+  totalSalary: number;
+  totalPaid: number;
+  totalDeduction?: number; // Calculated field
+  netPayable?: number; // Calculated field (same as totalPaid)
+}
+
+export interface PayrollListResponse {
+  message?: string;
   data: {
     payrolls: PayrollRecord[];
-    summary: {
-      totalSalary: number;
-      totalDeduction: number;
-      netPayable: number;
-    };
     pagination: {
       page: number;
       limit: number;
@@ -40,33 +36,88 @@ export interface PayrollResponse {
 export interface GeneratePayslipPayload {
   month: string;
   year: number;
-  staffId?: string;
+  staffId: string;
 }
 
+export interface GeneratePayslipResponse {
+  url: string;
+  message?: string;
+}
+
+export interface PayrollSummaryResponse {
+  message: string;
+  data: {
+    totalSalary: number;
+    totalPaid: number;
+  };
+}
+
+// Get payroll summary (separate API call)
+export const getPayrollSummary = async (
+  month: string,
+  year: number,
+  departmentId?: number | null
+): Promise<PayrollSummary> => {
+  const params: Record<string, string | number> = {
+    month,
+    year,
+  };
+
+  if (departmentId && departmentId !== undefined && departmentId !== null) {
+    params.department = departmentId;
+  } else {
+    params.department = "all";
+  }
+
+  const response = await api.get<PayrollSummaryResponse>(
+    ENDPOINT.GET_PAYROLL_SUMMARY,
+    { params }
+  );
+
+  // Transform backend response to match frontend expected format
+  const { totalSalary, totalPaid } = response.data.data;
+  return {
+    totalSalary,
+    totalPaid,
+    totalDeduction: totalSalary - totalPaid, // Calculate deduction
+    netPayable: totalPaid, // Net payable is same as total paid
+  };
+};
+
+// Get payroll list with filters
 export const getPayrollList = async (
   page: number = 1,
   limit: number = 10,
-  month?: string,
-  year?: number,
-  search?: string
-): Promise<PayrollResponse> => {
-  const params = new URLSearchParams();
-  params.append("page", page.toString());
-  params.append("limit", limit.toString());
-  if (month) params.append("month", month);
-  if (year) params.append("year", year.toString());
-  if (search) params.append("search", search);
+  month: string,
+  year: number,
+  searchTerm: string = "",
+  departmentId?: number | null
+): Promise<PayrollListResponse> => {
+  const params: Record<string, string | number> = {
+    page,
+    limit,
+    month,
+    year,
+  };
 
-  const response = await api.get(
-    `${ENDPOINT.GET_PAYROLL}?${params.toString()}`
-  );
+  if (searchTerm) {
+    params.search = searchTerm;
+  }
+
+  if (departmentId && departmentId !== undefined && departmentId !== null) {
+    params.department = departmentId;
+  } else {
+    params.department = "all";
+  }
+
+  const response = await api.get(ENDPOINT.GET_PAYROLL, { params });
   return response.data;
 };
 
+// Generate payslip
 export const generatePayslip = async (
   payload: GeneratePayslipPayload
-): Promise<{ message: string; url: string }> => {
+): Promise<GeneratePayslipResponse> => {
   const response = await api.post(ENDPOINT.GENERATE_PAYSLIP, payload);
-  console.log("generatePayslip response:", response.data);
   return response.data;
 };

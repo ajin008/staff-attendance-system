@@ -46,6 +46,7 @@ import {
 import {
   generatePayslipController,
   getPayrollController,
+  getPayrollSummaryController,
 } from "../controllers/payrole.controller.js";
 import {
   getProfileDetailsController,
@@ -248,7 +249,7 @@ router.get(
   getPayrollController
 );
 router.post(
-  "/payroll/generate-payslip",
+  "/payroll/process-single",
   protect,
   adminOnly,
   heavyRateLimit,
@@ -345,6 +346,15 @@ router.get(
   searchStaffController
 );
 
+router.get("/payroll/summary", protect, adminOnly, getPayrollSummaryController);
+
 router.get("/attendance/late", protect, adminOnly, getLateAttendanceController);
+
+// router.get(
+//   "/payroll/check-payslip",
+//   protect,
+//   adminOnly,
+//   checkPayslipGeneratedController
+// );
 
 export default router;

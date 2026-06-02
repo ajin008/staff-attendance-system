@@ -1,7 +1,7 @@
 // app/admin/payroll/page.tsx
 "use client";
 
-import { Search, X, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { usePayroll } from "@/src/hooks/payrole/usePayroll";
 import PayrollTable from "@/components/payroll/PayrollTable";
 import PayrollSummary from "@/components/payroll/PayrollSummary";
@@ -11,16 +11,21 @@ export default function PayrollPage() {
     payrolls,
     summary,
     isLoading,
+    isSummaryLoading,
     pagination,
     selectedMonth,
     selectedYear,
+    selectedDepartmentId,
     searchTerm,
     generatingId,
     months,
     years,
+    departments,
+    isLoadingDepartments,
     handlePageChange,
     handleMonthChange,
     handleYearChange,
+    handleDepartmentChange,
     handleSearch,
     handleGeneratePayslip,
   } = usePayroll();
@@ -84,7 +89,22 @@ export default function PayrollPage() {
 
       {/* Stats Cards Row - Clean & Minimal */}
       <div className="w-full max-w-[1600px] mx-auto px-6 -mt-12">
-        <PayrollSummary summary={summary} />
+        {isSummaryLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl border border-slate-100 p-4 animate-pulse"
+              >
+                <div className="h-3 bg-slate-200 rounded w-20 mb-2" />
+                <div className="h-8 bg-slate-200 rounded w-32 mb-2" />
+                <div className="h-2 bg-slate-200 rounded w-24" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <PayrollSummary summary={summary} />
+        )}
       </div>
 
       {/* Main Content Area */}
@@ -119,6 +139,30 @@ export default function PayrollPage() {
                 {years.map((year) => (
                   <option key={year} value={year}>
                     {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Department Selector Dropdown */}
+            <div className="relative">
+              <select
+                value={
+                  selectedDepartmentId === null ? "" : selectedDepartmentId
+                }
+                onChange={(e) =>
+                  handleDepartmentChange(
+                    e.target.value ? parseInt(e.target.value) : null
+                  )
+                }
+                disabled={isLoadingDepartments}
+                className="pl-3 pr-8 py-1.5 rounded-md border border-slate-200 text-xs font-medium transition-all bg-white text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-0 appearance-none cursor-pointer disabled:bg-slate-50 disabled:text-slate-400"
+                style={selectDropdownStyles}
+              >
+                <option value="">All Departments</option>
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
                   </option>
                 ))}
               </select>

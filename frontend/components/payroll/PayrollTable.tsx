@@ -1,14 +1,18 @@
 // components/admin/payroll/PayrollTable.tsx
 "use client";
 
-import { Loader2, FileText } from "lucide-react";
+import { Loader2, FileText, CheckCircle, Clock } from "lucide-react";
 import type { PayrollRecord } from "@/src/services/payroll.service";
 
 interface PayrollTableProps {
   payrolls: PayrollRecord[];
   isLoading: boolean;
   generatingId: number | null;
-  onGeneratePayslip: (staffId: string, staffName: string) => void;
+  onGeneratePayslip: (
+    staffId: string,
+    staffName: string,
+    index: number
+  ) => void;
 }
 
 export default function PayrollTable({
@@ -17,21 +21,12 @@ export default function PayrollTable({
   generatingId,
   onGeneratePayslip,
 }: PayrollTableProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-2 antialiased">
         <Loader2 className="h-5 w-5 animate-spin text-slate-900" />
         <span className="text-xs font-medium text-slate-400">
-          Loading payroll matrix records...
+          Loading payroll records...
         </span>
       </div>
     );
@@ -45,8 +40,7 @@ export default function PayrollTable({
           No payroll records found
         </p>
         <p className="text-xs text-slate-400 mt-0.5">
-          Try selecting an alternate chronological month or calendar filter
-          parameters.
+          Try selecting a different month or department
         </p>
       </div>
     );
@@ -58,7 +52,10 @@ export default function PayrollTable({
         <thead className="bg-slate-50/70 border-b border-slate-200/60">
           <tr>
             <th className="px-6 py-3.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Staff Member
+              Staff ID
+            </th>
+            <th className="px-6 py-3.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Member Name
             </th>
             <th className="px-6 py-3.5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Department
@@ -72,107 +69,90 @@ export default function PayrollTable({
             <th className="px-6 py-3.5 text-center text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               OT (Hrs)
             </th>
-            <th className="px-6 py-3.5 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              OT Pay
-            </th>
-            <th className="px-6 py-3.5 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Deductions
-            </th>
-            <th className="px-6 py-3.5 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Net Payout
-            </th>
             <th className="px-6 py-3.5 text-center text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Actions
             </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {payrolls.map((payroll) => (
-            <tr
-              key={payroll.id}
-              className="hover:bg-slate-50/40 transition-colors"
-            >
-              {/* Staff Member Metadata */}
-              <td className="px-6 py-3.5 whitespace-nowrap">
-                <div className="space-y-0.5">
-                  <p className="text-xs font-bold text-slate-900">
-                    {payroll.name}
-                  </p>
-                  <p className="text-[10px] font-mono text-slate-400">
+          {payrolls.map((payroll, index) => {
+            const isGenerating = generatingId === index;
+            const isGenerated = payroll.payslipGenerated;
+
+            return (
+              <tr
+                key={payroll.id}
+                className="hover:bg-slate-50/40 transition-colors"
+              >
+                <td className="px-6 py-3.5 whitespace-nowrap">
+                  <p className="text-xs font-mono font-medium text-slate-600">
                     {payroll.staffId}
                   </p>
-                </div>
-              </td>
-
-              {/* Department Block */}
-              <td className="px-6 py-3.5 whitespace-nowrap">
-                <span className="text-xs font-medium text-slate-600">
-                  {payroll.department}
-                </span>
-              </td>
-
-              {/* Present Metric Days */}
-              <td className="px-6 py-3.5 text-center whitespace-nowrap">
-                <span className="text-xs font-bold text-emerald-600">
-                  {payroll.presentDays}
-                </span>
-              </td>
-
-              {/* Absent Metric Days */}
-              <td className="px-6 py-3.5 text-center whitespace-nowrap">
-                <span className="text-xs font-bold text-rose-600">
-                  {payroll.absentDays}
-                </span>
-              </td>
-
-              {/* Raw Overtime Clock Hours */}
-              <td className="px-6 py-3.5 text-center whitespace-nowrap">
-                <span className="text-xs font-medium text-slate-600">
-                  {payroll.overtimeHours.toFixed(1)}
-                </span>
-              </td>
-
-              {/* Calculated Overtime Income Pay */}
-              <td className="px-6 py-3.5 text-right whitespace-nowrap">
-                <span className="text-xs font-medium text-slate-600">
-                  {formatCurrency(payroll.overtimeAmount)}
-                </span>
-              </td>
-
-              {/* Negative Financial Deductions Outflow */}
-              <td className="px-6 py-3.5 text-right whitespace-nowrap">
-                <span className="text-xs font-medium text-rose-600">
-                  {formatCurrency(payroll.deduction)}
-                </span>
-              </td>
-
-              {/* Net Payout Summation */}
-              <td className="px-6 py-3.5 text-right whitespace-nowrap">
-                <span className="text-xs font-bold text-slate-900">
-                  {formatCurrency(payroll.netSalary)}
-                </span>
-              </td>
-
-              {/* Actions Interface Panel Triggers */}
-              <td className="px-6 py-3.5 text-center whitespace-nowrap">
-                <button
-                  type="button"
-                  onClick={() =>
-                    onGeneratePayslip(payroll.staffId, payroll.name)
-                  }
-                  disabled={generatingId === payroll.id}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed shadow-2xs"
-                >
-                  {generatingId === payroll.id ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <FileText className="h-3.5 w-3.5 text-slate-400" />
-                  )}
-                  <span>Payslip</span>
-                </button>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="px-6 py-3.5 whitespace-nowrap">
+                  <p className="text-xs font-semibold text-slate-900">
+                    {payroll.name}
+                  </p>
+                </td>
+                <td className="px-6 py-3.5 whitespace-nowrap">
+                  <span className="text-xs font-medium text-slate-600">
+                    {payroll.department}
+                  </span>
+                </td>
+                <td className="px-6 py-3.5 text-center whitespace-nowrap">
+                  <span className="text-xs font-semibold text-emerald-600">
+                    {payroll.presentDays}
+                  </span>
+                </td>
+                <td className="px-6 py-3.5 text-center whitespace-nowrap">
+                  <span className="text-xs font-semibold text-rose-600">
+                    {payroll.absentDays}
+                  </span>
+                </td>
+                <td className="px-6 py-3.5 text-center whitespace-nowrap">
+                  <span className="text-xs font-medium text-slate-600">
+                    {payroll.overtimeHours?.toFixed(1) || "0.0"}
+                  </span>
+                </td>
+                <td className="px-6 py-3.5 text-center whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-2">
+                    {isGenerated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium">
+                        <CheckCircle className="h-3 w-3" />
+                        Generated
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onGeneratePayslip(payroll.staffId, payroll.name, index)
+                      }
+                      disabled={isGenerating || isGenerated}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all shadow-2xs
+                        ${
+                          isGenerated
+                            ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                            : "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
+                        }
+                      `}
+                      title={
+                        isGenerated
+                          ? "Payslip already generated"
+                          : "Generate payslip"
+                      }
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <FileText className="h-3.5 w-3.5" />
+                      )}
+                      <span>{isGenerated ? "Download" : "Generate"}</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

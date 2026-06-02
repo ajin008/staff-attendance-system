@@ -2,8 +2,13 @@
 
 import {
   countPayrollStaff,
+  findApprovedLeavesByDateRange,
   findAttendanceByDateRange,
+  findExistingPayroll,
+  findPayrollByMonth,
   findPayrollStaff,
+  findPayrollStaffByStaffId,
+  getPayrollSummary,
   updatePayrollPdf,
 } from "../Repository/payroll.repository.js";
 import AppError from "../utils/AppError.js";
@@ -14,6 +19,7 @@ import { generatePayslipPdf } from "../utils/generatePayslipPdf.js";
 import { findOrganizationById } from "../Repository/organization.repository.js";
 import { calculateWorkingDays } from "../utils/calculateWorkingDays.js";
 import { nowIST } from "../utils/nowIST.js";
+import { calculateLeaveDays } from "../utils/payrole/payroll.utils.js";
 
 export const getPayrollService = async ({
   organizationId,
@@ -22,22 +28,18 @@ export const getPayrollService = async ({
   month,
   year,
   search,
+  department,
 }: {
   organizationId: number;
-
   page: number;
-
   limit: number;
-
   month?: string;
-
   year?: number;
-
   search?: string;
+  department?: number | string;
 }) => {
   const skip = (page - 1) * limit;
 
-  // CURRENT DATE
   const currentDate = nowIST();
 
   const monthMap: Record<string, number> = {
@@ -55,79 +57,64 @@ export const getPayrollService = async ({
     december: 11,
   };
 
-  // MONTH
-
   let selectedMonth = currentDate.getMonth();
 
-  // YEAR
+  if (month) {
+    if (!isNaN(Number(month))) {
+      selectedMonth = Number(month) - 1;
+    } else {
+      selectedMonth = monthMap[month.toLowerCase()];
+    }
+  }
+
   const selectedYear = year || currentDate.getFullYear();
 
-  // DATE RANGE
   const startDate = new Date(selectedYear, selectedMonth, 1);
 
   const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
 
-  // FETCH STAFF
   const staff = await findPayrollStaff({
     organizationId,
-
     search,
-
+    department: department?.toString(),
     skip,
-
     limit,
   });
 
-  // PAYROLL PREVIEW
   const payrolls = await Promise.all(
     staff.map(async (user) => {
       // ATTENDANCE
       const attendance = await findAttendanceByDateRange({
         userId: user.id,
-
         startDate,
-
         endDate,
       });
 
-      // SALARY
-      const baseSalary = user.salary || user.department?.defaultSalary || 0;
-
-      // PRESENT DAYS
       const presentDays = attendance.filter(
         (a) => a.attendanceStatus === "present"
       ).length;
 
-      // HALF DAYS
       const halfDays = attendance.filter(
-        (a) => a.attendanceStatus === "half-day"
+        (a) =>
+          a.attendanceStatus === "half_day" || a.attendanceStatus === "half-day"
       ).length;
 
-      // TOTAL DAYS IN MONTH
-      const totalDaysInMonth = new Date(
-        selectedYear,
-        selectedMonth + 1,
-        0
-      ).getDate();
-
-      // ABSENT DAYS
-      const absentDays = totalDaysInMonth - presentDays - halfDays;
-
-      // OVERTIME MINUTES
+      // OVERTIME
       const overtimeMinutes = attendance.reduce(
         (acc, curr) => acc + curr.overtimeMinutes,
         0
       );
 
-      // OVERTIME HOURS
       const overtimeHours = Number((overtimeMinutes / 60).toFixed(2));
 
-      // OVERTIME RATE
-      const overtimeRate =
-        user.overtimeHourlyRate || user.department?.overtimeHourlyRate || 0;
+      // LEAVES
+      const leaves = await findApprovedLeavesByDateRange({
+        userId: user.id,
+        startDate: startDate.toISOString().split("T")[0],
+        endDate: endDate.toISOString().split("T")[0],
+      });
 
-      // OVERTIME AMOUNT
-      const overtimeAmount = Number((overtimeHours * overtimeRate).toFixed(2));
+      const leaveDays = calculateLeaveDays(leaves);
 
       // WORKING DAYS
       const workingDays = calculateWorkingDays({
@@ -136,14 +123,18 @@ export const getPayrollService = async ({
         weeklyOffDays: user.department?.weeklyOffDays || [],
       });
 
-      // DAILY SALARY
-      const dailySalary = baseSalary / workingDays;
+      // ABSENT
+      const absentDays = Math.max(
+        0,
+        workingDays - presentDays - leaveDays - halfDays
+      );
 
-      // DEDUCTION
-      const deduction = absentDays * dailySalary + halfDays * dailySalary * 0.5;
-
-      // NET SALARY
-      const netSalary = baseSalary - deduction + overtimeAmount;
+      // PAYSLIP GENERATED?
+      const payroll = await findPayrollByMonth({
+        userId: user.id,
+        startDate,
+        endDate,
+      });
 
       return {
         id: user.id,
@@ -152,62 +143,36 @@ export const getPayrollService = async ({
 
         name: user.name,
 
-        email: user.email,
-
         department: user.department?.name || "-",
 
         presentDays,
+
+        leaveDays,
 
         absentDays,
 
         overtimeHours,
 
-        overtimeAmount,
+        payslipGenerated: !!payroll,
 
-        baseSalary,
-
-        deduction: Number(deduction.toFixed(2)),
-
-        bonus: 0,
-
-        netSalary: Number(netSalary.toFixed(2)),
-
-        status: "pending",
+        payrollId: payroll?.id ?? null,
       };
     })
   );
 
-  // SUMMARY
-  const totalSalary = payrolls.reduce((acc, curr) => acc + curr.baseSalary, 0);
-
-  const totalDeduction = payrolls.reduce(
-    (acc, curr) => acc + curr.deduction,
-    0
+  const total = await countPayrollStaff(
+    organizationId,
+    search,
+    department?.toString()
   );
-
-  const netPayable = payrolls.reduce((acc, curr) => acc + curr.netSalary, 0);
-
-  // TOTAL STAFF COUNT
-  const total = await countPayrollStaff(organizationId, search);
 
   return {
     payrolls,
 
-    summary: {
-      totalSalary,
-
-      totalDeduction,
-
-      netPayable,
-    },
-
     pagination: {
       page,
-
       limit,
-
       total,
-
       totalPages: Math.ceil(total / limit),
     },
   };
@@ -221,18 +186,13 @@ export const generatePayslipService = async ({
   staffId,
 }: {
   organizationId: number;
-
   adminId: number;
-
   month: string;
-
   year: number;
-
   staffId?: string;
 }) => {
   const currentDate = nowIST();
 
-  // MONTH MAP
   const monthMap: Record<string, number> = {
     january: 0,
     february: 1,
@@ -260,52 +220,70 @@ export const generatePayslipService = async ({
     throw new AppError("Invalid month", 400);
   }
 
-  // DATE RANGE
   const startDate = new Date(year, selectedMonth, 1);
 
   const endDate = new Date(year, selectedMonth + 1, 0, 23, 59, 59);
 
   // STAFF
-  const staff = await findPayrollStaff({
+  const user = await findPayrollStaffByStaffId({
     organizationId,
-
-    search: staffId,
-
-    skip: 0,
-
-    limit: 1,
+    staffId: staffId!,
   });
 
-  if (!staff.length) {
+  if (!user) {
     throw new AppError("Staff not found", 404);
   }
 
-  const user = staff[0];
+  // DUPLICATE CHECK
+  const existingPayroll = await findExistingPayroll({
+    userId: user.id,
+    startDate,
+    endDate,
+  });
+
+  if (existingPayroll) {
+    throw new AppError("Payroll already processed for this month", 409);
+  }
 
   // ATTENDANCE
   const attendance = await findAttendanceByDateRange({
     userId: user.id,
-
     startDate,
-
     endDate,
   });
-
-  // SALARY
-  const baseSalary = user.salary || user.department?.defaultSalary || 0;
 
   const presentDays = attendance.filter(
     (a) => a.attendanceStatus === "present"
   ).length;
 
   const halfDays = attendance.filter(
-    (a) => a.attendanceStatus === "half-day"
+    (a) =>
+      a.attendanceStatus === "half_day" || a.attendanceStatus === "half-day"
   ).length;
 
-  const totalDaysInMonth = new Date(year, selectedMonth + 1, 0).getDate();
+  // LEAVES
+  const leaves = await findApprovedLeavesByDateRange({
+    userId: user.id,
+    startDate: startDate.toISOString().split("T")[0],
+    endDate: endDate.toISOString().split("T")[0],
+  });
 
-  const absentDays = totalDaysInMonth - presentDays - halfDays;
+  const leaveDays = calculateLeaveDays(leaves);
 
+  // WORKING DAYS
+  const workingDays = calculateWorkingDays({
+    month: selectedMonth,
+    year,
+    weeklyOffDays: user.department?.weeklyOffDays || [],
+  });
+
+  // ABSENT
+  const absentDays = Math.max(
+    0,
+    workingDays - presentDays - leaveDays - halfDays
+  );
+
+  // OVERTIME
   const overtimeMinutes = attendance.reduce(
     (acc, curr) => acc + curr.overtimeMinutes,
     0
@@ -313,12 +291,13 @@ export const generatePayslipService = async ({
 
   const overtimeHours = overtimeMinutes / 60;
 
+  // SALARY
+  const baseSalary = user.salary || user.department?.defaultSalary || 0;
+
   const overtimeRate =
     user.overtimeHourlyRate || user.department?.overtimeHourlyRate || 0;
 
   const overtimeAmount = overtimeHours * overtimeRate;
-
-  const workingDays = 26;
 
   const dailySalary = baseSalary / workingDays;
 
@@ -326,7 +305,7 @@ export const generatePayslipService = async ({
 
   const netSalary = baseSalary - deduction + overtimeAmount;
 
-  // CREATE PAYROLL SNAPSHOT
+  // PAYROLL SNAPSHOT
   const payroll = await createPayroll({
     userId: user.id,
 
@@ -353,27 +332,98 @@ export const generatePayslipService = async ({
     netSalary: Number(netSalary.toFixed(2)),
   });
 
+  // ORGANIZATION
   const organization = await findOrganizationById(organizationId);
 
   if (!organization) {
     throw new AppError("Organization not found", 404);
   }
 
+  // PDF
   const pdfFileName = await generatePayslipPdf({
     payroll,
-
     user,
-
     month,
-
     year,
-
     companyName: organization.companyName,
   });
 
   await updatePayrollPdf(payroll.id, pdfFileName);
+
   return {
     payroll,
+
     url: `${process.env.BASE_URL}/uploads/payslips/${pdfFileName}`,
+  };
+};
+
+export const getPayrollSummaryService = async ({
+  organizationId,
+  month,
+  year,
+}: {
+  organizationId: number;
+  month?: string;
+  year?: number;
+}) => {
+  const currentDate = nowIST();
+
+  const monthMap: Record<string, number> = {
+    january: 0,
+    february: 1,
+    march: 2,
+    april: 3,
+    may: 4,
+    june: 5,
+    july: 6,
+    august: 7,
+    september: 8,
+    october: 9,
+    november: 10,
+    december: 11,
+  };
+
+  let selectedMonth = currentDate.getMonth();
+
+  if (month) {
+    if (!isNaN(Number(month))) {
+      selectedMonth = Number(month) - 1;
+    } else {
+      selectedMonth = monthMap[month.toLowerCase()];
+    }
+  }
+
+  const selectedYear = year || currentDate.getFullYear();
+
+  const startDate = new Date(selectedYear, selectedMonth, 1);
+
+  const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
+
+  // Payroll records for selected month
+  const payrollSummary = await getPayrollSummary({
+    organizationId,
+    startDate,
+    endDate,
+  });
+
+  // All staff for salary liability
+  const staff = await findPayrollStaff({
+    organizationId,
+    skip: 0,
+    limit: 10000,
+  });
+
+  const totalSalary = staff.reduce((acc, user) => {
+    const salary = user.salary || user.department?.defaultSalary || 0;
+
+    return acc + salary;
+  }, 0);
+
+  return {
+    totalSalary,
+
+    totalPaid: payrollSummary._sum.netSalary || 0,
+
+    processedPayrolls: payrollSummary._count.id || 0,
   };
 };

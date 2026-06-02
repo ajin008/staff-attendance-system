@@ -4,7 +4,30 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import {
   generatePayslipService,
   getPayrollService,
+  getPayrollSummaryService,
 } from "../Service/payroll.service.js";
+
+export const getPayrollSummaryController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const organizationId = req.user!.organizationId;
+
+    const month = req.query.month as string;
+
+    const year = Number(req.query.year) || new Date().getFullYear();
+
+    const result = await getPayrollSummaryService({
+      organizationId,
+      month,
+      year,
+    });
+
+    res.status(200).json({
+      message: "Payroll summary fetched successfully",
+
+      data: result,
+    });
+  }
+);
 
 export const getPayrollController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -20,6 +43,8 @@ export const getPayrollController = asyncHandler(
 
     const search = req.query.search as string;
 
+    const department = req.query.department as string;
+
     const result = await getPayrollService({
       organizationId,
       page,
@@ -27,11 +52,13 @@ export const getPayrollController = asyncHandler(
       month,
       year,
       search,
+      department,
     });
+
+    console.log("getPayrollController result:", result);
 
     res.status(200).json({
       message: "Payroll data fetched successfully",
-
       data: result,
     });
   }
@@ -66,3 +93,24 @@ export const generatePayslipController = asyncHandler(
     });
   }
 );
+
+// export const checkPayslipGeneratedController = asyncHandler(
+//   async (req: Request, res: Response) => {
+//     const organizationId = req.user!.organizationId;
+
+//     const month = req.query.month as string;
+
+//     const year = Number(req.query.year);
+
+//     const staffId = req.query.staffId as string;
+
+//     const result = await checkPayslipGeneratedService({
+//       organizationId,
+//       month,
+//       year,
+//       staffId,
+//     });
+
+//     res.status(200).json(result);
+//   }
+// );
