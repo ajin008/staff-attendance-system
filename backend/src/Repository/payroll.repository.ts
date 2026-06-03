@@ -212,12 +212,13 @@ export const findExistingPayroll = async ({
   return prisma.payroll.findFirst({
     where: {
       userId,
-      payrollStartDate: startDate,
-      payrollEndDate: endDate,
+      payrollStartDate: {
+        gte: startDate,
+        lte: endDate,
+      },
     },
   });
 };
-
 export const findPayrollByMonth = async ({
   userId,
   startDate,

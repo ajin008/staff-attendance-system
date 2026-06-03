@@ -5,7 +5,9 @@ import {
   generatePayslipService,
   getPayrollService,
   getPayrollSummaryService,
+  processAllPayslipsService,
 } from "../Service/payroll.service.js";
+import { bulkJobStatus } from "../utils/payrole/bulkJobStatus.js";
 
 export const getPayrollSummaryController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -114,3 +116,46 @@ export const generatePayslipController = asyncHandler(
 //     res.status(200).json(result);
 //   }
 // );
+export const processAllPayslipsController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const organizationId = req.user!.organizationId;
+
+    const adminId = req.user!.userId;
+
+    const { month, year, departmentId } = req.body;
+
+    const result = await processAllPayslipsService({
+      organizationId,
+      adminId,
+      month,
+      year,
+      departmentId,
+    });
+
+    res.status(200).json(result);
+  }
+);
+
+export const getBulkPayrollStatusController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const organizationId = req.user!.organizationId;
+
+    const month = req.query.month as string;
+
+    const year = Number(req.query.year);
+
+    const departmentId = req.query.departmentId as string | undefined;
+
+    const key = `${organizationId}-${month}-${year}-${departmentId || "all"}`;
+
+    const status = bulkJobStatus[key] || {
+      total: 0,
+      processed: 0,
+      failed: 0,
+      done: false,
+      status: "idle",
+    };
+
+    res.status(200).json(status);
+  }
+);

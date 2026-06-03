@@ -3,6 +3,7 @@ import api from "../lib/axios";
 import { ENDPOINT } from "../utils/endPoint";
 
 export interface PayrollRecord {
+  pdfUrl: string | undefined;
   id: number;
   staffId: string;
   name: string;
@@ -119,5 +120,50 @@ export const generatePayslip = async (
   payload: GeneratePayslipPayload
 ): Promise<GeneratePayslipResponse> => {
   const response = await api.post(ENDPOINT.GENERATE_PAYSLIP, payload);
+  return response.data;
+};
+
+export interface BulkProgressResponse {
+  total: number;
+  processed: number;
+  status: "idle" | "processing" | "completed" | "failed";
+}
+
+// Generate all payslips (bulk)
+export const generateAllPayslips = async (
+  month: string,
+  year: number,
+  departmentId?: number | null
+): Promise<{ message: string }> => {
+  const params: Record<string, string | number> = {
+    month,
+    year,
+  };
+
+  if (departmentId && departmentId !== undefined && departmentId !== null) {
+    params.departmentId = departmentId;
+  }
+
+  const response = await api.post(ENDPOINT.GENERATE_ALL_PAYSLIPS, params);
+  console.log("generateAllPayslips response:", response.data);
+  return response.data;
+};
+
+// Get bulk processing progress
+export const getBulkProgress = async (
+  month: string,
+  year: number,
+  departmentId?: number | null
+): Promise<BulkProgressResponse> => {
+  const params: Record<string, string | number> = {
+    month,
+    year,
+  };
+
+  if (departmentId && departmentId !== undefined && departmentId !== null) {
+    params.departmentId = departmentId;
+  }
+
+  const response = await api.get(ENDPOINT.BULK_PROGRESS, { params });
   return response.data;
 };

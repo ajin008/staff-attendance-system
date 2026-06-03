@@ -1,7 +1,14 @@
 // app/admin/payroll/page.tsx
 "use client";
 
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Loader2,
+} from "lucide-react";
 import { usePayroll } from "@/src/hooks/payrole/usePayroll";
 import PayrollTable from "@/components/payroll/PayrollTable";
 import PayrollSummary from "@/components/payroll/PayrollSummary";
@@ -22,12 +29,15 @@ export default function PayrollPage() {
     years,
     departments,
     isLoadingDepartments,
+    isBulkProcessing,
+    bulkProgress,
     handlePageChange,
     handleMonthChange,
     handleYearChange,
     handleDepartmentChange,
     handleSearch,
     handleGeneratePayslip,
+    handleGenerateAllPayslips,
   } = usePayroll();
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -55,30 +65,30 @@ export default function PayrollPage() {
     backgroundSize: "14px",
   };
 
+  const progressPercentage =
+    bulkProgress.total > 0
+      ? (bulkProgress.processed / bulkProgress.total) * 100
+      : 0;
+
   return (
     <div className="space-y-6 antialiased">
-      {/* Hero Header Block - Full width like dashboard */}
+      {/* Hero Header Block */}
       <div className="w-full bg-[#0F0F11] text-white pt-10 pb-24 border-b border-neutral-900">
         <div className="w-full max-w-[1600px] mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          {/* Left Column: Context Metadata */}
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-2 text-xs font-mono font-medium text-neutral-500 uppercase tracking-wider">
               <span>Financial Overview</span>
               <span className="text-neutral-700">/</span>
               <span className="text-neutral-300">Payroll Management</span>
             </div>
-
             <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mt-1">
               Salary & Payslips
             </h1>
-
             <p className="text-xs md:text-sm text-neutral-400 font-normal leading-relaxed max-w-xl">
               Manage staff salaries, view payroll summaries, and generate
               official payslips for your workforce.
             </p>
           </div>
-
-          {/* Right Column: Operational Date Badge */}
           <div className="sm:text-right self-end sm:self-start pt-1">
             <span className="text-xs font-mono font-medium tracking-wider text-neutral-400 bg-neutral-900/60 border border-neutral-800/80 px-3 py-1.5 rounded-md inline-block whitespace-nowrap">
               {getFormattedDate()}
@@ -87,11 +97,11 @@ export default function PayrollPage() {
         </div>
       </div>
 
-      {/* Stats Cards Row - Clean & Minimal */}
+      {/* Stats Cards Row */}
       <div className="w-full max-w-[1600px] mx-auto px-6 -mt-12">
         {isSummaryLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[1, 2].map((i) => (
               <div
                 key={i}
                 className="bg-white rounded-xl border border-slate-100 p-4 animate-pulse"
@@ -112,7 +122,7 @@ export default function PayrollPage() {
         {/* Global Toolbar Filters Layout Matrix */}
         <div className="w-full flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex flex-wrap items-center gap-3">
-            {/* Month Selector Dropdown */}
+            {/* Month Selector */}
             <div className="relative">
               <select
                 value={selectedMonth}
@@ -128,7 +138,7 @@ export default function PayrollPage() {
               </select>
             </div>
 
-            {/* Year Selector Dropdown */}
+            {/* Year Selector */}
             <div className="relative">
               <select
                 value={selectedYear}
@@ -144,7 +154,7 @@ export default function PayrollPage() {
               </select>
             </div>
 
-            {/* Department Selector Dropdown */}
+            {/* Department Selector */}
             <div className="relative">
               <select
                 value={
@@ -169,32 +179,71 @@ export default function PayrollPage() {
             </div>
           </div>
 
-          {/* Search Box Form Layout */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="relative w-full sm:w-64"
-          >
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Search by name or staff ID..."
-              className="w-full pl-8 pr-8 py-1.5 rounded-md border border-slate-200 bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 transition-all"
-            />
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </form>
+          <div className="flex items-center gap-3">
+            {/* Generate All Button */}
+            <button
+              onClick={handleGenerateAllPayslips}
+              disabled={isBulkProcessing || isLoading}
+              className="flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
+            >
+              {isBulkProcessing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <FileText className="h-3.5 w-3.5" />
+              )}
+              <span>Generate All Payslips</span>
+            </button>
+
+            {/* Search Box */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="relative w-full sm:w-64"
+            >
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Search by name or staff ID..."
+                className="w-full pl-8 pr-8 py-1.5 rounded-md border border-slate-200 bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-0 transition-all"
+              />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </form>
+          </div>
         </div>
 
-        {/* Tabular Data Grid Wrapper */}
+        {/* Bulk Progress Bar */}
+        {isBulkProcessing && bulkProgress.total > 0 && (
+          <div className="mb-6 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
+                <span className="text-xs font-medium text-slate-700">
+                  Generating payslips...
+                </span>
+              </div>
+              <span className="text-xs font-mono text-slate-500">
+                {bulkProgress.processed} / {bulkProgress.total}
+              </span>
+            </div>
+            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Payroll Table */}
         <div className="w-full bg-white border border-slate-200/60 rounded-xl overflow-hidden shadow-xs">
           <PayrollTable
             payrolls={payrolls}
@@ -204,7 +253,7 @@ export default function PayrollPage() {
           />
         </div>
 
-        {/* Global Pagination Grid Controls Footer */}
+        {/* Pagination */}
         {pagination.totalPages > 1 && (
           <div className="w-full flex items-center justify-between border border-slate-200/60 bg-white rounded-xl p-3 mt-4 shadow-2xs">
             <button
@@ -215,11 +264,9 @@ export default function PayrollPage() {
               <ChevronLeft className="h-3.5 w-3.5" />
               <span>Previous</span>
             </button>
-
             <span className="text-xs font-medium text-slate-500">
               Page {pagination.page} of {pagination.totalPages}
             </span>
-
             <button
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}

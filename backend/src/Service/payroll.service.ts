@@ -20,6 +20,7 @@ import { findOrganizationById } from "../Repository/organization.repository.js";
 import { calculateWorkingDays } from "../utils/calculateWorkingDays.js";
 import { nowIST } from "../utils/nowIST.js";
 import { calculateLeaveDays } from "../utils/payrole/payroll.utils.js";
+import { bulkJobStatus } from "../utils/payrole/bulkJobStatus.js";
 
 export const getPayrollService = async ({
   organizationId,
@@ -156,6 +157,9 @@ export const getPayrollService = async ({
         payslipGenerated: !!payroll,
 
         payrollId: payroll?.id ?? null,
+        pdfUrl: payroll?.pdfUrl
+          ? `${process.env.BASE_URL}/uploads/payslips/${payroll.pdfUrl}`
+          : null,
       };
     })
   );
@@ -425,5 +429,112 @@ export const getPayrollSummaryService = async ({
     totalPaid: payrollSummary._sum.netSalary || 0,
 
     processedPayrolls: payrollSummary._count.id || 0,
+  };
+};
+
+export const processAllPayslipsService = async ({
+  organizationId,
+  adminId,
+  month,
+  year,
+  departmentId,
+}: {
+  organizationId: number;
+  adminId: number;
+  month: string;
+  year: number;
+  departmentId?: number;
+}) => {
+  const key = `${organizationId}-${month}-${year}-${departmentId || "all"}`;
+
+  const existingJob = bulkJobStatus[key];
+
+  if (existingJob?.status === "processing") {
+    throw new AppError("Payroll generation already running", 400);
+  }
+
+  const monthMap: Record<string, number> = {
+    january: 0,
+    february: 1,
+    march: 2,
+    april: 3,
+    may: 4,
+    june: 5,
+    july: 6,
+    august: 7,
+    september: 8,
+    october: 9,
+    november: 10,
+    december: 11,
+  };
+
+  let selectedMonth = monthMap[month.toLowerCase()];
+
+  if (selectedMonth === undefined) {
+    throw new AppError("Invalid month", 400);
+  }
+
+  const startDate = new Date(year, selectedMonth, 1);
+
+  const endDate = new Date(year, selectedMonth + 1, 0, 23, 59, 59);
+
+  const staff = await findPayrollStaff({
+    organizationId,
+    department: departmentId?.toString(),
+    skip: 0,
+    limit: 10000,
+  });
+
+  if (!staff.length) {
+    throw new AppError("No staff found", 404);
+  }
+
+  bulkJobStatus[key] = {
+    total: staff.length,
+    processed: 0,
+    failed: 0,
+    done: false,
+    status: "processing",
+  };
+
+  setImmediate(async () => {
+    for (const user of staff) {
+      try {
+        const existingPayroll = await findExistingPayroll({
+          userId: user.id,
+          startDate,
+          endDate,
+        });
+
+        if (!existingPayroll) {
+          await generatePayslipService({
+            organizationId,
+            adminId,
+            month,
+            year,
+            staffId: user.staffId!,
+          });
+        }
+
+        bulkJobStatus[key].processed++;
+      } catch (error) {
+        console.error(`Failed payroll generation for ${user.staffId}:`, error);
+
+        bulkJobStatus[key].failed++;
+      }
+    }
+
+    bulkJobStatus[key].done = true;
+
+    bulkJobStatus[key].status =
+      bulkJobStatus[key].failed > 0 ? "failed" : "completed";
+  });
+
+  return {
+    message: "Payroll generation started",
+    total: staff.length,
+    processed: 0,
+    failed: 0,
+    status: "processing",
   };
 };

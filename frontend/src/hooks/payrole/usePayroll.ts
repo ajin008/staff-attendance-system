@@ -2,13 +2,16 @@
 // src/hooks/payrole/usePayroll.ts
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   getPayrollList,
   getPayrollSummary,
   generatePayslip,
+  generateAllPayslips,
+  getBulkProgress,
   PayrollRecord,
   PayrollSummary,
+  BulkProgressResponse,
 } from "../../services/payroll.service";
 import { getErrorMessage } from "../../utils/axios";
 import { toast } from "sonner";
@@ -20,8 +23,6 @@ export function usePayroll() {
   const [summary, setSummary] = useState<PayrollSummary>({
     totalSalary: 0,
     totalPaid: 0,
-    totalDeduction: 0,
-    netPayable: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
@@ -46,6 +47,15 @@ export function usePayroll() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = useState(true);
 
+  // Bulk processing states
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<BulkProgressResponse>({
+    total: 0,
+    processed: 0,
+    status: "idle",
+  });
+  const pollingInterval = useRef<NodeJS.Timeout | null>(null);
+
   const months = [
     "January",
     "February",
@@ -63,6 +73,14 @@ export function usePayroll() {
 
   const years = [2024, 2025, 2026, 2027];
 
+  // Stop polling
+  const stopPolling = useCallback(() => {
+    if (pollingInterval.current) {
+      clearInterval(pollingInterval.current);
+      pollingInterval.current = null;
+    }
+  }, []);
+
   // Fetch departments
   const fetchDepartments = useCallback(async () => {
     setIsLoadingDepartments(true);
@@ -76,7 +94,7 @@ export function usePayroll() {
     }
   }, []);
 
-  // Fetch payroll summary (separate call)
+  // Fetch payroll summary
   const fetchPayrollSummary = useCallback(async () => {
     setIsSummaryLoading(true);
     try {
@@ -123,7 +141,6 @@ export function usePayroll() {
         setIsLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       selectedMonth,
       selectedYear,
@@ -138,6 +155,52 @@ export function usePayroll() {
     await Promise.all([fetchPayrollSummary(), fetchPayrollList(1)]);
   }, [fetchPayrollSummary, fetchPayrollList]);
 
+  // Start polling for progress
+  const startPolling = useCallback(() => {
+    stopPolling();
+    pollingInterval.current = setInterval(async () => {
+      try {
+        // Pass current filters to get progress for this specific batch
+        const progress = await getBulkProgress(
+          selectedMonth,
+          selectedYear,
+          selectedDepartmentId
+        );
+        setBulkProgress(progress);
+
+        if (progress.status === "completed" || progress.status === "failed") {
+          stopPolling();
+          setIsBulkProcessing(false);
+
+          if (progress.status === "completed") {
+            toast.success(
+              `Successfully generated ${progress.processed} payslips`
+            );
+            // Refresh the payroll list to show updated statuses
+            await fetchPayrollList(1);
+            // Also refresh summary to update totals
+            await fetchPayrollSummary();
+          } else {
+            toast.error("Bulk processing failed. Please try again.");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching bulk progress:", error);
+        stopPolling();
+        setIsBulkProcessing(false);
+        toast.error("Failed to track bulk processing progress");
+      }
+    }, 3000);
+  }, [
+    stopPolling,
+    fetchPayrollList,
+    fetchPayrollSummary,
+    selectedMonth,
+    selectedYear,
+    selectedDepartmentId,
+  ]);
+
+  // Handle single payslip generation
   const handleGeneratePayslip = async (
     staffId: string,
     staffName: string,
@@ -152,10 +215,11 @@ export function usePayroll() {
       });
       toast.success(`Payslip generated for ${staffName}`);
 
-      // Update local state to reflect that payslip is now generated
       setPayrolls((prev) =>
         prev.map((p, i) =>
-          i === staffIndex ? { ...p, payslipGenerated: true } : p
+          i === staffIndex
+            ? { ...p, payslipGenerated: true, pdfUrl: response.url }
+            : p
         )
       );
 
@@ -168,6 +232,25 @@ export function usePayroll() {
       setGeneratingId(null);
     }
   };
+
+  // Handle bulk payslip generation
+  const handleGenerateAllPayslips = useCallback(async () => {
+    setIsBulkProcessing(true);
+    setBulkProgress({ total: 0, processed: 0, status: "processing" });
+
+    try {
+      await generateAllPayslips(
+        selectedMonth,
+        selectedYear,
+        selectedDepartmentId
+      );
+      toast.info("Bulk processing started. This may take a few moments...");
+      startPolling();
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      setIsBulkProcessing(false);
+    }
+  }, [selectedMonth, selectedYear, selectedDepartmentId, startPolling]);
 
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
@@ -194,10 +277,16 @@ export function usePayroll() {
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, [stopPolling]);
+
   // Fetch data when filters change
   useEffect(() => {
     fetchPayrollData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth, selectedYear, selectedDepartmentId, searchTerm]);
 
   useEffect(() => {
@@ -220,12 +309,15 @@ export function usePayroll() {
     years,
     departments,
     isLoadingDepartments,
+    isBulkProcessing,
+    bulkProgress,
     handlePageChange,
     handleMonthChange,
     handleYearChange,
     handleDepartmentChange,
     handleSearch,
     handleGeneratePayslip,
+    handleGenerateAllPayslips,
     refreshPayroll: fetchPayrollData,
   };
 }

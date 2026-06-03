@@ -53,6 +53,8 @@ export const ENDPOINT = {
   GENERATE_PAYSLIP: "/admin/payroll/process-single",
   GET_PAYROLL_SUMMARY: "/admin/payroll/summary",
   CHECK_PAYSLIP_GENERATED: "/admin/payroll/check-payslip",
+  GENERATE_ALL_PAYSLIPS: "/admin/payroll/process-all",
+  BULK_PROGRESS: "/admin/payroll/bulk-status",
 
   // profile endpoints
   GET_PROFILE: "/admin/profile-settings/get-profile",

@@ -1,7 +1,7 @@
 // components/admin/payroll/PayrollTable.tsx
 "use client";
 
-import { Loader2, FileText, CheckCircle, Clock } from "lucide-react";
+import { Loader2, FileText, CheckCircle, Download } from "lucide-react";
 import type { PayrollRecord } from "@/src/services/payroll.service";
 
 interface PayrollTableProps {
@@ -21,6 +21,12 @@ export default function PayrollTable({
   generatingId,
   onGeneratePayslip,
 }: PayrollTableProps) {
+  const handleDownload = (pdfUrl?: string) => {
+    if (pdfUrl) {
+      window.open(pdfUrl, "_blank");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-2 antialiased">
@@ -117,37 +123,49 @@ export default function PayrollTable({
                 <td className="px-6 py-3.5 text-center whitespace-nowrap">
                   <div className="flex items-center justify-center gap-2">
                     {isGenerated && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium">
-                        <CheckCircle className="h-3 w-3" />
-                        Generated
-                      </span>
+                      <>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium">
+                          <CheckCircle className="h-3 w-3" />
+                          Generated
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(payroll.pdfUrl)}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-blue-600 hover:bg-blue-50 transition-all"
+                          title="Download Payslip"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          <span>Download</span>
+                        </button>
+                      </>
                     )}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onGeneratePayslip(payroll.staffId, payroll.name, index)
-                      }
-                      disabled={isGenerating || isGenerated}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all shadow-2xs
-                        ${
-                          isGenerated
-                            ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-                            : "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
+                    {!isGenerated && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onGeneratePayslip(
+                            payroll.staffId,
+                            payroll.name,
+                            index
+                          )
                         }
-                      `}
-                      title={
-                        isGenerated
-                          ? "Payslip already generated"
-                          : "Generate payslip"
-                      }
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <FileText className="h-3.5 w-3.5" />
-                      )}
-                      <span>{isGenerated ? "Download" : "Generate"}</span>
-                    </button>
+                        disabled={isGenerating}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all shadow-2xs
+                          ${
+                            isGenerating
+                              ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                              : "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
+                          }
+                        `}
+                      >
+                        {isGenerating ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <FileText className="h-3.5 w-3.5" />
+                        )}
+                        <span>Generate</span>
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

@@ -6,9 +6,12 @@ import { StaffNavbar } from "@/components/staff/StaffNavbar";
 import { CheckInOutButton } from "@/components/staff/CheckInOutButton";
 import FloorAllocationCard from "@/components/staff/FloorAllocationCard";
 import { useAuth } from "@/src/context/AuthContext";
+import { useRoleGuard } from "@/src/hooks/useRoleGuard";
 
 export default function StaffDashboardPage() {
   const { user } = useAuth();
+
+  useRoleGuard("staff");
 
   const getFormattedDate = () => {
     return new Date().toLocaleDateString("en-US", {
@@ -25,7 +28,7 @@ export default function StaffDashboardPage() {
 
       {/* Hero Header Block */}
       <div className="w-full bg-[#0F0F11] text-white pt-10 pb-24 border-b border-neutral-900">
-        <div className="w-full max-w-[1600px] mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="w-full max-w-400 mx-auto px-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-2 text-xs font-mono font-medium text-neutral-500 uppercase tracking-wider">
               <span>Overview</span>
@@ -51,7 +54,7 @@ export default function StaffDashboardPage() {
       </div>
 
       {/* Main Content Stage Canvas */}
-      <div className="w-full max-w-[1600px] mx-auto px-6 pb-16 flex-1 -mt-12">
+      <div className="w-full max-w-400 mx-auto px-6 pb-16 flex-1 -mt-12">
         {/* Attendance Action Workspace Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Column 1: Core Action Control Portal */}

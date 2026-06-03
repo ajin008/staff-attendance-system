@@ -29,6 +29,7 @@ const tabs: TabItem[] = [
       </svg>
     ),
   },
+
   {
     id: "floor",
     label: "Floor Map",

@@ -45,8 +45,10 @@ import {
 } from "../controllers/attendance.controller.js";
 import {
   generatePayslipController,
+  getBulkPayrollStatusController,
   getPayrollController,
   getPayrollSummaryController,
+  processAllPayslipsController,
 } from "../controllers/payrole.controller.js";
 import {
   getProfileDetailsController,
@@ -349,6 +351,21 @@ router.get(
 router.get("/payroll/summary", protect, adminOnly, getPayrollSummaryController);
 
 router.get("/attendance/late", protect, adminOnly, getLateAttendanceController);
+
+router.post(
+  "/payroll/process-all",
+  protect,
+  adminOnly,
+  heavyRateLimit,
+  processAllPayslipsController
+);
+
+router.get(
+  "/payroll/bulk-status",
+  protect,
+  adminOnly,
+  getBulkPayrollStatusController
+);
 
 // router.get(
 //   "/payroll/check-payslip",
