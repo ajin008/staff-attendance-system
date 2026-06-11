@@ -1,8 +1,7 @@
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { Request, Response } from "express";
-import { adminStatusService } from "../Service/admin.service.js";
+import { adminStatusService, getTodayAttendanceDataService, getAttendanceDataByDateService } from "../Service/admin.service.js";
 import { getAllStaffService } from "../Service/staff.service.js";
-import { getTodayAttendanceDataService } from "../Service/admin.service.js";
 
 export const getStatusController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -105,3 +104,33 @@ export const getTodayAttendanceDataController = asyncHandler(
     });
   }
 );
+
+export const getAttendanceDataByDateController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const organizationId = req.user!.organizationId;
+    const dateStr = req.query.date as string; // YYYY-MM-DD
+    const branchIdStr = req.query.branchId as string;
+    const departmentIdStr = req.query.departmentId as string;
+
+    if (!dateStr) {
+      res.status(400).json({ message: "Date parameter is required" });
+      return;
+    }
+
+    const branchId = branchIdStr && branchIdStr !== "all" ? parseInt(branchIdStr, 10) : undefined;
+    const departmentId = departmentIdStr && departmentIdStr !== "all" ? parseInt(departmentIdStr, 10) : undefined;
+
+    const result = await getAttendanceDataByDateService(
+      organizationId,
+      dateStr,
+      branchId,
+      departmentId
+    );
+
+    res.status(200).json({
+      message: "Attendance data for date fetched successfully",
+      data: result,
+    });
+  }
+);
+

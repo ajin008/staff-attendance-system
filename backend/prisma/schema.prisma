@@ -120,6 +120,7 @@ model Attendance {
   branch            Branch       @relation(fields: [branchId], references: [id])
   organization      Organization @relation(fields: [organizationId], references: [id])
   user              User         @relation(fields: [userId], references: [id])
+  @@index([userId, checkInTime])
 }
 
 model StaffAllocation {

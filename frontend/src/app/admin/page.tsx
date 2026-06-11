@@ -10,7 +10,7 @@ import DashboardClient from "@/components/admin/admin-dashbaord/DashboardClient"
 import { useAuth } from "@/src/context/AuthContext";
 import NotificationsPage from "./notifications/page";
 import { useRoleGuard } from "@/src/hooks/useRoleGuard";
-// import Attendance from "@/components/admin/attendance/Attendance";
+import Attendance from "@/components/admin/attendance/Attendance";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -31,8 +31,8 @@ export default function AdminPage() {
     switch (activeTab) {
       case "dashboard":
         return <DashboardClient />;
-      // case "Attendance":
-      //   return <Attendance />;
+      case "attendance":
+        return <Attendance />;
       case "floor":
         return <FloorMap />;
       case "payroll":

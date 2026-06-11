@@ -46,7 +46,7 @@ export const loginService = async (
   const isMatch = await bcrypt.compare(password, user.password);
   console.log("Password match:", isMatch);
 
-  if (!isMatch) throw new AppError("invalid password", 401);
+  if (!isMatch) throw new AppError("invalid credentials", 401);
 
   const token = generateToken(user.id, user.organizationId, user.role);
 

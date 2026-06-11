@@ -26,6 +26,7 @@ export const ENDPOINT = {
   // branch
   GET_ALL_BRANCHES: "/admin/branches",
   GET_TODAY_ATTENDANCE_DATA: "/admin/attendance/today",
+  GET_ATTENDANCE_BY_DATE: "/admin/attendance/by-date",
 
   // Floor endpoints
   GET_ALL_FLOORS: "/admin/getAllFloors",

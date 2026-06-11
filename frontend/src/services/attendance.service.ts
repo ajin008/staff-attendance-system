@@ -134,6 +134,23 @@ export const getTodayAttendanceData =
     return response.data;
   };
 
+export const getAttendanceDataByDate = async (
+  date: string,
+  branchId?: string,
+  departmentId?: string
+): Promise<TodayAttendanceDataResponse> => {
+  const queryParams = new URLSearchParams();
+  queryParams.append("date", date);
+  if (branchId && branchId !== "all") queryParams.append("branchId", branchId);
+  if (departmentId && departmentId !== "all")
+    queryParams.append("departmentId", departmentId);
+
+  const response = await api.get<TodayAttendanceDataResponse>(
+    `${ENDPOINT.GET_ATTENDANCE_BY_DATE}?${queryParams.toString()}`
+  );
+  return response.data;
+};
+
 export interface AttendanceRecord {
   id: number;
   date: string;

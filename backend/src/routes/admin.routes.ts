@@ -16,6 +16,7 @@ import {
   updateStaffController,
   deleteStaffController,
   getTodayAttendanceDataController,
+  getAttendanceDataByDateController,
 } from "../controllers/admin.controller.js";
 import {
   deleteBranchController,
@@ -160,6 +161,13 @@ router.get(
   adminOnly,
   readRateLimit,
   getTodayAttendanceDataController
+);
+router.get(
+  "/attendance/by-date",
+  protect,
+  adminOnly,
+  readRateLimit,
+  getAttendanceDataByDateController
 );
 
 router.post(
